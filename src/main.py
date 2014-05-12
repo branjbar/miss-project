@@ -24,21 +24,24 @@ def do_matching():
     db = basic.do_connect()
     basic.do_matching(db)
     
-    
+def feature_set_construct():
+    from modules import basic
+    from modules import feature_extraction
+
+    db = basic.do_connect()
+    records = basic.get_dutch_names(db)
+    for record in records:
+        id = record[0]
+        name = record[1]
+        standard = record[2]
+        document_type = record[3]
+        f_list = feature_extraction.extract_feature(name, standard)
+        #print name, standard, f_list
+        basic.insert_features(db, id, name, standard, document_type, f_list)
+
+
+
 if __name__ == '__main__':
-    do_matching()
-#     from modules import basic
-#     db = basic.do_connect()
-#     basic.generate_relations(db,'birth')
-#     check_a_random_pair()
-
-# import basic
-# db = basic.do_connect()
-# ref1 = basic.get_person(db,994429)
-# ref2 = basic.get_person(db,323640)
-# basic.get_match_score(db,ref1,ref2,0)
-# basic.get_match_score(db,ref1,ref2,1)
-# basic.get_match_score(db,ref1,ref2,2)
-
-
-    
+    feature_set_construct()
+    #from modules import feature_extraction
+    #print feature_extraction.extract_feature('lu2do', 'ludovica')

@@ -10,6 +10,8 @@ and also simple comparison modules for assigning scores to different matches.
 STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, role, register_id, register_type \
           FROM all_persons WHERE "
 
+STANDARD_QUERY_MEERTENS = "SELECT id, name, standard, type FROM meertens_names"
+
 import time
 
 def do_connect(type = 'LOCAL'):
@@ -203,6 +205,31 @@ def get_person(db, person_id = None):
             if reference['first_name'] or reference['last_name']:
                 flag = True # if the person has name, then flag is toggled
         return reference
+
+def get_dutch_names(db):
+    ''' () --> [id, name, standard]
+
+    returns the list of names and their ids and standards
+    '''
+
+    cur = run_query(db, STANDARD_QUERY_MEERTENS)
+    return cur.fetchall()
+
+def insert_features(db, id, name, standard, document_type,  f_list):
+    """ (database, int, string, string, list) --> Null
+    insert a feature list to the database
+    """
+    name = name.replace('"',",")
+    query = "insert into meertens_names_features (id, name, standard, type,  f1, f2, f3, f4, f5, f6, f7, f8, f9, f10) values (" \
+            + str(id) + ',"' + name + '","' + standard + '","' + document_type + '", ' + str(f_list[0]) + "," + str(f_list[1]) + "," + str(f_list[2]) + "," \
+            + str(f_list[3]) + "," + str(f_list[4]) + "," + str(f_list[5]) + "," + str(f_list[6]) + "," + str(f_list[7]) + "," \
+            + str(f_list[8]) + "," + str(f_list[9])+ ')'
+
+    #print query
+
+    cursor = db.cursor()
+    cursor.execute(query)
+
 
     
 def get_family_new(db, person):
@@ -556,7 +583,26 @@ def generate_relations(db, doc_type):
             query = ''
 
                         
-        
+def longest_common_substring(s1, s2):
+    """ (string, string) --> (integer)
+    extracts the longest common substring available between two codes
+    Source: http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Longest_common_substring
+
+    """
+
+    m = [[0] * (1 + len(s2)) for i in xrange(1 + len(s1))]
+    longest, x_longest = 0, 0
+    for x in xrange(1, 1 + len(s1)):
+        for y in xrange(1, 1 + len(s2)):
+            if s1[x - 1] == s2[y - 1]:
+                m[x][y] = m[x - 1][y - 1] + 1
+                if m[x][y] > longest:
+                    longest = m[x][y]
+                    x_longest = x
+            else:
+                m[x][y] = 0
+
+    return s1[x_longest - longest: x_longest]
     
     
     
