@@ -14,12 +14,12 @@ import time
 
 def do_connect(type = 'LOCAL'):
     ''' 
-    connects to either the Swarmlab-srv01 (SRV) server, or the localhost (LOCAL). 
+    connects to either the server (SRV), or the localhost (LOCAL).
     
     Instructions for connecting to server: 
         First, you should setup an SSH tunel using:
-        ssh bijan@swarmlab-srv01 -L 9990:localhost:3306
-        Please not that you cannot connect from outside the unimass network to this server
+        ssh USER@SERVER -L 9990:localhost:3306
+        Please not that you cannot connect from outside the network to this server
     '''
     #!/usr/bin/python
     import MySQLdb
