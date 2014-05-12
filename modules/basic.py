@@ -26,7 +26,7 @@ def do_connect(type = 'LOCAL'):
     if type == "SRV":
         db = MySQLdb.connect(host="127.0.0.1", 
                              user="bijan", 
-                              passwd="bhic", 
+                              passwd="****", 
                               db="links_based")
         db.autocommit(True)
         return db
