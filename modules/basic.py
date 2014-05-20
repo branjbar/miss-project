@@ -157,18 +157,20 @@ def get_match_score(db, ref1, ref2, level):
     
     print("ERROR: Choose the right context level from {0, 1, 2, 3}")
 
-def row_to_reference(db, row, table = "all_persons"):
+
+def row_to_reference(db, row, table="all_persons"):
     ''' (list, table) -> (dict)
     adds labels to different elements of the list, according to the table type,
     and makes a reference
     '''
-    # first get the geocode:
-    place = row[4]
-    query = 'select latitude, longitude from geocode where municipality = "' + place + '"'
-    cur = run_query(db, query) # fetch the person with the the random id
-    geocode = cur.fetchone()
-    
+
     if table == 'all_persons':
+        # first get the geocode:
+        place = row[4]
+        query = 'select latitude, longitude from geocode where municipality = "' + place + '"'
+        cur = run_query(db, query) # fetch the person with the the random id
+        geocode = cur.fetchone()
+
         ref = {}
         ref['id'] = row[0]
         ref['first_name'] = row[1]
@@ -180,7 +182,24 @@ def row_to_reference(db, row, table = "all_persons"):
         ref['register_id'] = row[7]
         ref['register_type'] = row[8]
         return ref
-    
+
+    if table == 'all_documents':
+        ref = {}
+        ref['id'] = row[0]
+        ref['type_number'] = row[1]
+        ref['archive'] = row[2]
+        ref['type_text'] = row[3]
+        ref['date'] = row[4]
+        ref['index'] = row[5]
+        ref['province'] = row[6]
+        ref['municipality'] = row[7]
+        ref['latitude'] = row[8]
+        ref['longitude'] = row[9]
+        ref['access no.'] = row[10]
+        ref['inventory no.'] = row[11]
+        return ref
+
+
 def get_person(db, person_id = None):
     ''' (integer) -> (dict)
     return a person with the id
@@ -205,6 +224,40 @@ def get_person(db, person_id = None):
             if reference['first_name'] or reference['last_name']:
                 flag = True # if the person has name, then flag is toggled
         return reference
+
+
+def get_document(db, document_id = None):
+    ''' (integer) -> (dict)
+    return a document with the id
+    '''
+
+    # if no id then find a random person
+    if document_id:
+        cur = run_query(db, 'SELECT * FROM all_documents where id =' + str(document_id))
+        row = cur.fetchone()
+        if row:
+            reference = row_to_reference(db, row, "all_documents")
+        else:
+            reference = {}
+
+        return reference
+
+    if not document_id:
+        flag = False  # this flag is used to be sure we get a valid person (i.e., has at least name)
+        while not flag:
+
+            # generate a random number
+            from random import randrange
+            document_id = randrange(2846095,23729952)
+
+            cur = run_query(db, 'SELECT * FROM all_documents where id =' + str(document_id))
+            row = cur.fetchone()
+            if row:
+                flag = True # if the person has name, then flag is toggled
+
+        reference = row_to_reference(db, row, "all_documents")
+        return reference
+
 
 def get_dutch_names(db):
     ''' () --> [id, name, standard]

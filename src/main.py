@@ -25,6 +25,9 @@ def do_matching():
     basic.do_matching(db)
     
 def feature_set_construct():
+    """
+        constructs the feature sets for all standard dutch names and inserts that into the feature table
+    """
     from modules import basic
     from modules import feature_extraction
 
@@ -42,6 +45,5 @@ def feature_set_construct():
 
 
 if __name__ == '__main__':
-    feature_set_construct()
-    #from modules import feature_extraction
-    #print feature_extraction.extract_feature('lu2do', 'ludovica')
+    from interface import main_Interface
+    main_Interface.main()
