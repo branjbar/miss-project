@@ -5,137 +5,39 @@ STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, rol
 
 
 from modules import basic
+from modules import loadData
+import random
 
 
-def row_to_reference(db, row, table="all_persons"):
-    ''' (list, table) -> (dict)
-    adds labels to different elements of the list, according to the table type,
-    and makes a reference
-    '''
-
-    if table == 'all_persons':
-        # first get the geocode:
-        place = row[4]
-        if place:
-            query = 'select latitude, longitude from geocode where municipality = "' + place + '"'
-            cur = basic.run_query(db, query) # fetch the person with the the random id
-            geocode = cur.fetchone()
-        else:
-            geocode = None
-
-        ref = {}
-        ref['id'] = row[0]
-        ref['first_name'] = row[1].decode('ascii','ignore')
-        ref['last_name'] = row[2].decode('ascii','ignore')
-        ref['year'] = row[3][6:12]
-        ref['place'] = geocode
-        ref['gender'] = row[5]
-        # if not row[5] or not (row[5] == "male" or row[5] == "female"):
-        #     ref['gender'] = basic.estimate_gender(db, row[1])
-
-        ref['role'] = row[6]
-        ref['register_id'] = row[7]
-        ref['register_type'] = row[8]
-
-        return ref
-
-    if table == 'all_documents':
-        ref = {}
-        key_dict = {0:'id', 1: 'type_number', 2: 'archive', 3: 'type_text', 4: 'date', 5: 'index',
-         6: 'municipality', 7: 'latitude', 8: 'longitude', 9: 'access no.', 10: 'inventory no.', 11: "reference_ids"}
-        for key in key_dict.keys():
-            ref[key_dict[key]] = row[key]
-
-        return ref
-
-    if table == 'blocks':
-        ref = {}
-        key_dict = {0: 'id', 1: 'block_key', 2: 'block_size', 3: 'components'}
-
-        for key in key_dict.keys():
-            ref[key_dict[key]] = row[key]
-        return ref
-
-    if table == 'links':
-        ref = {}
-        key_dict = {0: 'type', 1: 'id1', 2: 'id2', 3: 'role1', 4: 'role2', 5: 'id'}
-
-        for key in key_dict.keys():
-            ref[key_dict[key]] = row[key]
-        return ref
-
-
-
-def get_person(db, person_id = None):
+def get_person(person_id = None):
     ''' (db, integer) -> (dict)
     return a person with the id
     '''
 
-    # if no id then find a random person
-    if person_id:
-        cur = basic.run_query(db, STANDARD_QUERY + ' id = ' + str(person_id)) # fetch the person with the the random id
-        row = cur.fetchone()
-        reference = {}
-        if row:
-            reference = row_to_reference(db, row)
-        return reference
+    if loadData.table_all_persons:
+        if not person_id and loadData.table_all_persons:
+            person_id = random.choice(loadData.table_all_persons.keys())
 
-    if not person_id:
-        flag = False  # this flag is used to be sure we get a valid person (i.e., has at least name)
-        while not flag:
-
-            # generate a random number
-            from random import randrange
-            person_id = randrange(1,5244863)
-
-            cur = basic.run_query(db, STANDARD_QUERY + ' id = ' + str(person_id)) # fetch the person with the the random id
-            reference = row_to_reference(db, cur.fetchone())
-            if reference['first_name'] or reference['last_name']:
-                flag = True # if the person has name, then flag is toggled
-        return reference
+        person = loadData.table_all_persons.get(person_id)
+        return person
+    else:
+        return None
 
 
-def get_document(db, document_id = None):
+def get_document(document_id = None):
     ''' (db, integer) -> (dict)
     return a document with the id
     '''
     # if no id then find a random person
-    if document_id:
-        document_query = "SELECT all_documents.id, type_number, archive, type_text, date, `index`, province, " \
-                     "municipality, latitude, `access no.`, `inventory no.`, group_concat(all_persons.id SEPARATOR ', ') " \
-                     "FROM all_documents join all_persons where all_documents.id = " \
-                      + str(document_id) + " and all_documents.id = all_persons.register_id "
 
-        cur = basic.run_query(db, document_query)
-        row = cur.fetchone()
-        if row:
-            reference = row_to_reference(db, row, "all_documents")
-        else:
-            reference = {}
+    if loadData.table_all_documents:
+        if not document_id and loadData.table_all_documents:
+            document_id = random.choice(loadData.table_all_documents.keys())
 
-        return reference
-
-    if not document_id:
-        flag = False  # this flag is used to be sure we get a valid person (i.e., has at least name)
-        while not flag:
-
-            # generate a random number
-            from random import randrange
-            document_id = randrange(2846095,23729952)
-
-            document_query = "SELECT all_documents.id, type_number, archive, type_text, date, `index`, province, " \
-                         "municipality, latitude, `access no.`, `inventory no.`, group_concat(all_persons.id SEPARATOR ', ') " \
-                         "FROM all_documents join all_persons where all_documents.id = " \
-                          + str(document_id) + " and all_documents.id = all_persons.register_id "
-
-
-            cur = basic.run_query(db, document_query)
-            row = cur.fetchone()
-
-            if row[0]:
-                flag = True # if the person has name, then flag is toggled
-        reference = row_to_reference(db, row, "all_documents")
-        return reference
+        document = loadData.table_all_documents.get(document_id)
+        return document
+    else:
+        return None
 
 
 def get_block(db, block_id = None):
@@ -185,20 +87,24 @@ def get_links(db, link_id = None):
 
     return reference
 
-def get_relatives(db, person_id):
+def get_relatives(person_id):
     """
      uses the 'relations' table in order to extract the id of all relatives of person_id
     """
-    relatives_id = []
+    modified_relative_ids = []
     if person_id:
-        relative_query = 'select ref2, relation_type from relations where ref1 = ' + str(person_id)
-        cur = basic.run_query(db, relative_query)
-        rows = cur.fetchall()
-        if rows:
-            for row in rows:
-                relatives_id.append([row[0],row[1]])
 
-    return relatives_id
+        key_d = int(loadData.table_all_persons.get(person_id)['register_id'])
+
+        if loadData.table_all_documents.get(key_d):
+
+            relatives = loadData.table_all_documents[key_d]['reference_ids']
+            relative_ids = relatives.split(',')
+            for i in relative_ids:
+                if int(i) != person_id:
+                    modified_relative_ids.append(int(i))
+
+    return modified_relative_ids
 
 if __name__ == "__main__":
     db = basic.do_connect()

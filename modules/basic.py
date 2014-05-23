@@ -14,7 +14,8 @@ STANDARD_QUERY_MEERTENS = "SELECT id, name, standard, type FROM meertens_names"
 
 import time
 
-def do_connect(type = 'LOCAL'):
+
+def do_connect(type='LOCAL'):
     ''' 
     connects to either the server (SRV), or the localhost (LOCAL).
     
@@ -44,11 +45,11 @@ def do_connect(type = 'LOCAL'):
 
 
 def run_query(db, query):
-    ''' (string) -> (query)
+    """ (string) -> (query)
     gets a SQL query and returns the list of results
-    '''
+    """
     
-    cur = db.cursor() 
+    cur = db.cursor()
     cur.execute(query)
     return cur
 
@@ -696,10 +697,30 @@ def estimate_gender(db, name):
     return gender
 
 
-    
+def main():
+    db = do_connect()
+    # load_data(db, 10000)
+
+
 if __name__ == '__main__':
     db = do_connect()
-    print estimate_gender(db, 'cornelis')
+    from modules import loadData
+    loadData.main()
+    refs_dict = {}
+    for key_d in loadData.table_all_documents.keys():
+        __now__ = time.time()
+        s = ''
+        for key_p in loadData.table_all_persons.keys():
+            # print key_p, loadData.table_all_persons[key_p]['register_id'], key_d
+            if loadData.table_all_persons[key_p]['register_id'] == str(key_d):
+                s += str(key_p) + ','
+
+        query = 'update all_documents set reference_ids = %s where id = %s ;' % (s[:-1],key_d)
+        run_query(db, query)
+        print time.time() - __now__
+
+
+
 #     db = do_connect('SRV')
 #     do_matching(1);
 #     print count_islands(0)

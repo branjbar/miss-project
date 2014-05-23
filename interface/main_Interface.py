@@ -47,6 +47,13 @@ def routing():
 
 
     @app.route('/', methods=['GET', 'POST'])
+    def home():
+        return render_template('index.html', header="Welcome!"
+                               ,  message="to MiSS Web Interface. Use the upper "
+                                          "menu to proceed with data exploration. You "
+                                          "can start with loading data!")
+
+
     @app.route('/person/', methods=['GET', 'POST'])
     @app.route('/person/<p_id>', methods=['GET', 'POST'])
     def person_page(p_id=None):
@@ -55,15 +62,19 @@ def routing():
         if search_id and search_id.isdigit():
             p_id = int(search_id)
 
-        db = basic.do_connect()
-        person = myOrm.get_person(db,p_id)
-        rel = {}
-        if person.get('id'):
-            relatives_id = myOrm.get_relatives(db, person['id'])
-            for relative in relatives_id:
-                rel[relative[1]] = myOrm.get_person(db, relative[0])
+        person = myOrm.get_person(p_id)
+        if person:
+            rel = {}
+            if person:
+                relatives_id = myOrm.get_relatives(person['id'])
+                for index, relative in enumerate(relatives_id):
+                    relative_person = myOrm.get_person(relative)
+                    if relative_person:
+                        rel['Relative_' + str(index)] = relative_person
 
-        return render_template('index.html', p=person, p2=rel, name='bijan')
+            return render_template('index.html', p=person, p2=rel, name='bijan')
+        else:
+            return render_template('index.html', message='No results found!', name='bijan')
 
     @app.route('/document/', methods=['GET', 'POST'])
     @app.route('/document/<p_id>', methods=['GET', 'POST'])
@@ -73,16 +84,17 @@ def routing():
         if search_id and search_id.isdigit():
             p_id = int(search_id)
 
-        db = basic.do_connect()
-        document = myOrm.get_document(db,p_id)
+        document = myOrm.get_document(p_id)
         ref_dict = {}
-        if document.get('reference_ids'):
+        if document:
             for ref in document.get('reference_ids').split(','):
-                ref_person = myOrm.get_person(db, ref)
-                ref_dict['Role' + str(ref_person['role']) + '_' + ref_person['gender']] =  ref_person
+                ref_person = myOrm.get_person(ref)
+                if ref_person:
+                    ref_dict['Role' + str(ref_person['role']) + '_' + ref_person['gender']] = ref_person
 
-        return render_template('index.html', p=document, p2=ref_dict, name='bijan')
-
+            return render_template('index.html', p=document, p2=ref_dict, name='bijan')
+        else:
+            return render_template('index.html', message='No results found!', name='bijan')
 
     @app.route('/block/', methods=['GET', 'POST'])
     @app.route('/block/<p_id>', methods=['GET', 'POST'])
@@ -96,6 +108,16 @@ def routing():
         block = myOrm.get_block(db,p_id)
         return render_template('index.html', p = block, name='bijan')
 
+
+    @app.route('/load_data/', methods=['GET', 'POST'])
+    def load_data():
+        from modules import loadData
+        if not len(loadData.table_all_documents):
+            loadData.main(10000)
+        tables = {'Persons': len(loadData.table_all_persons),
+                  'Person_Blocks':len(loadData.table_all_persons_features),
+                  'Documents':len(loadData.table_all_documents),}
+        return render_template('index.html', message="Data is loaded!", p=tables, name='bijan')
 
     @app.route('/link/', methods=['GET', 'POST'])
     @app.route('/link/<p_id>', methods=['GET', 'POST'])
@@ -138,8 +160,6 @@ def routing():
 
 
 def main():
-
-
     routing()
 
 if __name__ == "__main__":
