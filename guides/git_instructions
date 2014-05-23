@@ -1,0 +1,11 @@
+Git Instructions:
+
+
+# get status
+git status
+
+# updating new stuff
+git add [file/folder]
+git commit -am [comments]
+git push
+

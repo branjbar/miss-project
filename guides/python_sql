@@ -1,0 +1,7 @@
+# copy the queries in a text file:
+with open(“query.sql", "a") as myfile:
+	myfile.write(query)
+
+
+# From command window runs sql query:
+mysql links_based -uroot < query.sql
