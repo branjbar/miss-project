@@ -29,7 +29,7 @@ def feature_set_construct():
         constructs the feature sets for all standard dutch names and inserts that into the feature table
     """
     from modules import basic
-    from modules import feature_extraction
+    from modules import featureExtraction
 
     db = basic.do_connect()
     records = basic.get_dutch_names(db)
@@ -38,7 +38,7 @@ def feature_set_construct():
         name = record[1]
         standard = record[2]
         document_type = record[3]
-        f_list = feature_extraction.extract_feature(name, standard)
+        f_list = featureExtraction.extract_feature(name, standard)
         #print name, standard, f_list
         basic.insert_features(db, id, name, standard, document_type, f_list)
 

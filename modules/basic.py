@@ -166,10 +166,14 @@ def row_to_reference(db, row, table="all_persons"):
 
     if table == 'all_persons':
         # first get the geocode:
+
         place = row[4]
-        query = 'select latitude, longitude from geocode where municipality = "' + place + '"'
-        cur = run_query(db, query) # fetch the person with the the random id
-        geocode = cur.fetchone()
+        if place:
+            query = 'select latitude, longitude from geocode where municipality = "' + place + '"'
+            cur = run_query(db, query) # fetch the person with the the random id
+            geocode = cur.fetchone()
+        else:
+            geocode = None
 
         ref = {}
         ref['id'] = row[0]
@@ -181,6 +185,7 @@ def row_to_reference(db, row, table="all_persons"):
         ref['role'] = row[6]
         ref['register_id'] = row[7]
         ref['register_type'] = row[8]
+
         return ref
 
     if table == 'all_documents':
@@ -201,6 +206,9 @@ def row_to_reference(db, row, table="all_persons"):
 
 
 def get_person(db, person_id = None):
+
+    print 'wrong get_person is used!!'
+
     ''' (integer) -> (dict)
     return a person with the id
     '''
@@ -227,6 +235,8 @@ def get_person(db, person_id = None):
 
 
 def get_document(db, document_id = None):
+
+    print 'wrong get_document is used!!'
     ''' (integer) -> (dict)
     return a document with the id
     '''
@@ -657,10 +667,39 @@ def longest_common_substring(s1, s2):
 
     return s1[x_longest - longest: x_longest]
     
+
+def estimate_gender(db, name):
+    """
+    estimates the gender of a person using the majority of people with the same name
+    """
+    # import time
+    if name:
+        name = str(name)
+        first_part = name.split()[0]
+        query = 'select gender, count(*) from ( select gender from all_persons where first_name like "' \
+                + first_part + '" and (gender = "male" or gender = "female") limit 50) as table_gender' \
+                + ' group by gender order by count(*) desc limit 1 ;'
+
+        # print query
+        # print query
+        # t = time.time()
+        cur = run_query(db, query)
+        row = cur.fetchone()
+        if row:
+            gender = row[0]
+        else:
+            gender = 'unknown'
+
+    else:
+        return None
+    # print 'estimation time: ', time.time() - t
+    return gender
+
+
     
-    
-# if __name__ == '__main__':
-#     #db = do_connect()
+if __name__ == '__main__':
+    db = do_connect()
+    print estimate_gender(db, 'cornelis')
 #     db = do_connect('SRV')
 #     do_matching(1);
 #     print count_islands(0)
