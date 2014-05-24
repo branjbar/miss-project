@@ -9,16 +9,33 @@ from modules import loadData
 import random
 
 
+def row_to_reference(db, row, table="all_persons"):
+    ''' (list, table) -> (dict)
+    adds labels to different elements of the list, according to the table type,
+    and makes a reference
+    '''
+
+
+    if table == 'links':
+        ref = {}
+        key_dict = {0: 'type', 1: 'id1', 2: 'id2', 3: 'role1', 4: 'role2', 5: 'id'}
+
+        for key in key_dict.keys():
+            ref[key_dict[key]] = row[key]
+        return ref
+
+
+
+
 def get_person(person_id = None):
     ''' (db, integer) -> (dict)
     return a person with the id
     '''
-
     if loadData.table_all_persons:
         if not person_id and loadData.table_all_persons:
             person_id = random.choice(loadData.table_all_persons.keys())
 
-        person = loadData.table_all_persons.get(person_id)
+        person = loadData.table_all_persons.get(int(person_id))
         return person
     else:
         return None
@@ -31,21 +48,32 @@ def get_document(document_id = None):
     # if no id then find a random person
 
     if loadData.table_all_documents:
-        if not document_id and loadData.table_all_documents:
+        if not document_id:
             document_id = random.choice(loadData.table_all_documents.keys())
 
-        document = loadData.table_all_documents.get(document_id)
+        document = loadData.table_all_documents.get(int(document_id))
         return document
     else:
         return None
 
 
-def get_block(db, block_id = None):
+def get_block(block_id = None):
     """ (db, integer) -> (dict)
     return the block information with the id
     """
 
-    # if no id provided then get a random block
+    if loadData.block_dict:
+
+        if not block_id:
+            block_id = random.choice(loadData.block_dict.keys())
+
+        block = loadData.block_dict.get(block_id)
+        return block
+
+    else:
+        return None
+
+
     if not block_id:
         from random import randrange
         cur = basic.run_query(db, 'select min(block_id), max(block_id) from all_persons_features ')

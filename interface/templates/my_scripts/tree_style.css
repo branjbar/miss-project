@@ -1,0 +1,25 @@
+
+            text {
+              font-family: "Helvetica Neue", Helvetica, sans-serif;
+              font-size: x-small;
+            }
+
+            .name {
+              font-weight: bold;
+            }
+
+            .id {
+              fill: #933;
+              font-size: x-small;
+            }
+
+            .about {
+              fill: #777;
+              font-size: xx-small;
+            }
+
+            .link {
+              fill: none;
+              stroke: #800;
+              shape-rendering: crispEdges;
+            }

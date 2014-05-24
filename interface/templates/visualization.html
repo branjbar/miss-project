@@ -54,97 +54,61 @@
       </div><!-- /.container -->
     </div><!-- /.navbar -->
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+
     <div class="container">
-        {% if message %}
-            <div class="jumbotron">
-                <h1> {{header}} </h1>
-                <p>{{message}}</p>
-            </div>
-        {% endif %}
+        <!--{% if message %}-->
+        <!--<div class="jumbotron">-->
+            <!--<h1> {{header}} </h1>-->
+            <!--<p>{{message}}</p>-->
+        <!--</div>-->
+        <!--{% endif %}-->
 
 
-   {% if p is defined %}
-      <div class="row row-offcanvas row-offcanvas-right">
+                {% if message or header %}
+                    <div class="jumbotron">
+                        <h1> {{header}} </h1>
+                        <p>{{message}}</p>
+                    </div>
+                {% endif %}
 
-          <div class="col-xs-14 col-sm-12 sidebar-offcanvas" id="sidebar" role="navigation">
-          <div class="list-group">
-            {% for key,value in p.iteritems() %}
-            <b> {{key}}</b>: {{value}}
-              <br>
-            {% endfor %}
-          </div>
-        </div><!--/span-->
-      </div><!--/row-->
-   {% endif %}
+           {% if p is defined %}
+              <div class="row row-offcanvas row-offcanvas-right">
 
-   {% if p2 is defined %}
-      <div class="row row-offcanvas row-offcanvas-right">
-        <hr>
-            {% for p2_key, p2_value in p2.iteritems() %}
-            <div class="col-xs-3 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
-              <div class="list-group">
-                <h3>({{p2_key}})</h3>
-                {% for key,value in p2_value.iteritems() %}
-                <b> {{key}}</b>: {{value}}
-                  <br>
-                {% endfor %}
-              </div>
-            </div>
-            {% endfor %}
-      </div>
-   {% endif %}
+                  <div class="col-xs-14 col-sm-12 sidebar-offcanvas" id="sidebar" role="navigation">
+                  <div class="list-group">
+                    {% for key,value in p.iteritems() %}
+                    <b> {{key}}</b>: {{value}}
+                      <br>
+                    {% endfor %}
+                  </div>
+                </div><!--/span-->
+              </div><!--/row-->
+           {% endif %}
 
-   {% if p3 is defined %}
-      <div class="row row-offcanvas row-offcanvas-right">
-        <hr>
-            {% for p3_key, p3_value in p3.iteritems() %}
-            <div class="col-xs-3 col-sm-2 sidebar-offcanvas" id="sidebar" role="navigation">
-              <div class="list-group">
-                <h4>{{p3_key}}</h4>
-                {% for key,value in p3_value.iteritems() %}
-                <small><b> {{key}}</b>: {{value}} </small>
-                  <br>
-                {% endfor %}
-              </div>
-            </div>
-            {% endfor %}
-      </div>
-   {% endif %}
-        <!--<div class="col-xs-12 col-sm-9">-->
-            <!--<p class="pull-right visible-xs">-->
-            <!--<button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>-->
-          <!--</p>-->
-
-        <!--</div>&lt;!&ndash;/span&ndash;&gt;-->
+            <div class="col-xs-14 col-sm-14 sidebar-offcanvas"  role="navigation">
+                <hr>
+                <div class="col-sm-6" id="graph1"> </div>
+                <div class="col-sm-6" id="graph2"> </div>
+                <!--<div id="graph3"> </div>-->
+        </div><!--/row-->
 
 
 
-      <hr>
-
-      <footer>
-        <p class="pull-right">&copy; MiSS 2014</p>
-      </footer>
+        <footer>
+            <p class="pull-right">&copy; MiSS 2014</p>
+        </footer>
 
     </div><!--/.container-->
-
-
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="{{ url_for('static',filename = 'bootstrap/js/bootstrap.min.js')}}"></script>
+    <script src="{{ url_for('static',filename = 'd3/d3.js')}}"></script>
+    {% if json_dict %}
+        <script> {% include "my_scripts/draw_tree_h.js" %} </script>
+        <script> {% include "my_scripts/draw_tree_v.js" %} </script>
+        <style> {%include "my_scripts/tree_style.css" %}</style>
+    {% endif %}
 
-   {% if p is defined %}
-    <script type="text/javascript">
-        var stateObj = { foo: "bar" };
-        function change_my_url()
-        {
-           history.pushState(stateObj, "page 1", "{{p.id}}");
-        }
-        change_my_url()
-    </script>
-   {% endif %}
+
 
   </body>
 </html>
