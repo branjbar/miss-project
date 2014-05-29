@@ -1,0 +1,34 @@
+Dear Antoon,
+
+This is an automatically generated email.
+
+FYI, there might be an error in document number {{document['id']}}.
+
+Document information:
+
+    {% for key, value in document.iteritems() %}
+    
+     {{key}} : {{value}}
+
+    {% endfor %}
+
+
+Person Details:
+
+    {% for person in person_list %}
+          Person ID: {{person['id']}}
+          Role: {{person['role']}}
+          First Name: {{person['first_name']}}
+          Last Name: {{person['last_name']}}
+    
+    {% endfor %}
+
+
+Comments:
+{{comment}}
+
+
+Regards,
+
+MiSS Member
+{{user}}

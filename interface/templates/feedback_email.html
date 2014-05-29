@@ -1,0 +1,43 @@
+<p>Dear Antoon,</p>
+
+<p>This is an automatically generated email.</p>
+
+<p>FYI, there might be an error in document number <i>{{document['id']}}</i>.</p>
+
+<h3>Document information:</h3>
+<table>
+    {% for key, value in document.iteritems() %}
+    <tr>
+    <td> <b>{{key}}</b> </td> <td> {{value}} </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Person Details:</h3>
+<table>
+    <tr>
+        <td> <b> ID </b></td>
+        <td> <b> Role </b></td>
+        <td> <b> First Name </b></td>
+        <td> <b> Last Name </b></td>
+    </tr>
+    {% for person in person_list %}
+        <tr>
+            <td>{{person['id']}}</td>
+            <td>{{person['role']}}</td>
+            <td>{{person['first_name']}}</td>
+            <td>{{person['last_name']}}</td>
+        </tr>
+    {% endfor %}
+
+</table>
+
+<h3>Comments:</h3>
+<i>{{comment}}</i>
+
+<hr>
+
+<p>Regards,</p>
+
+<p><code>MiSS Member</code></p>
+<p>{{user}}</p>

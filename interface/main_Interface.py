@@ -1,22 +1,12 @@
-from flask import Flask
 from flask import request
 from flask import render_template
 
-from modules import basic
-from modules import myOrm
-from modules import loadData
+from modules.basic_modules import basic, loadData, myOrm, generatePedigree
+from interface import app
+
 
 
 def routing():
-    app = Flask(__name__)
-
-    # @app.route("/")
-    # def index():
-    #     return 'Index Page'
-    #
-    # def hello():
-    #     return "Hello World!"
-
 
 
     @app.route('/', methods=['GET', 'POST'])
@@ -38,16 +28,17 @@ def routing():
         person = myOrm.get_person(p_id)
         if person:
             rel = {}
-            if person:
-                relatives_id = myOrm.get_relatives(person['id'])
+            relatives_id = myOrm.get_relatives(person['id'])
 
-                for index, relative in enumerate(relatives_id):
-                    relative_person = myOrm.get_person(relative)
+            for index, relative in enumerate(relatives_id):
+                relative_person = myOrm.get_person(relative)
 
-                    if relative_person:
-                        rel['Relative_' + str(index)] = relative_person
+                if relative_person:
+                    rel['Relative_' + str(index)] = relative_person
 
-            return render_template('index.html', p=person, p2=rel, name='bijan')
+            document = loadData.table_all_documents.get(int(person['register_id']))
+            json_dict = generatePedigree.pedigree(document, person['id'])
+            return render_template('index.html', p=person, p2=rel, name='bijan', json_dict_h=json_dict)
         else:
             return render_template('index.html', message='No results found!', name='bijan')
 
@@ -67,7 +58,8 @@ def routing():
                 if ref_person:
                     ref_dict['Role' + str(ref_person['role']) + '_' + ref_person['gender']] = ref_person
 
-            return render_template('index.html', p=document, p2=ref_dict, name='bijan')
+            json_dict = generatePedigree.pedigree(document)
+            return render_template('index.html', p=document, p2=ref_dict, json_dict_h=json_dict, name='bijan')
         else:
             return render_template('index.html', message='No results found!', name='bijan')
 
@@ -101,16 +93,15 @@ def routing():
                 loadData.block_dict = {}
 
             else:
-                if not len(loadData.table_all_persons) and request.args.get('limit'):
-                    data_type = ''
+                if request.args.get('limit'):
+                    data_type = []
                     if request.args.get('birth'):
-                        data_type = ' birth'
+                        data_type.append('birth')
                     if request.args.get('marriage'):
-                        data_type += ' marriage'
+                        data_type.append('marriage')
                     if request.args.get('death'):
-                        data_type += ' death'
-                    data_type = data_type.strip().replace(' ', "' or '")
-                    loadData.main([int(request.args.get('limit')), data_type])
+                        data_type.append('death')
+                    loadData.main([int(request.args.get('limit')), data_type, ''])
                     tables = {'data': 'loading'}
 
                 else:
@@ -124,72 +115,141 @@ def routing():
 
         return render_template('index.html', header=header, message=message, data=tables, name='bijan', page_name='load_data')
 
-    @app.route('/link/', methods=['GET', 'POST'])
-    @app.route('/link/<p_id>', methods=['GET', 'POST'])
+    @app.route('/links_matches/', methods=['GET', 'POST'])
+    @app.route('/links_matches/<p_id>', methods=['GET', 'POST'])
     def link_page(p_id=None):
         # if gets an id, searches for a document with that id
         search_id = request.args.get('search_term')
         if search_id and search_id.isdigit():
             p_id = int(search_id)
-
+        if p_id and not p_id.isdigit():
+            p_id = 0
         db = basic.do_connect()
         match = myOrm.get_links(db, p_id)
-        doc = {}
-        ref_dict = {}
-        if match :
-            if match['id1']:
-                if myOrm.get_document(match['id1']):
-                    doc['REF1'] = myOrm.get_document(match['id1'])
-                    ind = 1
-                    if doc.get('REF1'):
-                        for ref in doc['REF1'].get('reference_ids').split(','):
-                            ref_person = myOrm.get_person(ref)
-                            if ref_person:
-                                ref_dict['REF1_' + str(ind)] = ref_person
-                                ind += 1
-                else:
-                    doc['REF1'] = {'id1': match['id1'],'details': 'NOT FOUNT'}
 
-            else:
-                doc['REF1'] = {'id1': match['id1'],'province': 'UNKNOWN'}
+        doc1_id = int(match['id1'])
+        doc2_id = int(match['id2'])
+        if doc1_id and doc2_id:
+            doc1 = myOrm.get_document(doc1_id)
+            doc2 = myOrm.get_document(doc2_id)
 
-            if match['id2']:
-                if myOrm.get_document(match['id2']):
-                    doc['REF2'] = myOrm.get_document(match['id2'])
-                    ind =1
-                    if doc.get('REF2'):
-                        for ref in doc['REF2'].get('reference_ids').split(','):
-                            ref_person = myOrm.get_person(ref)
-                            if ref_person:
-                                ref_dict['REF2_' + str(ind)] = ref_person
-                                ind += 1
-                else:
-                    doc['REF2'] = {'id2': match['id2'],'details': 'NOT FOUNT'}
-            else:
-                doc['REF2'] = {'id2': match['id2'],'province': 'UNKNOWN'}
-        return render_template('index.html', p=match, p2=doc, p3=ref_dict, name='bijan')
+            if doc1 and doc2:
 
 
-    @app.route('/visualization/', methods=['GET', 'POST'])
-    def visualization():
-        from modules import generatePedigree
+                json_dict_1 = generatePedigree.pedigree(doc1,'', '', match['role1'])
+                json_dict_2 = generatePedigree.pedigree(doc2,'', '', match['role2'])
+                return render_template('index.html', doc1=doc1, doc2=doc2, match_details=match, json_dict_h=json_dict_1,
+                                       json_dict_h2=json_dict_2, name='bijan', page_name='miss_matches')
+        else:
+            return render_template('index.html', message='No results found!', name='bijan', page_name='miss_matches')
 
+
+    @app.route('/miss_matches/', methods=['GET', 'POST'])
+    @app.route('/miss_matches/<p_id>', methods=['GET', 'POST'])
+    def miss_page(p_id=None):
         search_id = request.args.get('search_term')
-        p_id = 0
-        if search_id and search_id.isdigit():
-            p_id = int(search_id)
+        block = {}
 
-        document = myOrm.get_document(p_id)
-        if document:
-            json_dict = generatePedigree.pedigree(document)
+        try:
+            doc1_id = search_id.split('_')[0].strip()
+            doc2_id = search_id.split('_')[1].strip()
+            block = myOrm.get_block(search_id)
+        except:
+            doc1_id = None
+            doc2_id = None
+            block = {}
 
-            details = {'document_id': document['id'],
-                       'document_type': document['type_text']}
+        retry_count = 1
+        while retry_count < 100:
+            if not (doc1_id and doc2_id):
+                block = myOrm.get_block()
+                if block and block.get('id'):
+                    doc1_id = block['id'].split('_')[0].strip()
+                    doc2_id = block['id'].split('_')[1].strip()
 
-            return render_template('visualization.html', p=details, json_dict=json_dict)
+            doc1 = myOrm.get_document(doc1_id)
+            doc2 = myOrm.get_document(doc2_id)
+            if doc1 and doc2:
+                retry_count = 100
+            else:
+                retry_count += 1
+
+        if doc1 and doc2:
+
+
+            json_dict_1 = generatePedigree.pedigree(doc1,'', block.get('block_id'))
+            json_dict_2 = generatePedigree.pedigree(doc2,'', block.get('block_id'))
+            return render_template('index.html', doc1=doc1, doc2=doc2, block=block, json_dict_h=json_dict_1,
+                                   json_dict_h2=json_dict_2, name='bijan', page_name='miss_matches')
+        else:
+            return render_template('index.html', message='No results found!', name='bijan', page_name='miss_matches')
+
+
+    @app.route('/report_error/', methods=['GET'])
+    def error_report():
+        from feedback import request_error_correction
+        comment = request.args.get('comment')
+
+        if request.args.get('document_id'):
+            document = myOrm.get_document(request.args.get('document_id'))
+            person_list = []
+            for ref_id in document['reference_ids'].split(','):
+                person_list.append(myOrm.get_person(ref_id))
+
+            comment = request.args.get('comment')
+
+            request_error_correction(document=document, person_list=person_list, message_type="to_bhic"
+                                     , comment=comment, user="Bijan")
+
+            return render_template('feedback.html', message='Thanks for you your feedback!', name='bijan')
 
         else:
-            return render_template('visualization.html', message='No results found!', name='bijan')
+            if comment:
+
+                request_error_correction(document='', person_list='', message_type="to_bijan"
+                                         , comment=comment, user="Bijan")
+                return render_template('feedback.html', message='Thanks for you your feedback!', name='bijan')
+
+            else:
+                return render_template('feedback.html', message='Have you found an error in the database? '
+                                                                'Then Please fill out the following'
+                                                                ' form and click submit!', name='bijan')
+
+
+
+    @app.route('/check_pedigrees/', methods=['GET'])
+    @app.route('/check_pedigrees/<depth>', methods=['GET'])
+    @app.route('/check_pedigrees/<depth>/<family_id>', methods=['GET'])
+    def check_pedigrees(depth=4,family_id=0):
+        from modules.basic_modules import generatePedigree
+
+        json_dict = generatePedigree.check_pedigrees(int(depth), int(family_id))
+
+        document_ids = list(set(generatePedigree.get_document_ids(json_dict['parents'])))
+        document_ids = [x for x in document_ids if x]
+        details = {'document_id': document_ids,
+                   'document_type': ''}
+        from modules.basic_modules import generatePedigree
+
+
+        families = generatePedigree.import_families()
+        navbar_choices = {}
+        for tmp_depth in [5, 4, 3]:
+            navbar_choices[tmp_depth] = []
+            for tmp_family_id in xrange(1, 10):
+                    reference_id = myOrm.get_document(families[tmp_depth-3][tmp_family_id][0])['reference_ids'].split(',')[:2]
+                    groom_last_name = myOrm.get_person(reference_id[0])['last_name']
+                    bride_last_name = myOrm.get_person(reference_id[1])['last_name']
+                    navbar_choices[tmp_depth].append([groom_last_name + '-' + bride_last_name, tmp_family_id])
+
+
+        return render_template('visualization.html', details=details,
+                               json_dict_h=json_dict, json_dict_v=json_dict, depth=depth,
+                               navbar_choices=navbar_choices)
+
+        # else:
+        #     return render_template('visualization.html', message='No results found!', name='bijan')
+
 
 
     app.debug = True

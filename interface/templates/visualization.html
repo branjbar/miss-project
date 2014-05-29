@@ -14,101 +14,79 @@
 
   <body>
 
-    <h1> _</h1>
-    <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">MiSS</a>
-        </div>
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <!--<li class="active"><a href="#">Home</a></li>-->
-                <li><a href="/person">Person</a></li>
-                <li><a href="/document">Document</a></li>
-                <li><a href="/block">Block</a></li>
-                <li><a href="/link">Link</a></li>
-                <li><a href="/visualization">Visualization</a></li>
-                <li><a href="/load_data">Load Data</a></li>
-            </ul>
-            <div class="col-sm-3 col-md-3 pull-right">
-                <form class="navbar-form navbar-right" role="search" method="get">
-                  <div class="input-group">
-                    <input type="text" class="form-control" placeholder="search by id" name="search_term">
-                    <div class="input-group-btn" >
-                        <button type="submit" class="btn btn-default">
-                            <i class="glyphicon glyphicon-search"></i>
-                        </button>
-                    </div>
-                  </div>
-                </form>
-            </div><!-- /.nav-collapse -->
-
-        </div><!-- /.nav-collapse -->
-
-      </div><!-- /.container -->
-    </div><!-- /.navbar -->
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    {% include "navbar.html"%}
 
     <div class="container">
-        <!--{% if message %}-->
-        <!--<div class="jumbotron">-->
-            <!--<h1> {{header}} </h1>-->
-            <!--<p>{{message}}</p>-->
-        <!--</div>-->
-        <!--{% endif %}-->
+        {% if message or header %}
+            <div class="jumbotron">
+                <h1> {{header}} </h1>
+                <p>{{message}}</p>
+            </div>
+        {% endif %}
 
+          <div class="row row-offcanvas row-offcanvas-right">
+              <div class="col-sm-2 col-md-2 sidebar">
+                    {% for key, value in navbar_choices.iteritems() %}
+                      <ul class="nav nav-sidebar">
+                        <li><a class="list-group-item-info" href="/check_pedigrees/{{key}}">Pedigrees of Depth {{key}}</a></li>
+                        {% for item in value %}
+                            <li><a href="/check_pedigrees/{{key}}/{{item[1]}}" class="small">{{item[0]}}</a></li>
+                        {% endfor %}
+                        <li class="divider"></li>
+                      </ul>
+                    {% endfor %}
 
-                {% if message or header %}
-                    <div class="jumbotron">
-                        <h1> {{header}} </h1>
-                        <p>{{message}}</p>
-                    </div>
-                {% endif %}
-
-           {% if p is defined %}
-              <div class="row row-offcanvas row-offcanvas-right">
-
-                  <div class="col-xs-14 col-sm-12 sidebar-offcanvas" id="sidebar" role="navigation">
+              </div>
+              <div class="col-xs-10 col-sm-10 sidebar-offcanvas" id="sidebar" role="navigation">
                   <div class="list-group">
-                    {% for key,value in p.iteritems() %}
-                    <b> {{key}}</b>: {{value}}
+                    {% for key, value in details.iteritems() %}
+                        <b> {{key}}:</b>
+                      {% for item in value %}
+                            <a href="/document/{{item}}" target="_blank">{{item}}</a>,
+                      {% endfor %}
                       <br>
                     {% endfor %}
                   </div>
-                </div><!--/span-->
-              </div><!--/row-->
-           {% endif %}
 
-            <div class="col-xs-14 col-sm-14 sidebar-offcanvas"  role="navigation">
-                <hr>
-                <div class="col-sm-6" id="graph1"> </div>
-                <div class="col-sm-6" id="graph2"> </div>
-                <!--<div id="graph3"> </div>-->
-        </div><!--/row-->
+                    <hr>
+                    <div class="col-sm-12" id="graph_top"> </div>
+                    <!--<div class="col-sm-12" id="graph_down"> </div>-->
 
 
+              </div><!--/span-->
+          </div><!--/row-->
 
-        <footer>
-            <p class="pull-right">&copy; MiSS 2014</p>
-        </footer>
+
 
     </div><!--/.container-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="{{ url_for('static',filename = 'bootstrap/js/bootstrap.min.js')}}"></script>
     <script src="{{ url_for('static',filename = 'd3/d3.js')}}"></script>
-    {% if json_dict %}
-        <script> {% include "my_scripts/draw_tree_h.js" %} </script>
-        <script> {% include "my_scripts/draw_tree_v.js" %} </script>
-        <style> {%include "my_scripts/tree_style.css" %}</style>
+    <style> {%include "my_scripts/tree_style.css" %}</style>
+
+    {% if json_dict_h %}
+
+        <script>
+            var margin = {top: 1, right: 0, bottom: 100, left: 220},
+                width = ({{depth}}*300) - margin.left - margin.right,
+                height = (Math.pow({{depth}},3)*20) - margin.top - margin.bottom;
+
+            var svg = d3.select("#graph_top").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var myjson = '{{json_dict_h|tojson|safe}}';
+
+            {% include "my_scripts/draw_tree_h.js" %}
+        </script>
+
+        <!--<script> {% include "my_scripts/draw_tree_v.js" %} </script>-->
     {% endif %}
 
 
 
+      {% include "footer.html" %}
   </body>
 </html>

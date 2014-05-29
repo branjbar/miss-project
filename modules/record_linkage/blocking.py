@@ -1,9 +1,11 @@
+from modules.basic_modules import myOrm, basic
+
 __author__ = 'Bijan'
 
 ALL_PERSONS_QUERY = "select * from all_persons"
 import jellyfish
 import time
-from modules import myOrm
+import logging
 
 genders_dict = {} # this is used to store all the names with majority gender
 
@@ -103,12 +105,12 @@ def do_blocking(db, gender_names):
                      "where all_persons.id = all_persons_features.id)"
 
     cur = basic.run_query(db, blocking_query)
-    print "importing persons"
+    logging.debug("importing persons")
     row_list = []
     for c in cur.fetchall():
         row_list.append(c)
 
-    print "extracting features"
+    logging.debug("extracting features")
     cum_query = ''
     query_count = 0
     t = time.time()
@@ -122,7 +124,7 @@ def do_blocking(db, gender_names):
             # print cum_query
             query_count = 0
             basic.run_query(db, cum_query)
-            print time.time() - t
+            logging.debug('elapsed time in extracting featuresis %s' % str(time.time() - t))
             t = time.time()
             cum_query = ''
 
@@ -172,7 +174,6 @@ def get_name_gender_list(db):
     return {'male':male_names, 'female': female_names}
 if __name__ == "__main__":
 
-    from modules import basic
     db = basic.do_connect()
     gender_names = get_name_gender_list(db)
     max_block_id = 0

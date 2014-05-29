@@ -1,11 +1,17 @@
 
             text {
               font-family: "Helvetica Neue", Helvetica, sans-serif;
-              font-size: x-small;
+              font-size: 80%;
             }
 
             .name {
               font-weight: bold;
+            }
+
+            .selected {
+              font-weight: bold;
+              fill : red;
+              //stroke : black
             }
 
             .id {

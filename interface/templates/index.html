@@ -14,182 +14,212 @@
 
   <body>
 
-    <h1> _</h1>
-    <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">MiSS</a>
-        </div>
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <!--<li class="active"><a href="#">Home</a></li>-->
-                <li><a href="/person">Person</a></li>
-                <li><a href="/document">Document</a></li>
-                <li><a href="/block">Block</a></li>
-                <li><a href="/link">Link</a></li>
-                <li><a href="/visualization">Visualization</a></li>
-                <li><a href="/load_data">Load Data</a></li>
-            </ul>
-            <div class="col-sm-3 col-md-3 pull-right">
-                <form class="navbar-form navbar-right" role="search" method="get">
-                  <div class="input-group">
-                    <input type="text" class="form-control" placeholder="search by id" name="search_term">
-                    <div class="input-group-btn" >
-                        <button type="submit" class="btn btn-default">
-                            <i class="glyphicon glyphicon-search"></i>
-                        </button>
-                    </div>
-                  </div>
-                </form>
-            </div><!-- /.nav-collapse -->
-
-        </div><!-- /.nav-collapse -->
-
-      </div><!-- /.container -->
-    </div><!-- /.navbar -->
+    {% include "navbar.html"%}
 
     <div class="container">
-        {% if message or header %}
-            <div class="jumbotron">
-                <h1> {{header}} </h1>
-                <p>{{message}}</p>
-                {% if page_name == 'load_data' %}
-                    {% if  data["Persons"] or data["data"] %}
-                          <h3>Data is loaded!</h3>
-                          <div class="col-xs-14 col-sm-12 sidebar-offcanvas" id="sidebar" role="navigation">
-                          <div class="list-group">
-                            {% for key,value in data.iteritems() %}
-                            <b>{{key}}</b>: {{value}}
-                              <br>
-                            {% endfor %}
-                          </div>
-                        </div><!--/span-->
+        <div class="row">
+            {% if message or header %}
+                <div class="jumbotron">
+                    <h1> {{header}} </h1>
+                    <p>{{message}}</p>
+                    {% if page_name == 'load_data' %}
+                        {% if  data["Persons"] or data["data"] %}
+                              <h3>Data is loaded!</h3>
+                              <div class="col-xs-14 col-sm-12 sidebar-offcanvas" id="sidebar" role="navigation">
+                              <div class="list-group">
+                                {% for key,value in data.iteritems() %}
+                                <b>{{key}}</b>: {{value}}
+                                  <br>
+                                {% endfor %}
+                              </div>
+                            </div><!--/span-->
 
-                    <form class="navbar-form navbar-center" action="/load_data/"  method="get">
-                        <div class="btn-toolbar" role="toolbar">
-                            <button type="submit" name="refresh" value="true" class="btn btn-success">Refresh Page</button>
-                            <button type="submit" name="clear" value="true" class="btn btn-warning">Clear Data</button>
-                        </div>
-                    </form>
-                {% else %}
-                    <form class="navbar-form navbar-center" action="/load_data/"  method="get">
-                        <div class="btn-toolbar" role="toolbar">
-                            <p>Choose type and amount of documents which should be loaded:</p>
-
-                            <div class="btn-group" data-toggle="buttons">
-                                <label class="btn btn-default " >
-                                    <input type="checkbox" name="birth" value="birth" >Birth
-                                </label>
-                                <label class="btn btn-default active">
-                                    <input type="checkbox" name="marriage" value="marriage" checked="">Marriage
-                                </label>
-                                <label class="btn btn-default" active>
-                                    <input type="checkbox" name="death" value="death">Death
-                                </label>
+                        <form class="navbar-form navbar-center" action="/load_data/"  method="get">
+                            <div class="btn-toolbar" role="toolbar">
+                                <button type="submit" name="refresh" value="true" class="btn btn-success">Refresh Page</button>
+                                <button type="submit" name="clear" value="true" class="btn btn-warning">Clear Data</button>
                             </div>
-                            <div class="btn-group" data-toggle="buttons">
-                                <label class="btn btn-default">
-                                    <input type="radio" name="limit" value="200">200
-                                </label>
-                                <label class="btn btn-default active" >
-                                    <input type="radio" name="limit" value="2000" checked="">2000
-                                </label>
-                                <label class="btn btn-default" >
-                                    <input type="radio" name="limit" value="20000" >20,000
-                                </label>
-                                <label class="btn btn-default">
-                                    <input type="radio" name="limit" value="200000">200,000
-                                </label>
-                                <label class="btn btn-default limit">
-                                    <input type="radio" name="limit" value="2000000">2,000,000
-                                </label>
-                                <label class="btn btn-default limit">
-                                    <input type="radio" name="limit" value="0">ALL
-                                </label>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Load Data</button>
-                            </div>
-                    </form>                 {% endif %}
+                        </form>
+                    {% endif %}
+                        <form class="navbar-form navbar-center" action="/load_data/"  method="get">
+                            <div class="btn-toolbar" role="toolbar">
+                                <p>Choose type and amount of documents which should be loaded:</p>
+
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default " >
+                                        <input type="checkbox" name="birth" value="birth" >Birth
+                                    </label>
+                                    <label class="btn btn-default active">
+                                        <input type="checkbox" name="marriage" value="marriage" checked="">Marriage
+                                    </label>
+                                    <label class="btn btn-default" active>
+                                        <input type="checkbox" name="death" value="death">Death
+                                    </label>
+                                </div>
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default">
+                                        <input type="radio" name="limit" value="200">200
+                                    </label>
+                                    <label class="btn btn-default active" >
+                                        <input type="radio" name="limit" value="2000" checked="">2000
+                                    </label>
+                                    <label class="btn btn-default" >
+                                        <input type="radio" name="limit" value="20000" >20,000
+                                    </label>
+                                    <label class="btn btn-default">
+                                        <input type="radio" name="limit" value="200000">200,000
+                                    </label>
+                                    <label class="btn btn-default limit">
+                                        <input type="radio" name="limit" value="2000000">2,000,000
+                                    </label>
+                                    <label class="btn btn-default limit">
+                                        <input type="radio" name="limit" value="0">ALL
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Load Data</button>
+                                </div>
+                        </form>
 
 
 
 
+                    {% endif %}
+
+                </div>
+
+
+
+            {% endif %}
+
+       {% if p is defined %}
+          <div class="row row-offcanvas row-offcanvas-right">
+
+              <div class="col-xs-14 col-sm-4 sidebar-offcanvas" id="sidebar" role="navigation">
+              <div class="list-group">
+                {% for key,value in p.iteritems() %}
+                     <b> {{key}} </b>: {{value}}
+                  <br>
+
+              {% endfor %}
+                <div class="pull-right">
+                    {% if p['type_text'] == 'birth' %}
+                        <img alt="register_type" src="{{ url_for('static', filename='icon_birth.jpg') }}" WIDTH=40  />
+                    {% endif %}
+                    {% if p['type_text'] == 'marriage' %}
+                        <img alt="register_type" src="{{ url_for('static', filename='icon_marriage.jpg') }}" WIDTH=45  />
+                    {% endif %}
+                    {% if p['type_text'] == 'death' %}
+                        <img alt="register_type" src="{{ url_for('static', filename='icon_death.jpg') }}" WIDTH=50  />
+                    {% endif %}
+                </div>
+              </div>
+            </div><!--/span-->
+        {% if json_dict_h %}
+            <div class="col-sm-8" id="graph_left"> </div>
+        {% endif %}
+          </div><!--/row-->
+       {% endif %}
+
+
+       {% if doc1 and doc2 %}
+          <div class="row row-offcanvas row-offcanvas-right">
+            {% if block %}
+              <h3>  <span class="label label-success">Common Block IDs: {{block['block_id']}} </span> </h3>
+            {% endif %}
+            {% if match_details %}
+              <h3>  <span class="label label-success">Match ID: {{match_details['id']}} / Match Type: [{{match_details['type']}}]    </span> </h3>
+            {% endif %}
+              <hr>
+              <div class="col-xs-7 col-sm-6 " id="sidebar" role="navigation">
+              <div class="list-group">
+                {% for key,value in doc1.iteritems() %}
+                <b> {{key}}</b>: {{value}}
+                  <br>
+                {% endfor %}
+                {% if doc1['type_text'] == 'birth' %}
+                    <img alt="register_type" src="{{ url_for('static', filename='icon_birth.jpg') }}" WIDTH=40  />
                 {% endif %}
+                {% if doc1['type_text'] == 'marriage' %}
+                    <img alt="register_type" src="{{ url_for('static', filename='icon_marriage.jpg') }}" WIDTH=45  />
+                {% endif %}
+                {% if doc1['type_text'] == 'death' %}
+                    <img alt="register_type" src="{{ url_for('static', filename='icon_death.jpg') }}" WIDTH=50  />
+                {% endif %}
+              </div>
 
-            </div>
-
-
+            </div><!--/span-->
+              <div class="col-xs-7 col-sm-6 " id="sidebar" role="navigation">
+              <div class="list-group">
+                {% for key,value in doc2.iteritems() %}
+                <b> {{key}}</b>: {{value}}
+                  <br>
+                {% endfor %}
+                {% if doc2['type_text'] == 'birth' %}
+                    <img alt="register_type" src="{{ url_for('static', filename='icon_birth.jpg') }}" WIDTH=40  />
+                {% endif %}
+                {% if doc2['type_text'] == 'marriage' %}
+                    <img alt="register_type" src="{{ url_for('static', filename='icon_marriage.jpg') }}" WIDTH=45  />
+                {% endif %}
+                {% if doc2['type_text'] == 'death' %}
+                    <img alt="register_type" src="{{ url_for('static', filename='icon_death.jpg') }}" WIDTH=50  />
+                {% endif %}
+              </div>
+            </div><!--/span-->
+          </div><!--/row-->
+            {% if json_dict_h and json_dict_h2%}
+                <div class="col-sm-6" id="graph_left"> </div>
+                <div class="col-sm-6" id="graph_right"> </div>
+            {% endif %}
 
         {% endif %}
 
 
-   {% if p is defined %}
-      <div class="row row-offcanvas row-offcanvas-right">
 
-          <div class="col-xs-14 col-sm-12 sidebar-offcanvas" id="sidebar" role="navigation">
-          <div class="list-group">
-            {% for key,value in p.iteritems() %}
-            <b> {{key}}</b>: {{value}}
-              <br>
-            {% endfor %}
-          </div>
-        </div><!--/span-->
-      </div><!--/row-->
-   {% endif %}
 
-   {% if p2 is defined %}
-      <div class="row row-offcanvas row-offcanvas-right">
-        <hr>
-            {% for p2_key, p2_value in p2.iteritems() %}
-            <div class="col-xs-3 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
-              <div class="list-group">
-                <h3>({{p2_key}})</h3>
-                {% for key,value in p2_value.iteritems() %}
-                <b> {{key}}</b>: {{value}}
-                  <br>
+         {% if p2 is defined %}
+          <div class="row row-offcanvas row-offcanvas-right">
+            <hr>
+                {% for p2_key, p2_value in p2.iteritems() %}
+                <div class="col-xs-3 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+                  <div class="list-group">
+                    <h3>({{p2_key}})</h3>
+                    {% for key,value in p2_value.iteritems() %}
+                    <b> {{key}}</b>: {{value}}
+                      <br>
+                    {% endfor %}
+                  </div>
+                </div>
                 {% endfor %}
-              </div>
             </div>
-            {% endfor %}
-      </div>
-   {% endif %}
+          {% endif %}
 
-   {% if p3 is defined %}
-      <div class="row row-offcanvas row-offcanvas-right">
-        <hr>
-            {% for p3_key, p3_value in p3.iteritems() %}
-            <div class="col-xs-3 col-sm-2 sidebar-offcanvas" id="sidebar" role="navigation">
-              <div class="list-group">
-                <h4>{{p3_key}}</h4>
-                {% for key,value in p3_value.iteritems() %}
-                <small><b> {{key}}</b>: {{value}} </small>
-                  <br>
+             {% if p3 is defined %}
+              <div class="row row-offcanvas row-offcanvas-right">
+                <hr>
+                {% for p3_key, p3_value in p3.iteritems() %}
+                <div class="col-xs-3 col-sm-2 sidebar-offcanvas" id="sidebar" role="navigation">
+                  <div class="list-group">
+                    <h4>{{p3_key}}</h4>
+                    {% for key,value in p3_value.iteritems() %}
+                    <small><b> {{key}}</b>: {{value}} </small>
+                      <br>
+                    {% endfor %}
+                  </div>
+                </div>
                 {% endfor %}
-              </div>
-            </div>
-            {% endfor %}
-      </div>
-   {% endif %}
-        <!--<div class="col-xs-12 col-sm-9">-->
-            <!--<p class="pull-right visible-xs">-->
-            <!--<button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>-->
-          <!--</p>-->
+                </div>
+            {% endif %}
+            <!--<div class="col-xs-12 col-sm-9">-->
+                <!--<p class="pull-right visible-xs">-->
+                <!--<button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>-->
+              <!--</p>-->
 
-        <!--</div>&lt;!&ndash;/span&ndash;&gt;-->
+            <!--</div>&lt;!&ndash;/span&ndash;&gt;-->
 
 
+        </div>
+      {% include "footer.html" %}
 
-      <hr>
-
-      <footer>
-        <p class="pull-right">&copy; MiSS 2014</p>
-      </footer>
 
     </div><!--/.container-->
 
@@ -200,7 +230,58 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="{{ url_for('static',filename = 'bootstrap/js/bootstrap.min.js')}}"></script>
+    <script src="{{ url_for('static',filename = 'd3/d3.js')}}"></script>
+    <style> {%include "my_scripts/tree_style.css" %}</style>
 
+    {% if json_dict_h %}
+        <script>
+            var margin = {top: 1, right: 0, bottom: 0, left: 220},
+                width = 550 - margin.left - margin.right,
+                height = 300 - margin.top - margin.bottom;
+
+            var svg = d3.select("#graph_left").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var myjson = '{{json_dict_h|tojson|safe}}';
+
+            {% include "my_scripts/draw_tree_h.js" %}
+        </script>
+    {% endif %}
+
+    {% if json_dict_h2 %}
+        <script>
+            var margin = {top: 1, right: 0, bottom: 0, left: 220},
+                width = 550 - margin.left - margin.right,
+                height = 300 - margin.top - margin.bottom;
+
+            var svg = d3.select("#graph_right").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var myjson = '{{json_dict_h2|tojson|safe}}';
+
+            {% include "my_scripts/draw_tree_h.js" %}
+        </script>
+    {% endif %}
+
+    <!--Copies the linked/matched document ids in the linkbar-->
+   {% if doc1 and doc2 %}
+   <script type="text/javascript">
+        var stateObj = { foo: "bar" };
+        function change_my_url()
+        {
+           history.pushState(stateObj, "page 1", "{{doc1.id}}_{{doc2.id}}");
+        }
+        change_my_url()
+    </script>
+    {% endif %}
+
+    <!--Copies the document/person/block id in the linkbar-->
    {% if p is defined %}
     <script type="text/javascript">
         var stateObj = { foo: "bar" };

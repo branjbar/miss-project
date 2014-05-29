@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>MiSS Web Interface</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+
+  </head>
+
+  <body>
+    {% include "navbar.html"%}
+
+
+        <div class="container">
+            <div class="row">
+                {% if message or header %}
+                    <div class="jumbotron">
+                        <h1> {{header}} </h1>
+                        <p>{{message}}</p>
+                    </div>
+                {% endif %}
+
+                <div class="col-sm-6 col-md-6">
+                    <form class="navbar-form navbar-center" action="/report_error/"  method="get">
+                        <div class="control-group">
+                            <div class="controls">
+                                <div class="input-group">
+                                    <span class="input-group-addon glyphicon glyphicon-list-alt"></span>
+                                    <input class="form-control" placeholder="Document Id" name="document_id" type="text" required="required">
+                                </div>
+                                <br>
+                                <textarea name="comment" class="col-sm-12 col-md-12" placeholder="Your Message" rows="10" required="required"></textarea>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" type="submit">Submit</button>
+                    </form>
+                </div>
+            </div>
+
+         {% include "footer.html" %}
+    </div>
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="{{ url_for('static',filename = 'bootstrap/js/bootstrap.min.js')}}"></script>
+    <script src="{{ url_for('static',filename = 'd3/d3.js')}}"></script>
+
+    {% if json_dict_h %}
+        <script> {% include "my_scripts/draw_tree_h.js" %} </script>
+        <style> {%include "my_scripts/tree_style.css" %}</style>
+    {% endif %}
+    {% if json_dict_h2 %}
+        <script> {% include "my_scripts/draw_tree_h2.js" %} </script>
+        <style> {%include "my_scripts/tree_style.css" %}</style>
+    {% endif %}
+
+   {% if p is defined %}
+    <script type="text/javascript">
+        var stateObj = { foo: "bar" };
+        function change_my_url()
+        {
+           history.pushState(stateObj, "page 1", "{{p.id}}");
+        }
+        change_my_url()
+    </script>
+   {% endif %}
+
+  </body>
+
+</html>

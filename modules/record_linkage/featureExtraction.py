@@ -86,7 +86,7 @@ def extract_feature(name, standard):
     f_list.append(dm_flag)
 
     # f10: Number feature -- longest common chars between name and its standard name
-    from basic import longest_common_substring
+    from modules.basic_modules.basic import longest_common_substring
     f_list.append(len(longest_common_substring(name, standard)))
 
     return f_list

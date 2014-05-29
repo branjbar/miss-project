@@ -7,12 +7,11 @@ This file includes basic procedures for connecting to SQL database on the server
 and also simple comparison modules for assigning scores to different matches. 
 
 '''
+
 STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, role, register_id, register_type \
           FROM all_persons WHERE "
 
 STANDARD_QUERY_MEERTENS = "SELECT id, name, standard, type FROM meertens_names"
-
-import time
 
 
 def do_connect(type='LOCAL'):
@@ -237,7 +236,7 @@ def get_person(db, person_id = None):
 
 def get_document(db, document_id = None):
 
-    print 'wrong get_document is used!!'
+    print 'wrong get_document is used, use the one from myOrm!!'
     ''' (integer) -> (dict)
     return a document with the id
     '''
@@ -696,6 +695,27 @@ def estimate_gender(db, name):
     # print 'estimation time: ', time.time() - t
     return gender
 
+def pretty(d, indent=0):
+    """
+    prints a pretty tree from a stored in a mixed dictionary and list
+    """
+    if indent < 100:
+        if isinstance(d, dict):
+            for key, value in d.iteritems():
+                print '\t' * indent + str(key)
+                if isinstance(value, dict) or isinstance(value, list):
+                    pretty(value, indent+1)
+                else:
+                    print '\t' * (indent+1) + str(value)
+
+        if d and isinstance(d, list):
+            for key, item in enumerate(d):
+                print '\t' * indent + str(key)
+                if isinstance(item, dict) or isinstance(item, list):
+                    pretty(item, indent+1)
+                else:
+                    print '\t' * (indent+1) + str(item)
+
 
 def main():
     db = do_connect()
@@ -703,35 +723,6 @@ def main():
 
 
 if __name__ == '__main__':
-    db = do_connect()
-    from modules import loadData
-    loadData.main()
-    refs_dict = {}
-    for key_d in loadData.table_all_documents.keys():
-        __now__ = time.time()
-        s = ''
-        for key_p in loadData.table_all_persons.keys():
-            # print key_p, loadData.table_all_persons[key_p]['register_id'], key_d
-            if loadData.table_all_persons[key_p]['register_id'] == str(key_d):
-                s += str(key_p) + ','
-
-        query = 'update all_documents set reference_ids = %s where id = %s ;' % (s[:-1],key_d)
-        run_query(db, query)
-        print time.time() - __now__
+    pass
 
 
-
-#     db = do_connect('SRV')
-#     do_matching(1);
-#     print count_islands(0)
-#     
-#     ref1 = get_person()
-#     ref2 = get_person()
-#     
-#     score_0 = context_matching(ref1, ref2, 0)
-#     print ref1,'\n', ref2, '\n score_0 is ', score_0,  
-#     score_1 = context_matching(ref1, ref2, 1)
-#     print  ', score_1 is ', score_1, 
-#     score_2 = context_matching(ref1, ref2, 2)
-#     print ', and score_2 is', score_2 
-#     

@@ -3,11 +3,14 @@ Created on Feb 7, 2014
 
 @author: Bijan
 '''
+import logging
+
+from modules.basic_modules import basic
+from modules.record_linkage import featureExtraction
 
 
 def check_a_random_pair():
     
-    from modules import basic
     db = basic.do_connect()
     
     ref1 = basic.get_person(db)
@@ -31,7 +34,6 @@ def feature_set_construct():
         constructs the feature sets for all standard dutch names and inserts that into the feature table
     """
     from modules import basic
-    from modules import featureExtraction
 
     db = basic.do_connect()
     records = basic.get_dutch_names(db)
@@ -47,8 +49,10 @@ def feature_set_construct():
 
 
 if __name__ == '__main__':
-    from interface import main_Interface
-    # from modules import loadData
 
-    # loadData.main()
+    logging.basicConfig(filename='logging.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
+    logging.info('________________new________________')
+
+    from interface import main_Interface
     main_Interface.main()
+
