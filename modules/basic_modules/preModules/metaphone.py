@@ -42,7 +42,7 @@ created by Andrew Collins on January 12, 2007, using the C source
                        reformulated as objects, fixed a bug in 'G'
                        (0.4; Duncan McGreggor)
 """
-from modules.preModules.word import Word
+from modules.basic_modules.preModules.word import Word
 
 
 VOWELS = ['A', 'E', 'I', 'O', 'U', 'Y']
