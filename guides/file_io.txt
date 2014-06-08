@@ -1,3 +1,5 @@
+
+--------- pickle ---------
 import pickle
 
 # to export variables to file:
@@ -7,3 +9,14 @@ with open('../../data/matching_kdd/import_data_10000.txt', 'w') as f:
 # to import variables from file
 with open('../../data/matching_kdd/import_data_10000.txt', 'r') as f:
     block_dict, reference_dict, document_dict = pickle.load(f)
+
+
+--------- csv ---------
+# convert list to csv
+csv_text = ''.join([ str(d) + ',' for d in doc_tree_list]) + '\n'
+
+# write data in csv file
+with open("../data/family_depth_3.csv", "a") as myfile:
+    myfile.write(csv_text)
+
+
