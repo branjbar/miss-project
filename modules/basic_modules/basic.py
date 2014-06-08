@@ -55,7 +55,7 @@ def run_query(db, query):
     return cur
 
 
-def string_compare(str1, str2, method = 'JARO'):
+def string_compare(str1, str2, method='JARO'):
     ''' (string, string, string) -> double
     returns the similarity of str1 and str2 according to the method: LEV or JARO
     
