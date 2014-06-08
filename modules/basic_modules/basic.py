@@ -1,4 +1,4 @@
-'''
+"""
 Created on Jan 30, 2014
 
 @author: Bijan
@@ -6,8 +6,8 @@ Created on Jan 30, 2014
 This file includes basic procedures for connecting to SQL database on the server, 
 and also simple comparison modules for assigning scores to different matches. 
 
-'''
-
+"""
+import jellyfish
 import time
 
 STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, role, register_id, register_type \
@@ -60,8 +60,7 @@ def string_compare(str1, str2, method = 'JARO'):
     returns the similarity of str1 and str2 according to the method: LEV or JARO
     
     '''
-    import jellyfish
-    
+
     if method == "LEV":
         # computes Levnenshtein distance which is an integer larger or equal to zero 
         return jellyfish.levenshtein_distance(str1, str2)
