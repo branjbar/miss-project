@@ -10,20 +10,18 @@ import logging
 table_all_documents = {}
 table_all_persons = {}
 block_dict = {}
-match_pairs = []
+match_pairs = {}
 
-
-def update_persons_table(db, limit):
+db = basic.do_connect()
+def update_persons_table(db_useless, limit):
     """
     loading data from persons table: either for a range of persons or just a specific person
     (i.e., where addendum is provided)
     """
 
-    global table_all_persons, block_dict
+    global table_all_persons, block_dict, db
     __now__ = time.time()
 
-    if not db:
-        db = basic.do_connect()
 
     lim = limit[0]
     type = limit[1]
@@ -69,23 +67,15 @@ def update_persons_table(db, limit):
 
     logging.debug("table all_persons imported in %s" % str(time.time() - __now__))
 
-    if not addendum:
-        __now__ = time.time()
-        logging.debug(" - building block_dict.")
-
-        block_dict = build_block_dict()
-        logging.debug("block_dict is built in %s" % str(time.time() - __now__))
 
 
-def update_documents_table(db, limit):
+def update_documents_table(db_useless, limit):
     """
     loading data from documents table: either for a range of documents or just a specific document
     (i.e., where addendum is provided)
     """
-    global table_all_documents, block_dict
+    global table_all_documents, block_dict, db
 
-    if not db:
-        db = basic.do_connect()
 
     __now__ = time.time()
 
@@ -130,43 +120,45 @@ def update_documents_table(db, limit):
     logging.debug("table all_documents imported in %s" % str( time.time() - __now__))
 
     if not addendum:
-        block_dict = get_matching_pairs(block_dict)
+        get_matching_pairs()
 
-
-def get_matching_pairs(block_dict):
+def get_matching_pairs(limit=10000):
     """
-        uses the blocks in order to find every document that share more than two common blocks.
-
+    loading data from miss_matches table
     """
+
+    global match_pairs, db
     __now__ = time.time()
-    logging.debug("generating blocks started")
-
-    doc_dict = {}
-    for b in block_dict.keys():
-        if b != 1888:
-            for doc1 in block_dict[b]['members']:
-                for doc2 in block_dict[b]['members']:
-                    if not doc1['doc'] is doc2['doc']:
-                        if doc1['doc'] < doc2['doc']:
-                            key = str(doc1['doc']) + '_' + str(doc2['doc'])
-
-                            if doc_dict.get(key) and not b in doc_dict[key]['block_id']:
-                                doc_dict[key]['block_id'].append(b)
-                                # print (doc1['doc'], doc2['doc']),'<-', b
-                            else:
-                                doc_dict[key] = {'id': key, 'block_id': [b]}
-
-    print time.ctime(), ' - elapsed time: ', time.time() - __now__
-    return doc_dict
 
 
-def load_data(db, limit = None):
+    logging.debug('Loading table miss_matches.')
+
+    the_query = "select id, ref1, ref2, score from miss_matches order by score desc limit %d" % limit
+
+    cur = basic.run_query(db, the_query)
+    desc = cur.description
+
+    tmp_index = 1
+    for row in cur.fetchall():
+        row_dict = {}
+        for index, value in enumerate(row):
+            try:
+                row_dict[desc[index][0]] = value.decode('ascii','ignore')
+            except:
+                row_dict[desc[index][0]] = value
+        match_pairs[tmp_index] = row_dict
+        tmp_index += 1
+    logging.debug("table miss_matches imported in %s" % str(time.time() - __now__))
+
+
+
+def load_data(db_uselss, limit = None):
     """ (database) --> (list of lists)
     this file imports all important tables to memory in order to increase the process speed.
 
     """
 
-    global table_all_documents, table_all_persons, table_all_persons_features, block_dict
+    global table_all_documents, table_all_persons, table_all_persons_features, block_dict, db
 
     __now__ = time.time()
     # table_all_persons = load_table(db, 'all_persons', limit)
@@ -176,41 +168,12 @@ def load_data(db, limit = None):
 
 
 
-    # print time.ctime(), " - Loading table all_persons_features."
-    # table_all_persons_features = load_table(db, 'all_persons_features', limit)
-    #
-    # print time.ctime(), " - Loading table all_documents."
-    # table_all_documents = load_table(db, 'all_documents', limit)
-    # t2 = threading.Thread(target=load_table, args = (db,'all_documents', limit))
-    # t2.daemon = True
-    # t2.start()
 
-    # print time.ctime(), " - building block_dict."
-    # block_dict = build_block_dict()
-
-
-    # print time.ctime(), " - Elapsed time:", time.time() - __now__
-    # print time.ctime(), " - Loading data completed."
-
-
-def build_block_dict():
-
-    blocks = {}
-    for key_p in table_all_persons.keys():
-        person = table_all_persons[key_p]
-        block_id = int(person['block_id'])
-        if blocks.get(block_id):
-            blocks[block_id]['members'].append({'ref': person['id'],'doc': person['register_id']})
-        else:
-            blocks[block_id] = {'members' : [{'ref': person['id'],'doc': person['register_id']}]}
-
-    return blocks
-
-def load_table(db, table_name, limit = None):
+def load_table(db_useless, table_name, limit = None):
     """ (db, string, integer) --> (list of lists)
     returns the a sql table as a python list of lists
     """
-
+    global db
     rows_dict = {}
     if table_name == 'all_persons':
         # query = "select * from %s " % table_name
@@ -235,8 +198,7 @@ def load_table(db, table_name, limit = None):
                 row_dict[desc[index][0]] = value.decode('ascii','ignore')
             except:
                 row_dict[desc[index][0]] = value
-        rows_dict[row_dict['id']] = row_dict
-
+        rows_dict[index] = row_dict
 
     return rows_dict
 #
