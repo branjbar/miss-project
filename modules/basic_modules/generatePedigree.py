@@ -32,7 +32,6 @@ def pedigree(document, selected_id=None, blocks=None, selected_role=None):
             person = myOrm.get_person(int(person_id))
             if person:
                 if person['first_name'] or person['last_name']:
-
                     if index < 2:
                         p_dict = {
                         "fname": person['first_name'],
@@ -72,6 +71,7 @@ def pedigree(document, selected_id=None, blocks=None, selected_role=None):
                 p_dict_dict[index] = []
                 p_dict_dict[index].append(p_dict)
 
+
     tree = get_tree(p_dict_dict)
     return tree
 
@@ -84,8 +84,9 @@ def get_tree(p_dicts):
     if p_dicts and p_dicts.get(1) and p_dicts.get(2) and p_dicts.get(3) and not p_dicts.get(4):
 
         # born
-        tree = p_dicts[1][0]
 
+        tree = copy.deepcopy(p_dicts[1][0])
+        tree['born'] = 'true'
         # parents of born
         tree['parents'].append(p_dicts[2][0])
         tree['parents'].append(p_dicts[3][0])
