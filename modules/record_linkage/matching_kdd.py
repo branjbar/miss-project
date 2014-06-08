@@ -10,6 +10,12 @@ from modules.basic_modules.basic import log
 def import_block_and_reference_dicts(from_file=True):
     """
     generates block, reference and documents details required for matching
+
+    reference_dict = {ref_id: first_name, last_name, block_id, role, register_id, register_type}
+    block_dict = {block_id: block_key, [ref1_id, ref2_id, ...], block_size}
+    document_dict = {document_id: {'references': [ref1_id, ref2_id, ...],
+                     'blocks': [block1_id, block2_id, ...],
+                     'type':register_type}}
     """
     global block_dict, reference_dict, document_dict
 
@@ -60,14 +66,15 @@ def import_block_and_reference_dicts(from_file=True):
             if not count % 10000:
                 print count / 10000
 
-        log("import blocks ended.")
+        log("importing data ended.")
+        log("dumping data might take up to 12 minutes...")
 
         with open('../../data/matching_kdd/import_data.txt', 'w') as f:
             pickle.dump([block_dict, reference_dict, document_dict], f)
 
         log("dumping blocks ended.")
     else:
-        print "--importing data."
+        log("importing data dump. might take up to 8 minutes ")
         with open('../../data/matching_kdd/import_data.txt', 'r') as f:
             block_dict, reference_dict, document_dict = pickle.load(f)
 
@@ -131,9 +138,9 @@ def extract_matches():
     csv_text = ''
     log("extracting matches started.")
 
-    count = 0  # just a simple counter
+    count = 1  # just a simple counter
     for block in block_dict.values():
-        if block[2] < 30 and block[0] != 1888:  # max size of block (usually less than 100)
+        if block[2] < 100 and block[0] != 1888:  # max size of block (usually less than 100)
             for ref1 in block[1]:
                 for ref2 in block[1]:
                     if reference_dict[ref1][4] != reference_dict[ref2][4] \
@@ -150,15 +157,15 @@ def extract_matches():
                                               reference_dict[ref1][5],  # register_type
                                               reference_dict[ref2][5],  # register_type
                                               ]
-                            csv_text += ''.join([str(d) + ',' for d in match_instance]) + '\n'
+                            csv_text += str(count) + ',' + ''.join([str(d) + ',' for d in match_instance])[:-1] + '\n'
                             count += 1
-                            if not count % 1000:
+                            if not count % 10000:
                                 log(count)
-                                with open("../../data/matching_kdd/matches.csv", "w") as my_file:
+                                with open("../../data/matching_kdd/matches.csv", "a") as my_file:
                                     my_file.write(csv_text)
                                 csv_text = ''
 
-    with open("../../data/matching_kdd/matches.csv", "w") as my_file:
+    with open("../../data/matching_kdd/matches.csv", "a") as my_file:
         my_file.write(csv_text)
 
 
