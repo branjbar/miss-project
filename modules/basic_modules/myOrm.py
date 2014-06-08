@@ -125,6 +125,28 @@ def get_links(db, link_id = None):
         return {'id1': 0, 'id2': 0}
 
 
+def get_miss_matches(match_index=None, match_id=None ):
+    """ (db, integer) -> (dict)
+    returns the miss_match information based on the id
+    """
+
+    # if no id provided then get a random block
+    if not loadData.match_pairs:
+        loadData.get_matching_pairs()
+
+    if not match_index:
+        from random import randrange
+        match_index = randrange(1,1000)
+
+    match_index = int(match_index)
+    if loadData.match_pairs.get(match_index):
+        reference = loadData.match_pairs[match_index]
+        reference['index'] = match_index
+    else:
+        reference = {}
+    return reference
+
+
 def get_relatives(person_id):
     """
      uses the 'relations' table in order to extract the id of all relatives of person_id
