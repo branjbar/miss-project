@@ -159,6 +159,15 @@ def routing():
             doc2_id = None
             block = {}
 
+        try:
+            doc1_id = search_id.split(', ')[0].strip()
+            doc2_id = search_id.split(', ')[1].strip()
+            block = myOrm.get_block(search_id)
+        except:
+            doc1_id = None
+            doc2_id = None
+            block = {}
+
         retry_count = 1
         while retry_count < 100:
             if not (doc1_id and doc2_id):
