@@ -13,8 +13,12 @@ block_dict = {}
 match_pairs = []
 
 
-
 def update_persons_table(db, limit):
+    """
+    loading data from persons table: either for a range of persons or just a specific person
+    (i.e., where addendum is provided)
+    """
+
     global table_all_persons, block_dict
     __now__ = time.time()
 
@@ -74,6 +78,10 @@ def update_persons_table(db, limit):
 
 
 def update_documents_table(db, limit):
+    """
+    loading data from documents table: either for a range of documents or just a specific document
+    (i.e., where addendum is provided)
+    """
     global table_all_documents, block_dict
 
     if not db:
@@ -127,7 +135,7 @@ def update_documents_table(db, limit):
 
 def get_matching_pairs(block_dict):
     """
-        uses the blocks in order to fina every document that share more than two common blocks.
+        uses the blocks in order to find every document that share more than two common blocks.
 
     """
     __now__ = time.time()
@@ -249,6 +257,7 @@ def load_table(db, table_name, limit = None):
 #         return document_block_list
 #     else:
 #         return []
+
 
 def main(limit=None):
     db = basic.do_connect()
