@@ -1,0 +1,20 @@
+"""
+in order to export python variables to sql, either store all queries in a text file and run that via mysql,
+or store data in a csv file and then import it in mysql. The former one is suitable for update, while the latter
+is better for inserting data in tables.
+
+"""
+# Method I
+# copy the queries in a text file:
+with open(“query.sql", "a") as myfile:
+	myfile.write(query)
+
+
+# From command window runs sql query:
+mysql links_based -uroot < query.sql
+
+
+# Method II
+
+
+mysql> load data infile '/Users/Bijan/sandbox/Eclipse_Projects/linkPy/modules/matches.csv' into table miss_matches fields terminated by ';' lines terminated by '\n'
