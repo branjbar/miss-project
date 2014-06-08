@@ -123,54 +123,77 @@
 
        {% if doc1 and doc2 %}
           <div class="row row-offcanvas row-offcanvas-right">
-            {% if block %}
-              <h3>  <span class="label label-success">Common Block IDs: {{block['block_id']}} </span> </h3>
-            {% endif %}
-            {% if match_details %}
-              <h3>  <span class="label label-success">Match ID: {{match_details['id']}} / Match Type: [{{match_details['type']}}]    </span> </h3>
-            {% endif %}
-              <hr>
-              <div class="col-xs-7 col-sm-6 " id="sidebar" role="navigation">
-              <div class="list-group">
-                {% for key,value in doc1.iteritems() %}
-                <b> {{key}}</b>: {{value}}
-                  <br>
-                {% endfor %}
-                {% if doc1['type_text'] == 'birth' %}
-                    <img alt="register_type" src="{{ url_for('static', filename='icon_birth.jpg') }}" WIDTH=40  />
-                {% endif %}
-                {% if doc1['type_text'] == 'marriage' %}
-                    <img alt="register_type" src="{{ url_for('static', filename='icon_marriage.jpg') }}" WIDTH=45  />
-                {% endif %}
-                {% if doc1['type_text'] == 'death' %}
-                    <img alt="register_type" src="{{ url_for('static', filename='icon_death.jpg') }}" WIDTH=50  />
-                {% endif %}
-              </div>
+              <div class="col-sm-2 col-md-2 sidebar">
+                  <ul class="nav nav-sidebar">
+                    {% if navbar_choices %}
+                        <li> <a href="/miss_matches/{{navbar_choices[0]['index']-1}}"><span class="glyphicon glyphicon-chevron-up"/> </a></li>
+                        <li class="disabled"><a class="small">
+                                <b>#{{navbar_choices[0]['index']}}</b>
+                                {{navbar_choices[0]['score']}}</a>
+                         </li>
 
-            </div><!--/span-->
-              <div class="col-xs-7 col-sm-6 " id="sidebar" role="navigation">
-              <div class="list-group">
-                {% for key,value in doc2.iteritems() %}
-                <b> {{key}}</b>: {{value}}
-                  <br>
-                {% endfor %}
-                {% if doc2['type_text'] == 'birth' %}
-                    <img alt="register_type" src="{{ url_for('static', filename='icon_birth.jpg') }}" WIDTH=40  />
-                {% endif %}
-                {% if doc2['type_text'] == 'marriage' %}
-                    <img alt="register_type" src="{{ url_for('static', filename='icon_marriage.jpg') }}" WIDTH=45  />
-                {% endif %}
-                {% if doc2['type_text'] == 'death' %}
-                    <img alt="register_type" src="{{ url_for('static', filename='icon_death.jpg') }}" WIDTH=50  />
-                {% endif %}
+                    {% for item in navbar_choices[1:] %}
+                        <li><a href="/miss_matches/{{item['index']}}" class="small"><b>#{{item['index']}})</b> {{item['score']}}</a>
+                            </li>
+                    {% endfor %}
+                        <li> <a href="/miss_matches/{{navbar_choices[0]['index']+1}}"><span class="glyphicon glyphicon-chevron-down"/></a></li>
+                    {% endif %}
+
+                  </ul>
+
               </div>
-            </div><!--/span-->
+              <div class="col-xs-10  sidebar-offcanvas"  role="navigation">
+                    {% if block %}
+                      <h3>  <span class="label label-success">Common Block IDs: {{block['block_id']}} </span> </h3>
+                      <hr>
+                    {% endif %}
+                    {% if match_details %}
+                      <h3>  <span class="label label-success">Match ID: {{match_details['index']}} / Match Score: {{match_details['score']}} {{match_details['type']}}    </span> </h3>
+                      <hr>
+                    {% endif %}
+                  <div class="row row-offcanvas row-offcanvas-right">
+                      <div class="col-xs-6"  role="navigation">
+                          <div class="list-group">
+                            {% for key,value in doc1.iteritems() %}
+                            <b> {{key}}</b>: {{value}}
+                              <br>
+                            {% endfor %}
+                            {% if doc1['type_text'] == 'birth' %}
+                                <img alt="register_type" src="{{ url_for('static', filename='icon_birth.jpg') }}" WIDTH=40  />
+                            {% endif %}
+                            {% if doc1['type_text'] == 'marriage' %}
+                                <img alt="register_type" src="{{ url_for('static', filename='icon_marriage.jpg') }}" WIDTH=45  />
+                            {% endif %}
+                            {% if doc1['type_text'] == 'death' %}
+                                <img alt="register_type" src="{{ url_for('static', filename='icon_death.jpg') }}" WIDTH=50  />
+                            {% endif %}
+                          </div>
+
+                      </div><!--/span-->
+                      <div class="col-xs-6" role="navigation">
+                          <div class="list-group">
+                            {% for key,value in doc2.iteritems() %}
+                            <b> {{key}}</b>: {{value}}
+                              <br>
+                            {% endfor %}
+                            {% if doc2['type_text'] == 'birth' %}
+                                <img alt="register_type" src="{{ url_for('static', filename='icon_birth.jpg') }}" WIDTH=40  />
+                            {% endif %}
+                            {% if doc2['type_text'] == 'marriage' %}
+                                <img alt="register_type" src="{{ url_for('static', filename='icon_marriage.jpg') }}" WIDTH=45  />
+                            {% endif %}
+                            {% if doc2['type_text'] == 'death' %}
+                                <img alt="register_type" src="{{ url_for('static', filename='icon_death.jpg') }}" WIDTH=50  />
+                            {% endif %}
+                          </div>
+                      </div><!--/span-->
+                  </div>
+                {% if json_dict_h and json_dict_h2%}
+                    <div class="col-sm-6" id="graph_left"> </div>
+                    <div class="col-sm-6" id="graph_right"> </div>
+                {% endif %}
+            </div>
           </div><!--/row-->
-            {% if json_dict_h and json_dict_h2%}
-                <div class="col-sm-6" id="graph_left"> </div>
-                <div class="col-sm-6" id="graph_right"> </div>
-            {% endif %}
-
         {% endif %}
 
 
@@ -235,8 +258,8 @@
 
     {% if json_dict_h %}
         <script>
-            var margin = {top: 1, right: 0, bottom: 0, left: 220},
-                width = 550 - margin.left - margin.right,
+            var margin = {top: 1, right: -200, bottom: 0, left: 180},
+                width = 400 - margin.left - margin.right,
                 height = 300 - margin.top - margin.bottom;
 
             var svg = d3.select("#graph_left").append("svg")
@@ -253,8 +276,8 @@
 
     {% if json_dict_h2 %}
         <script>
-            var margin = {top: 1, right: 0, bottom: 0, left: 220},
-                width = 550 - margin.left - margin.right,
+            var margin = {top: 1, right: -200, bottom: 0, left: 180},
+                width = 400 - margin.left - margin.right,
                 height = 300 - margin.top - margin.bottom;
 
             var svg = d3.select("#graph_right").append("svg")
@@ -275,7 +298,7 @@
         var stateObj = { foo: "bar" };
         function change_my_url()
         {
-           history.pushState(stateObj, "page 1", "{{doc1.id}}_{{doc2.id}}");
+           history.pushState(stateObj, "page 1", "{{match_details.index}}");
         }
         change_my_url()
     </script>
