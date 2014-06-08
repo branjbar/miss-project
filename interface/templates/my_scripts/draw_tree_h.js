@@ -28,7 +28,7 @@ var node = svg.selectAll(".node")
   .data(nodes)
   .enter().append("g")
   .attr("class", "node")
-  .attr("transform", function(d) { return "translate(" +  (width  - d.y) + "," +  d.x + ")"; })
+  .attr("transform", function(d) { return "translate(" +  (width - (d.born ? -margin.right:0)  - d.y) + "," +  d.x + ")"; })
 
 
 node.append("text")
