@@ -723,7 +723,7 @@ def log(msg):
     """
     prints the msg by adding time before it.
     """
-    print str(time.ctime()) + ' - ' + msg
+    print str(time.ctime()) + ' - ' + str(msg)
 
 
 def main():
