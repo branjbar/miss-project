@@ -8,6 +8,8 @@ and also simple comparison modules for assigning scores to different matches.
 
 '''
 
+import time
+
 STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, role, register_id, register_type \
           FROM all_persons WHERE "
 
@@ -715,6 +717,13 @@ def pretty(d, indent=0):
                     pretty(item, indent+1)
                 else:
                     print '\t' * (indent+1) + str(item)
+
+
+def log(msg):
+    """
+    prints the msg by adding time before it.
+    """
+    print str(time.ctime()) + ' - ' + msg
 
 
 def main():
