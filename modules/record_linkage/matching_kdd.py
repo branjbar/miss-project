@@ -1,14 +1,12 @@
-import pickle
-from modules.basic_modules import basic
-from modules.basic_modules.basic import log
-
 """
 In this code we develop a complete matching technique for KDD conference which works as following:
 For each two name references r1 and r2 in the same block, we compute their similarity as Sim_nc(r1,r2) + Sim_dc(r1,r2)
 """
+import pickle
+from modules.basic_modules import basic
+from modules.basic_modules.basic import log
 
 
-# get block references and confidences for all with size less than 100 and store the results in dictionary
 def import_block_and_reference_dicts(from_file=True):
     """
     generates block, reference and documents details required for matching
@@ -19,8 +17,8 @@ def import_block_and_reference_dicts(from_file=True):
 
         log("import blocks started")
 
-        block_query = " SELECT id, first_name, last_name, block_key, block_id, register_id, register_type" \
-                      " FROM links_based.all_persons_new "
+        block_query = " SELECT id, first_name, last_name, block_key, block_id, role, register_id, register_type" \
+                      " FROM links_based.all_persons_new"
 
         db = basic.do_connect()
         cur = basic.run_query(db, block_query)
@@ -28,17 +26,18 @@ def import_block_and_reference_dicts(from_file=True):
         block_dict = {}
         reference_dict = {}
         document_dict = {}
-        for row in cur.fetchall()[:10000]:
+        for row in cur.fetchall():
             ref_id = row[0]
             first_name = row[1]
             last_name = row[2]
             block_key = row[3]
             block_id = row[4]
-            register_id = row[5]
-            register_type = row[6]
+            role = row[5]
+            register_id = row[6]
+            register_type = row[7]
 
             # add name and block to reference dictionary
-            reference_dict[ref_id] = [first_name, last_name, block_id, register_id, register_type]
+            reference_dict[ref_id] = [first_name, last_name, block_id, role, register_id, register_type]
 
             # add the reference to block dictionary
             if not block_dict.get(block_id):
@@ -58,37 +57,115 @@ def import_block_and_reference_dicts(from_file=True):
                 document_dict[register_id]['blocks'].append(block_id)
 
             count += 1
-            if not count % 1000:
-                print count / 1000
+            if not count % 10000:
+                print count / 10000
 
         log("import blocks ended.")
 
-        with open('../../data/matching_kdd/import_data_10000.txt', 'w') as f:
+        with open('../../data/matching_kdd/import_data.txt', 'w') as f:
             pickle.dump([block_dict, reference_dict, document_dict], f)
 
         log("dumping blocks ended.")
     else:
         print "--importing data."
-        with open('../../data/matching_kdd/import_data_10000.txt', 'r') as f:
+        with open('../../data/matching_kdd/import_data.txt', 'r') as f:
             block_dict, reference_dict, document_dict = pickle.load(f)
 
 
-def get_similarity(reference_1, reference_2):
+def get_similarity_no_context(ref1, ref2):
     """
-    compute similarity between two references first based on name similarity and then based on document context.
+    compute the no context similarity between two references based on their name similarity
+    """
+    global block_dict, reference_dict, document_dict
+
+    first_name_ref1 = reference_dict[ref1][0]
+    last_name_ref1 = reference_dict[ref1][1]
+    first_name_ref2 = reference_dict[ref2][0]
+    last_name_ref2 = reference_dict[ref2][1]
+
+    sim_nc = (basic.string_compare(first_name_ref1, first_name_ref2) + basic.string_compare(last_name_ref1,
+                                                                                            last_name_ref2)) / 2.0
+
+    return sim_nc
+
+
+def get_similarity_document_context(ref1, ref2):
+    """
+    compute the document context similarity between two references based on similarity of block bags
+    """
+    global block_dict, reference_dict, document_dict
+
+    doc1 = reference_dict[ref1][4]
+    doc2 = reference_dict[ref2][4]
+
+    numerator = 0
+    denominator = 0
+
+    for b1 in document_dict[doc1]['blocks']:
+        for b2 in document_dict[doc2]['blocks']:
+            if b1 == b2:
+                confidence = 1.0 / block_dict[b1][2]  # block confidence
+                numerator += confidence
+
+    if numerator > 0:
+        for b1 in document_dict[doc1]['blocks']:
+            confidence = 1.0 / block_dict[b1][2]  # block confidence
+            denominator += confidence
+
+        for b2 in document_dict[doc2]['blocks']:
+            confidence = 1.0 / block_dict[b2][2]  # block confidence
+            denominator += confidence
+        sim_dc = numerator / denominator
+    else:
+        sim_dc = 0
+
+    return sim_dc
+
+
+def extract_matches():
+    """
+    parse through all blocks, and for each reference pairs in each block check the similarity
     """
 
-    refe
-    sim_nc = 1
+    global block_dict, reference_dict, document_dict
+    csv_text = ''
+    log("extracting matches started.")
 
+    count = 0  # just a simple counter
+    for block in block_dict.values():
+        if block[2] < 30 and block[0] != 1888:  # max size of block (usually less than 100)
+            for ref1 in block[1]:
+                for ref2 in block[1]:
+                    if reference_dict[ref1][4] != reference_dict[ref2][4] \
+                            and ref2 > ref1:  # the first condition is to avoid inner documents matches
+                        sim = get_similarity_no_context(ref1, ref2) + get_similarity_document_context(ref1, ref2)
+                        if sim > 1.4:
+                            match_instance = [ref1,
+                                              ref2,
+                                              sim,
+                                              reference_dict[ref1][4],  # doc1 id
+                                              reference_dict[ref2][4],  # doc2 id
+                                              reference_dict[ref1][3],  # role in doc1
+                                              reference_dict[ref2][3],  # role in doc2
+                                              reference_dict[ref1][5],  # register_type
+                                              reference_dict[ref2][5],  # register_type
+                                              ]
+                            csv_text += ''.join([str(d) + ',' for d in match_instance]) + '\n'
+                            count += 1
+                            if not count % 1000:
+                                log(count)
+                                with open("../../data/matching_kdd/matches.csv", "w") as my_file:
+                                    my_file.write(csv_text)
+                                csv_text = ''
 
-# parse through all blocks, and for each reference pairs in each block check the similarity
-
+    with open("../../data/matching_kdd/matches.csv", "w") as my_file:
+        my_file.write(csv_text)
 
 
 def main():
 
-    import_block_and_reference_dicts(True)
+    import_block_and_reference_dicts(from_file=True)
+    extract_matches()
 
 if __name__ == "__main__":
     main()
