@@ -110,7 +110,7 @@ def routing():
                     else:
 
                         tables = {'Persons': len(loadData.table_all_persons),
-                                  'Blocks':len(loadData.block_dict),
+                                  'Matches':len(loadData.match_pairs),
                                   'Documents':len(loadData.table_all_documents),}
 
         return render_template('index.html', header=header, message=message, data=tables, name='bijan', page_name='load_data')
@@ -147,49 +147,32 @@ def routing():
     @app.route('/miss_matches/', methods=['GET', 'POST'])
     @app.route('/miss_matches/<p_id>', methods=['GET', 'POST'])
     def miss_page(p_id=None):
-        search_id = request.args.get('search_term')
-        block = {}
+        if request.args.get('search_term'):
+            p_id = request.args.get('search_term')
+        if p_id == '0' or p_id:
+            p_id = int(p_id)
+            p_id = max(1, p_id)
+        match = myOrm.get_miss_matches(p_id)
+        if match:
+            ref1 = match['ref1']
+            ref2 = match['ref2']
 
-        try:
-            doc1_id = search_id.split('_')[0].strip()
-            doc2_id = search_id.split('_')[1].strip()
-            block = myOrm.get_block(search_id)
-        except:
-            doc1_id = None
-            doc2_id = None
-            block = {}
-
-        try:
-            doc1_id = search_id.split(', ')[0].strip()
-            doc2_id = search_id.split(', ')[1].strip()
-            block = myOrm.get_block(search_id)
-        except:
-            doc1_id = None
-            doc2_id = None
-            block = {}
-
-        retry_count = 1
-        while retry_count < 100:
-            if not (doc1_id and doc2_id):
-                block = myOrm.get_block()
-                if block and block.get('id'):
-                    doc1_id = block['id'].split('_')[0].strip()
-                    doc2_id = block['id'].split('_')[1].strip()
-
-            doc1 = myOrm.get_document(doc1_id)
-            doc2 = myOrm.get_document(doc2_id)
-            if doc1 and doc2:
-                retry_count = 100
-            else:
-                retry_count += 1
-
-        if doc1 and doc2:
+            doc1 = myOrm.get_document(myOrm.get_person(ref1)['register_id'])
+            doc2 = myOrm.get_document(myOrm.get_person(ref2)['register_id'])
 
 
-            json_dict_1 = generatePedigree.pedigree(doc1,'', block.get('block_id'))
-            json_dict_2 = generatePedigree.pedigree(doc2,'', block.get('block_id'))
-            return render_template('index.html', doc1=doc1, doc2=doc2, block=block, json_dict_h=json_dict_1,
-                                   json_dict_h2=json_dict_2, name='bijan', page_name='miss_matches')
+            json_dict_1 = generatePedigree.pedigree(doc1, ref1, '')
+            json_dict_2 = generatePedigree.pedigree(doc2, ref2, '')
+
+            navbar_choices = []
+            for a_match_id in range(int(match['index']), int(match['index']) + 11):
+                a_match = myOrm.get_miss_matches(a_match_id)
+                if a_match:
+                    navbar_choices.append({'score': a_match['score'], 'index': a_match['index']})
+
+            return render_template('index.html', doc1=doc1, doc2=doc2, match_details=match, json_dict_h=json_dict_1,
+                                   json_dict_h2=json_dict_2, name='bijan', page_name='miss_matches',
+                                   navbar_choices=navbar_choices)
         else:
             return render_template('index.html', message='No results found!', name='bijan', page_name='miss_matches')
 
