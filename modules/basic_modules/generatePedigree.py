@@ -41,6 +41,7 @@ def pedigree(document, selected_id=None, blocks=None, selected_role=None):
                         "register_id": person['register_id'],
                         "register_type": person['register_type'],
                         "id": person['id'],
+                        "gender": person['block_key'][:4],
                         "parents": []
                         }
                     else:
@@ -81,9 +82,8 @@ def get_tree(p_dicts):
 
     """
     tree = {}
+    # Birth Certificate
     if p_dicts and p_dicts.get(1) and p_dicts.get(2) and p_dicts.get(3) and not p_dicts.get(4):
-
-        # born
 
         tree = copy.deepcopy(p_dicts[1][0])
         tree['born'] = 'true'
@@ -91,18 +91,32 @@ def get_tree(p_dicts):
         tree['parents'].append(p_dicts[2][0])
         tree['parents'].append(p_dicts[3][0])
 
+    # Death certificate
     if p_dicts and p_dicts.get(1) and p_dicts.get(2) and p_dicts.get(3) and p_dicts.get(4) and not p_dicts.get(5):
         tree = copy.deepcopy(BLANK_DICT)
 
-        tree['parents'].append(p_dicts[1][0])
+        if p_dicts[1][0]['gender'] == 'male':
+            tree['parents'].append(p_dicts[1][0])
 
-        # relative of deceased
-        tree['parents'].append(p_dicts[4][0])
+            # relative of deceased
+            tree['parents'].append(p_dicts[4][0])
 
-        # parents of deceased
-        tree['parents'][0]['parents'].append(p_dicts[2][0])
-        tree['parents'][0]['parents'].append(p_dicts[3][0])
+            # parents of deceased
+            tree['parents'][0]['parents'].append(p_dicts[2][0])
+            tree['parents'][0]['parents'].append(p_dicts[3][0])
 
+        else:
+            tree['parents'].append(p_dicts[4][0])
+
+            # relative of deceased
+            tree['parents'].append(p_dicts[1][0])
+
+            # parents of deceased
+            tree['parents'][1]['parents'].append(p_dicts[2][0])
+            tree['parents'][1]['parents'].append(p_dicts[3][0])
+
+
+    # Marriage Certificate
     if p_dicts and p_dicts.get(1) and p_dicts.get(2) and p_dicts.get(3) and p_dicts.get(4) and p_dicts.get(5):
         tree = copy.deepcopy(BLANK_DICT)
         # groom
