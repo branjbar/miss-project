@@ -32,7 +32,7 @@ def pedigree(document, selected_id=None, blocks=None, selected_role=None):
             person = myOrm.get_person(int(person_id))
             if person:
                 if person['first_name'] or person['last_name']:
-                    if index < 2:
+                    if person['role'] in [1, 6]:
                         p_dict = {
                         "fname": person['first_name'],
                         "lname": (person['prefix'] + ' ' + person['last_name']).strip().replace('  ', ' '),
