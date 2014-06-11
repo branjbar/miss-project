@@ -122,7 +122,7 @@ def update_documents_table(db_useless, limit):
     if not addendum:
         get_matching_pairs()
 
-def get_matching_pairs(limit=10000):
+def get_matching_pairs(limit=1000000):
     """
     loading data from miss_matches table
     """
@@ -133,8 +133,19 @@ def get_matching_pairs(limit=10000):
 
     logging.debug('Loading table miss_matches.')
 
-    the_query = "select id, ref1, ref2, score from miss_matches order by score desc limit %d" % limit
+    # the_query = "select id, ref1, ref2, score from miss_matches order by score desc limit %d" % limit
 
+    the_query = """
+                SELECT id, ref1, ref2, score
+                FROM (
+                    SELECT
+                        @row := @row +1 AS rownum, id, ref1, ref2, score
+                    FROM (
+                        SELECT @row :=0) r, miss_matches order by score desc
+                    ) ranked
+                WHERE rownum % 100 = 1
+
+                """
     cur = basic.run_query(db, the_query)
     desc = cur.description
 
