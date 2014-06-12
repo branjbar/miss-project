@@ -17,4 +17,5 @@ mysql links_based -uroot < query.sql
 # Method II
 
 
-mysql> load data infile '/Users/Bijan/sandbox/Eclipse_Projects/linkPy/modules/matches.csv' into table miss_matches fields terminated by ';' lines terminated by '\n'
+mysql> load data infile '/Users/Bijan/sandbox/Eclipse_Projects/linkPy/modules/matches.csv'
+       into table miss_matches fields terminated by ';' lines terminated by '\n'
