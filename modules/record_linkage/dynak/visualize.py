@@ -3,6 +3,9 @@ __author__ = 'Bijan'
 
 import matplotlib
 from modules.basic_modules import basic
+matplotlib.use('TkAgg')
+
+import networkx as NX
 
 
 def get_family_edge(ref_list):
@@ -39,39 +42,36 @@ def get_family_edge(ref_list):
     return edge_list
 
 
+def export_to_gephi():
+    network = NX.Graph()
+    db = basic.do_connect()
+    query1 = """
+                SELECT ref1, (select reference_ids from all_documents WHERE id = (
+                SELECT register_id FROM links_based.all_persons_new WHERE id = ref1)),
+                ref2, (select reference_ids from all_documents where id = (
+                SELECT register_id FROM links_based.all_persons_new where id = ref2))
+                from miss_matches order by score desc limit 1000
+            """
 
-matplotlib.use('TkAgg')
+    ref_list = []
+    cur = basic.run_query(db, query1)
+    for c in cur.fetchall():
+        edge_list = get_family_edge(c[1].split(','))
+        for e in edge_list:
+            network.add_edge(str(e[0]),str(e[1]), weight=1, type=e[2])
 
-import pylab as PL
-import networkx as NX
-network = NX.Graph()
+        edge_list = get_family_edge(c[3].split(','))
+        for e in edge_list:
+            network.add_edge(str(e[0]),str(e[1]), weight=1, type=e[2])
 
-db = basic.do_connect()
-query1 = """
-            SELECT ref1, (select reference_ids from all_documents WHERE id = (
-            SELECT register_id FROM links_based.all_persons_new WHERE id = ref1)),
-            ref2, (select reference_ids from all_documents where id = (
-            SELECT register_id FROM links_based.all_persons_new where id = ref2))
-            from miss_matches order by score desc limit 10000
-        """
+        network.add_edge(str(c[0]),str(c[2]), weight=100)
 
-ref_list = []
-cur = basic.run_query(db, query1)
-for c in cur.fetchall():
-    edge_list = get_family_edge(c[1].split(','))
-    for e in edge_list:
-        network.add_edge(str(e[0]),str(e[1]), weight=1, type=e[2])
+    # PL.cla()
+    # positions = NX.spring_layout(network)
+    # NX.draw(network, pos=positions)
+    NX.write_gml(network, "graph_for_gephi.gml")
+    # PL.show()
+    # print ref_list
 
-    edge_list = get_family_edge(c[3].split(','))
-    for e in edge_list:
-        network.add_edge(str(e[0]),str(e[1]), weight=1, type=e[2])
-
-    network.add_edge(str(c[0]),str(c[2]), weight=100)
-
-# PL.cla()
-# positions = NX.spring_layout(network)
-# NX.draw(network, pos=positions)
-NX.write_gml(network, "graph_for_gephi.gml")
-# PL.show()
-# print ref_list
-
+if __name__ == "__main__":
+    export_to_gephi
