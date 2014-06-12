@@ -143,7 +143,7 @@ def get_matching_pairs(limit=1000000):
                     FROM (
                         SELECT @row :=0) r, miss_matches order by score desc
                     ) ranked
-                WHERE rownum % 100 = 1
+                WHERE rownum % 10000 = 1
 
                 """
     cur = basic.run_query(db, the_query)
