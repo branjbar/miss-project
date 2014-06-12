@@ -1,10 +1,7 @@
 __author__ = 'Bijan'
 
 
-import matplotlib
 from modules.basic_modules import basic
-matplotlib.use('TkAgg')
-
 import networkx as NX
 
 
@@ -66,12 +63,7 @@ def export_to_gephi():
 
         network.add_edge(str(c[0]),str(c[2]), weight=100)
 
-    # PL.cla()
-    # positions = NX.spring_layout(network)
-    # NX.draw(network, pos=positions)
     NX.write_gml(network, "graph_for_gephi.gml")
-    # PL.show()
-    # print ref_list
 
 if __name__ == "__main__":
     export_to_gephi
