@@ -1,6 +1,10 @@
 """
 In this code we develop a complete matching technique for KDD conference which works as following:
 For each two name references r1 and r2 in the same block, we compute their similarity as Sim_nc(r1,r2) + Sim_dc(r1,r2)
+
+At the end the exported csv file can be imported in mysql using:
+    LOAD DATA INFILE '/Users/Bijan/sandbox/Eclipse_Projects/linkPy/data/matching_kdd/matches.csv'
+    INTO TABLE miss_matches FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
 """
 import pickle
 from modules.basic_modules import basic
@@ -108,20 +112,20 @@ def get_similarity_document_context(ref1, ref2):
     numerator = 0
     denominator = 0
 
-    for b1 in document_dict[doc1]['blocks']:
-        for b2 in document_dict[doc2]['blocks']:
-            if b1 == b2:
-                confidence = 1.0 / block_dict[b1][2]  # block confidence
-                numerator += confidence
+    block_list_1 = set(document_dict[doc1]['blocks'])
+    block_list_2 = set(document_dict[doc2]['blocks'])
+
+    for b in block_list_1.intersection(block_list_2):
+        if b != 1888:
+            confidence = 1.0 / block_dict[b][2]  # block confidence
+            numerator += confidence
 
     if numerator > 0:
-        for b1 in document_dict[doc1]['blocks']:
-            confidence = 1.0 / block_dict[b1][2]  # block confidence
-            denominator += confidence
+        for b in block_list_1.union(block_list_2):
+            if b != 1888:
+                confidence = 1.0 / block_dict[b][2]  # block confidence
+                denominator += confidence
 
-        for b2 in document_dict[doc2]['blocks']:
-            confidence = 1.0 / block_dict[b2][2]  # block confidence
-            denominator += confidence
         sim_dc = numerator / denominator
     else:
         sim_dc = 0
@@ -146,24 +150,27 @@ def extract_matches():
                     if reference_dict[ref1][4] != reference_dict[ref2][4] \
                             and ref2 > ref1:  # the first condition is to avoid inner documents matches
                         sim = get_similarity_no_context(ref1, ref2) + get_similarity_document_context(ref1, ref2)
-                        if sim > 1.4:
-                            match_instance = [ref1,
-                                              ref2,
-                                              sim,
-                                              reference_dict[ref1][4],  # doc1 id
-                                              reference_dict[ref2][4],  # doc2 id
-                                              reference_dict[ref1][3],  # role in doc1
-                                              reference_dict[ref2][3],  # role in doc2
-                                              reference_dict[ref1][5],  # register_type
-                                              reference_dict[ref2][5],  # register_type
-                                              ]
-                            csv_text += str(count) + ',' + ''.join([str(d) + ',' for d in match_instance])[:-1] + '\n'
-                            count += 1
-                            if not count % 10000:
-                                log(count)
-                                with open("../../data/matching_kdd/matches.csv", "a") as my_file:
-                                    my_file.write(csv_text)
-                                csv_text = ''
+                       # if sim > 1.4:  # We store all potential matches with any score.
+                        match_instance = [ref1,
+                                          ref2,
+                                          sim,
+                                          reference_dict[ref1][4],  # doc1 id
+                                          reference_dict[ref2][4],  # doc2 id
+                                          reference_dict[ref1][3],  # role in doc1
+                                          reference_dict[ref2][3],  # role in doc2
+                                          reference_dict[ref1][5],  # register_type
+                                          reference_dict[ref2][5],  # register_type
+                                          ]
+                        csv_text += str(count) + ',' + ''.join([str(d) + ',' for d in match_instance])[:-1] + '\n'
+                        count += 1
+                        if not count % 10000:
+                            log(count)
+                            with open("../../data/matching_kdd/matches.csv", "a") as my_file:
+                                my_file.write(csv_text)
+                            csv_text = ''
+
+    log("extracting matches ended.")
+    log("storing files in csv file.")
 
     with open("../../data/matching_kdd/matches.csv", "a") as my_file:
         my_file.write(csv_text)
