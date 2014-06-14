@@ -149,6 +149,10 @@ def routing():
     def miss_page(p_id=None):
         if request.args.get('search_term'):
             p_id = request.args.get('search_term')
+
+        if not p_id:
+            p_id = '0'
+
         if p_id == '0' or p_id:
             p_id = int(p_id)
             p_id = max(1, p_id)
