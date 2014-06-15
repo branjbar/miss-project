@@ -15,6 +15,8 @@ STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, rol
 
 STANDARD_QUERY_MEERTENS = "SELECT id, name, standard, type FROM meertens_names"
 
+db_global = None
+
 
 def do_connect(type='LOCAL'):
     ''' 
@@ -49,8 +51,12 @@ def run_query(db, query):
     """ (string) -> (query)
     gets a SQL query and returns the list of results
     """
-    
-    cur = db.cursor()
+    global db_global
+
+    if not db_global:
+        db_global = do_connect()
+
+    cur = db_global.cursor()
     cur.execute(query)
     return cur
 
@@ -85,7 +91,7 @@ def get_match_score(db, ref1, ref2, level):
     
     '''
     # if either person does not have any name, then score = 0 for any level
-    if  (not ref1['first_name'] and not ref1['last_name']) or (not ref2['first_name'] and not ref2['last_name']):
+    if (not ref1['first_name'] and not ref1['last_name']) or (not ref2['first_name'] and not ref2['last_name']):
         return 0
     
     if level == 0:
