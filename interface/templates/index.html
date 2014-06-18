@@ -127,10 +127,10 @@
                   <ul class="nav nav-sidebar">
                     {% if navbar_choices %}
                         <li> <a href="/miss_matches/{{navbar_choices[0]['index']-1}}"><span class="glyphicon glyphicon-chevron-up"/> </a></li>
-                        <li> <p class="small text-danger" align="center"> <b>0.01% of matches are listed here, sorted by score in descending order.</b></p></li>
+                        <li> <p class="small text-danger" align="center"> <b>0.1% of matches are listed here, sorted by score in descending order.</b></p></li>
                         <!--<li> <p class="small" align="center"> <b>Matching Score</b><p></li>-->
                         <li class="current" style="background: #F0F0F0;"><a class="small">
-                                #{{navbar_choices[0]['index']}}
+                                #{{navbar_choices[0]['index']}})
                                 <b>{{navbar_choices[0]['score']}}</b></a>
                          </li>
 
@@ -150,16 +150,45 @@
                       <hr>
                     {% endif %}
                     {% if match_details %}
-                      <h3>  <span class="label label-success">Match ID: {{match_details['index']}} / Match Score: {{match_details['score']}} {{match_details['type']}}    </span> </h3>
+                      <div class="row row-offcanvas">
+                          <div class="col-xs-6  sidebar-offcanvas">
+                              <h3>
+
+                                  <br>
+                                  {% if match_details['eval'] == 1 %}
+                                      <span class="label label-success">Match ID: {{match_details['index']}} / Match Score: {{match_details['score']}} {{match_details['type']}}
+                                      </span>
+                                      <br>
+                                      <span class="label label-success"> <i class="glyphicon glyphicon-ok"></i> </span>
+                                  {% endif %}
+                                  {% if match_details['eval'] == 0 %}
+                                      <span class="label label-danger">Match ID: {{match_details['index']}} / Match Score: {{match_details['score']}} {{match_details['type']}}
+                                      </span>
+                                      <br>
+                                      <span class="label label-danger"> <i class="glyphicon glyphicon-remove"></i> </span>
+                                  {% endif %}
+                                  {% if not match_details['eval'] == 1 and not match_details['eval'] == 0%}
+                                      <span class="label label-info">Match ID: {{match_details['index']}} / Match Score: {{match_details['score']}} {{match_details['type']}}
+                                      </span>
+                                  {% endif %}
+                              </h3>
+                          </div>
+                          <div class="col-xs-6 text-center">
+                            {% include "evaluate_form.html" %}
+                          </div>
+                        </div>
                       <hr>
                     {% endif %}
+
                   <div class="row row-offcanvas row-offcanvas-right">
+                        {% if json_dict_h and json_dict_h2%}
+                            <div class="col-sm-6" id="graph_left"> </div>
+                            <div class="col-sm-6" id="graph_right"> </div>
+                            <hr>
+                        {% endif %}
+
                       <div class="col-xs-6"  role="navigation">
                           <div class="list-group">
-                            {% for key,value in doc1.iteritems() %}
-                            <b> {{key}}</b>: {{value}}
-                              <br>
-                            {% endfor %}
                             {% if doc1['type_text'] == 'birth' %}
                                 <img alt="register_type" src="{{ url_for('static', filename='icon_birth.jpg') }}" WIDTH=40  />
                             {% endif %}
@@ -169,15 +198,16 @@
                             {% if doc1['type_text'] == 'death' %}
                                 <img alt="register_type" src="{{ url_for('static', filename='icon_death.jpg') }}" WIDTH=50  />
                             {% endif %}
+                            <br>
+                            {% for key,value in doc1.iteritems() %}
+                            <b> {{key}}</b>: {{value}}
+                              <br>
+                            {% endfor %}
                           </div>
 
                       </div><!--/span-->
                       <div class="col-xs-6" role="navigation">
                           <div class="list-group">
-                            {% for key,value in doc2.iteritems() %}
-                            <b> {{key}}</b>: {{value}}
-                              <br>
-                            {% endfor %}
                             {% if doc2['type_text'] == 'birth' %}
                                 <img alt="register_type" src="{{ url_for('static', filename='icon_birth.jpg') }}" WIDTH=40  />
                             {% endif %}
@@ -187,13 +217,14 @@
                             {% if doc2['type_text'] == 'death' %}
                                 <img alt="register_type" src="{{ url_for('static', filename='icon_death.jpg') }}" WIDTH=50  />
                             {% endif %}
+                            <br>
+                            {% for key,value in doc2.iteritems() %}
+                            <b> {{key}}</b>: {{value}}
+                              <br>
+                            {% endfor %}
                           </div>
                       </div><!--/span-->
                   </div>
-                {% if json_dict_h and json_dict_h2%}
-                    <div class="col-sm-6" id="graph_left"> </div>
-                    <div class="col-sm-6" id="graph_right"> </div>
-                {% endif %}
             </div>
           </div><!--/row-->
         {% endif %}
