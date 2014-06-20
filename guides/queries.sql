@@ -23,3 +23,37 @@ where
     docu2.id = doc2 and docu1.id = doc1
 group by role1 , rol2 , type1 , type2
 order by count(*) desc;
+
+
+-- find duplicates (death)
+select 
+    count(*)
+from
+    (SELECT 
+        *
+    FROM
+        links_based.deceased
+    group by `deceased`.`last name` , `deceased`.`first names` , `deceased`.`date of death` , `deceased`.`last name father` , `deceased`.`first names father` , `deceased`.`last name mother` , `deceased`.`first names mother` , `deceased`.`last name partner` , `deceased`.`first names partner`
+    having count(*) > 1) as T
+    
+-- find duplicates (birth)
+SELECT 
+    count(*)
+from
+    (select 
+        *
+    from
+        birth
+    group by `birth`.`last name` , `birth`.`first names` , `birth`.`date` , `birth`.`last name father` , `birth`.`first names father` , `birth`.`last name mother` , `birth`.`first names mother`
+    having count(*) > 1) as T
+    
+-- find duplicates (marriage)
+SELECT 
+    count(*)
+from
+    (select 
+        *
+    from
+        marriage
+    group by `marriage`.`date` , `marriage`.`last name groom` , `marriage`.`first names groom` , `marriage`.`last name bride` , `marriage`.`first names bride` , `marriage`.`last name father groom` , `marriage`.`first names father groom` , `marriage`.`last name mother groom` , `marriage`.`first names mother groom` , `marriage`.`last name father bride` , `marriage`.`first names father bride` , `marriage`.`last name mother bride` , `marriage`.`first names mother bride`
+    having count(*) > 1) as T
