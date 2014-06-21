@@ -147,15 +147,35 @@ def routing():
     @app.route('/miss_matches/', methods=['GET', 'POST'])
     @app.route('/miss_matches/<p_id>', methods=['GET', 'POST'])
     def miss_page(p_id=None):
-        if request.args.get('search_term'):
-            p_id = request.args.get('search_term')
 
-        if not p_id:
-            p_id = '0'
+        if request.args.get('confirm'):
+            opinion = request.args.get('confirm')
+            comment = request.args.get('comment')
+            rowid = myOrm.get_miss_matches(p_id)['id']
+            if opinion == "True":
+                query = "update %s set eval=1, comment='%s' where id=%s" % (loadData.MATCH_TABLE, comment, rowid)
+                loadData.match_pairs[int(p_id)]['eval'] = 1
+                loadData.match_pairs[int(p_id)]['comment'] = comment
+            else:
+                query = "update %s set eval=0, comment='%s' where id=%s" % (loadData.MATCH_TABLE, comment, rowid)
+                loadData.match_pairs[int(p_id)]['eval'] = 0
+                loadData.match_pairs[int(p_id)]['comment'] = comment
 
-        if p_id == '0' or p_id:
             p_id = int(p_id)
-            p_id = max(1, p_id)
+            p_id += 1
+            basic.run_query('', query)
+
+        else:
+            if request.args.get('search_term'):
+                p_id = request.args.get('search_term')
+
+            if not p_id:
+                p_id = '0'
+
+            if p_id == '0' or p_id:
+                p_id = int(p_id)
+                p_id = max(1, p_id)
+
         match = myOrm.get_miss_matches(p_id)
         if match:
             ref1 = match['ref1']
@@ -173,7 +193,6 @@ def routing():
                 a_match = myOrm.get_miss_matches(a_match_id)
                 if a_match:
                     navbar_choices.append({'score': a_match['score'], 'index': a_match['index']})
-
             return render_template('index.html', doc1=doc1, doc2=doc2, match_details=match, json_dict_h=json_dict_1,
                                    json_dict_h2=json_dict_2, name='bijan', page_name='miss_matches',
                                    navbar_choices=navbar_choices)
