@@ -7,6 +7,8 @@ import time
 import threading
 import logging
 
+MATCH_TABLE = "miss_matches"
+
 table_all_documents = {}
 table_all_persons = {}
 block_dict = {}
@@ -127,7 +129,7 @@ def get_matching_pairs(limit=1000000):
     loading data from miss_matches table
     """
 
-    global match_pairs, db
+    global match_pairs, db, MATCH_TABLE
     __now__ = time.time()
 
 
@@ -136,16 +138,30 @@ def get_matching_pairs(limit=1000000):
     # the_query = "select id, ref1, ref2, score from miss_matches order by score desc limit %d" % limit
 
     the_query = """
-                SELECT id, ref1, ref2, score
+                SELECT id, ref1, ref2, score, eval, comment
                 FROM (
                     SELECT
-                        @row := @row +1 AS rownum, id, ref1, ref2, score
-                    FROM (
-                        SELECT @row :=0) r, miss_matches order by score desc
+                        @row := @row +1 AS rownum, id, ref1, ref2, score, eval, comment
+                    FROM (SELECT @row :=0) r,
+                """ + MATCH_TABLE + """
+                    order by score desc limit 10000000
                     ) ranked
-                WHERE rownum % 10000 = 1
-
+                    WHERE rownum % 10000 = 1
                 """
+
+    the_query = """
+                SELECT id, ref1, ref2, score, eval, comment
+                FROM (
+                    SELECT
+                        @row := @row +1 AS rownum, id, ref1, ref2, score, eval, comment
+                    FROM (SELECT @row :=0) r,
+                """ + MATCH_TABLE + """
+                     where role1 = 4 and rol2 = 4 and type1 = 'death' and type2 = 'death'
+                     order by score desc limit 1000
+                    ) ranked
+                """
+
+
     cur = basic.run_query(db, the_query)
     desc = cur.description
 
