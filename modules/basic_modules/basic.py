@@ -724,6 +724,32 @@ def pretty(d, indent=0):
                     print '\t' * (indent+1) + str(item)
 
 
+def text_pre_processing(text):
+    """
+        preprocesses the text (mostly for notarial acts).
+        E.g., adds space before and after ","
+         replaces multiple spaces by single ones.
+         detects the names connected to previous word
+    """
+    text = text.replace(',', ' , ')  # add space to comma
+    text = text.replace('.', ' . ')  # add space to period
+    text.replace('  ', ' ')
+
+    new_text = ''
+    for word in text.split():
+        new_word = word
+        if len(word) > 3:
+            new_word = ''
+            for index, letter in enumerate(word):
+                if letter.isupper() and 1 < index < len(word):
+                    new_word += ' '
+                new_word += letter
+        new_text += new_word + ' '
+
+    text = new_text
+    return text
+
+
 def log(msg):
     """
     prints the msg by adding time before it.
@@ -732,11 +758,10 @@ def log(msg):
 
 
 def main():
-    db = do_connect()
-    # load_data(db, 10000)
+    print text_pre_processing('bijan is nice andHodaIsNicer. HoweverBijanIs evenBetter .')
 
 
 if __name__ == '__main__':
-    pass
+    main()
 
 
