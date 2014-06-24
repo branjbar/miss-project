@@ -20,8 +20,21 @@ FROM
     all_documents as docu2
 where
     docu2.id = doc2 and docu1.id = doc1
-group by role1 , rol2 , type1 , type2
+group by type1 , type2, age
 order by count(*) desc;
+
+-- 
+-- select 
+--     type1, type2, count(*)
+-- FROM
+--     (SELECT 
+--         *
+--     FROM
+--         miss_matches
+--     where
+--         score = 2) as T
+-- group by type1 , type2
+-- order by count(*) desc;
 
 
 -- find duplicates (death)
