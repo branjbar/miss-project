@@ -4,8 +4,7 @@ SELECT
     score,
     type1,
     type2,
-    substring(docu2.date, 7, 12) - substring(docu1.date, 7, 12) as age,
-    COUNT(*)
+    avg(substring(docu2.date, 7, 12) - substring(docu1.date, 7, 12)) as age, count(*)
 FROM
     (SELECT 
         *
@@ -20,9 +19,21 @@ FROM
     all_documents as docu2
 where
     docu2.id = doc2 and docu1.id = doc1
-group by type1 , type2, age
+group by type1 , type2
 order by count(*) desc;
 
+-- 
+-- select 
+--     type1, type2, count(*)
+-- FROM
+--     (SELECT 
+--         *
+--     FROM
+--         miss_matches
+--     where
+--         score = 2) as T
+-- group by type1 , type2
+-- order by count(*) desc;
 -- 
 -- select 
 --     type1, type2, count(*)
