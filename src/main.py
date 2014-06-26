@@ -3,7 +3,7 @@ Created on Feb 7, 2014
 
 @author: Bijan
 
-# to include the modules in python path use export PYTHONPATH=$PYTHONPATH:~/sandbox/stigmergic-robot-coverage
+# PYTHONPATH=~/sandbox/stigmergic-robot-coverage python main.py
 '''
 import logging
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     logging.info('________________new________________')
 
     import sys
-    sys.path.append('modules')
+    sys.path.append("/Users/bijan/sandbox/stigmergic-robot-coverage")
 
     from interface import main_Interface
     main_Interface.main()
