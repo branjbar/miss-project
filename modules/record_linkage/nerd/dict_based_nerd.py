@@ -29,14 +29,14 @@ def extract_name(word_list):
             word_spec[index] = 1
 
     # Consider first word as a name if second word is already chosen to be a name
-    if word_spec.get(1) == 1:
+    if not word_list[0] == 'Testament' and word_spec.get(1) == 1:
         word_spec[0] = 3
 
     # search for last name prefixes
     for index, word in enumerate(word_list):
         if word in prefix_1 and word_spec.get(index - 1) and word_spec.get(index+1):
             word_spec[index] = 2
-        if word == "den" and word_list[index-1] == "van" and word_spec.get(index - 2) and word_spec.get(index+1):
+        if (word == "den" or word == "der") and word_list[index-1] == "van" and word_spec.get(index - 2) and word_spec.get(index+1):
             word_spec[index] = 2
             word_spec[index-1] = 2
 

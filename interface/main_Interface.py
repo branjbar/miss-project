@@ -282,7 +282,6 @@ def routing():
                 query = "update notary_acts set eval=0, comment='%s' where row_id=%s" % (comment, t_id)
                 loadData.table_notarial_acts[int(t_id)]['eval'] = 0
                 loadData.table_notarial_acts[int(t_id)]['comment'] = comment
-            print query
             basic.run_query('', query)
             t_id = int(t_id)
             t_id += 1
