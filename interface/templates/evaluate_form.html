@@ -1,18 +1,24 @@
 <!--Here we design the feedback forms that experts can submit their feedback.-->
 
-<form method="get">
-    <!--<span class="help-block">Do both persons refer to the same entity?</span>-->
-    {% if match_details['comment'] %}
-        <input type="text" class="form-control" name="comment" placeholder="<<  {{match_details['comment']}}  >>">
-    {% else %}
-        <input type="text" class="form-control" name="comment" placeholder="comments ...">
-    {% endif %}
+<div class="panel panel-default">
+<div class="panel-body">
+        <h5>Type in your comment here, and either Accept or Reject the current Results. <br> </h5>
+        <form method="get">
+            <!--<span class="help-block">Do both persons refer to the same entity?</span>-->
+            {% if match_details['comment'] %}
+                <input type="text" class="form-control" name="comment" placeholder="<<  {{match_details['comment']}}  >>">
+            {% else %}
+                <input type="text" class="form-control" name="comment" placeholder="comments ...">
+            {% endif %}
 
-    <!--<br>-->
-    <button type="submit" name="confirm" value="True" class="btn btn-primary btn-lg btn-success right-align">
-        <i class="glyphicon glyphicon-thumbs-up"></i>
-    </button>
-    <button type="submit" name="confirm" value="False"class="btn btn-primary btn-lg btn-danger">
-        <i class="glyphicon glyphicon-thumbs-down"></i>
-    </button>
-</form>
+            <br>
+            <button type="submit" name="confirm" value="True" class="btn btn-primary btn-lg btn-success right-align">
+                <i class="glyphicon glyphicon-thumbs-up"></i>
+            </button>
+            <button type="submit" name="confirm" value="False"class="btn btn-primary btn-lg btn-danger">
+                <i class="glyphicon glyphicon-thumbs-down"></i>
+            </button>
+        </form>
+
+    </div>
+</div>

@@ -737,6 +737,10 @@ def text_pre_processing(text):
          replaces multiple spaces by single ones.
          detects the names connected to previous word
     """
+    text = text.replace(']', ' ] ')  # add space to ]
+    text = text.replace('[', ' [ ')  # add space to [
+    text = text.replace(')', ' ) ')  # add space to )
+    text = text.replace('(', ' ( ')  # add space to (
     text = text.replace(',', ' , ')  # add space to comma
     text = text.replace('.', ' . ')  # add space to period
     text.replace('  ', ' ')

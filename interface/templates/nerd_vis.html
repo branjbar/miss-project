@@ -17,7 +17,7 @@
     {% include "navbar.html"%}
     <div class="container">
         <div class="row">
-            <div class="col-xs-2 text-center">
+            <div class="col-xs-1 text-center">
                   <ul class="nav nav-sidebar">
                     {% if navbar_choices %}
                         <li> <a href="/nerd_vis/{{navbar_choices[0]-1}}">
@@ -42,10 +42,14 @@
                     <div class="col-xs-8 text-center">
                         <div class="panel panel-default">
                         {%if text %}
-                          <p class="text-success">
-                              <b>#{{text.row_id}}</b>) id = {{text.id}}, date = {{text.date}}, place = {{text.place}}
+                          <h3>TEXT ID #{{text.row_id}}</h3>
+                            <hr>
+                            <p class="text-success">
+                               BHIC id = {{text.id}}, date = {{text.date}}, place = {{text.place}}
                             </p>
                           <div class="panel-body">
+                          <span class="glyphicon glyphicon-book"></span>
+                              <br>
                             {% for word in text.text %}
                               {%if not text['name_indexes'][loop.index-1] %}
                                 {{word}}
@@ -64,6 +68,8 @@
                                     {% endif %}
                                {% endif %}
                             {% endfor %}
+                              <br>
+                              <span class="glyphicon glyphicon-book"></span>
                           </div> <!--panel_body -->
                           {% endif %}
                         </div> <!-- panel -->
@@ -78,11 +84,30 @@
                 </div> <!--row -->
 
                 <div class="text-left">
-                   <p> Reference names extracted from text. </p>
+                   <p class="text-warning">
+                    <span class="glyphicon glyphicon-cloud-download"></span>
+                    <b> Reference names extracted from text: </b></p>
                     {% for ref in refs_list %}
-                        <p> {{loop.index}}) {{ref}} </p>
+                        <p> <b>{{loop.index}})</b> {{ref}} </p>
                     {% endfor %}
                 </div> <!-- eval div -->
+
+                <div class="panel panel-default text-left">
+                  <div class="panel-body">
+                  <p class="text-success">
+                        <b> Here are the rules which are used to extract the names from the text (1-6), and merge them in order to construct the references (7)</b>
+                        <ol>
+                            <li> <code> Name_Set &#8592; [ ] </code></li>
+                            <li> <code> Reference_Set &#8592; [ ]</code></li>
+                            <li> <code> Name_Set &#8592; Add all words starting with a capital letter (except the first word in each sentence)</code></li>
+                            <li> <code> Name_Set &#8592; Add the first word in each sentence if the second word is already in Name_Set</code></li>
+                            <li> <code> Name_Set &#8592; Add "van", "van den", "te", "de" if they appear between two names </code></li>
+                            <li> <code>  Name_Set &#8592; Eliminate the words that don't exist in Meertens database </code></li> This level doesn't work that good as a lot of names don't exist in Meertens institute (see the strike out words.)
+                            <li> <code> Reference_Set &#8592; Add any set of names that appear consequently </code> </li> For now we use the set from step 5.
+                        </ol>
+                    </p>
+                  </div> <!-- panel_body -->
+                </div> <!-- panel -->
 
             </div> <!-- div 9 -->
 

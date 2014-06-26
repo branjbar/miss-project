@@ -5,7 +5,7 @@ from modules.basic_modules.basic import log
 from modules.record_linkage.nerd import html_generate
 
 meertens_names = {}
-prefix_1 = ['van', 'te']
+prefix_1 = ['van', 'te', 'de']
 
 def extract_name(word_list):
     """ (list) --> (dist)
