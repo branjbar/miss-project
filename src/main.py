@@ -55,6 +55,9 @@ if __name__ == '__main__':
     logging.basicConfig(filename='logging.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
     logging.info('________________new________________')
 
+    import sys
+    sys.path.append('modules')
+
     from interface import main_Interface
     main_Interface.main()
 
