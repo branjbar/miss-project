@@ -29,8 +29,17 @@ for n in notarial_list:
     index_dict = {}
     text = basic.text_pre_processing(text)
     for index, word in enumerate(text.split()):
-        if name_dict.get(word.lower()):
+        # uses Meertens data
+        if not word == 'van' and name_dict.get(word.lower()):
             index_dict[index] = name_dict.get(word.lower())
+
+        # uses the first uppercase character
+        # if word[0].isupper() and index > 0 and len(text.split()[index-1]) > 1:
+        #     index_dict[index] = "last_name"
+        # else:
+        #     if word[0].isupper() and index > 0:
+        #         index_dict[index] = "first_name_m"
+
     output.append([text, index_dict])
 
 html_generate.export_html(output)
