@@ -270,31 +270,54 @@ def routing():
     @app.route('/nerd_vis/', methods=['GET'])
     @app.route('/nerd_vis/<t_id>', methods=['GET'])
     def nerd_vis(t_id=1):
-        search_id = request.args.get('search_term')
-        if search_id and search_id.isdigit():
-            t_id = int(search_id)
 
-
-        match_details = {}
-        c = myOrm.get_notarial_act(t_id)
-        navbar_choices = [1,2,3,4,5,6,7,8,9,10]
-
-        if c:
-            word_list = basic.text_pre_processing(c['text1'] + ' ' + c['text2'] + c['text3']).split()
-            name_indexes = dict_based_nerd.extract_name(word_list)
-            text = {'text': word_list,
-                    'name_indexes': name_indexes,
-                    'row_id' : c['row_id'],
-                    'id' : c['id'],
-                    'date': c['date'],
-                    'place': c['place'],
-                    }
-            navbar_choices = [i for i in xrange(int(c['row_id']),int(c['row_id'])+10)  ]
+        if request.args.get('confirm'):
+            opinion = request.args.get('confirm')
+            comment = request.args.get('comment')
+            if opinion == "True":
+                query = "update notary_acts set eval=1, comment='%s' where row_id=%s" % (comment, t_id)
+                loadData.table_notarial_acts[int(t_id)]['eval'] = 1
+                loadData.table_notarial_acts[int(t_id)]['comment'] = comment
+            else:
+                query = "update notary_acts set eval=0, comment='%s' where row_id=%s" % (comment, t_id)
+                loadData.table_notarial_acts[int(t_id)]['eval'] = 0
+                loadData.table_notarial_acts[int(t_id)]['comment'] = comment
+            print query
+            basic.run_query('', query)
+            t_id = int(t_id)
+            t_id += 1
 
         else:
-            text = {'text': 'no - text - found!'}
 
-        return render_template('nerd_vis.html', text=text, match_details=match_details, navbar_choices=navbar_choices)
+            search_id = request.args.get('search_term')
+            if search_id and search_id.isdigit():
+                t_id = int(search_id)
+
+        refs_list = []
+        match_details = {}
+        act = myOrm.get_notarial_act(t_id)
+        navbar_choices = [1,2,3,4,5,6,7,8,9,10]
+        if act:
+            word_list = basic.text_pre_processing(act['text1'] + ' ' + act['text2'] + act['text3']).split()
+            word_spec = dict_based_nerd.extract_name(word_list)
+            refs_list = dict_based_nerd.extract_references(word_list, word_spec)
+            text = {'text': word_list,
+                    'name_indexes': word_spec,
+                    'row_id' : act['row_id'],
+                    'id' : act['id'],
+                    'date': act['date'],
+                    'place': act['place'],
+                    }
+            match_details['comment'] = act['comment']
+            navbar_choices = [i for i in xrange(int(act['row_id']),int(act['row_id'])+10)  ]
+
+        else:
+            text = None
+
+        return render_template('nerd_vis.html', text=text,
+                               match_details=match_details,
+                               refs_list=refs_list,
+                               navbar_choices=navbar_choices)
 
 
 
