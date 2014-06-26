@@ -11,10 +11,13 @@ MATCH_TABLE = "miss_matches"
 
 table_all_documents = {}
 table_all_persons = {}
+table_notarial_acts = {}
 block_dict = {}
 match_pairs = {}
 
 db = basic.do_connect()
+
+
 def update_persons_table(db_useless, limit):
     """
     loading data from persons table: either for a range of persons or just a specific person
@@ -68,6 +71,60 @@ def update_persons_table(db_useless, limit):
         table_all_persons[row_dict['id']] = row_dict
 
     logging.debug("table all_persons imported in %s" % str(time.time() - __now__))
+
+def update_notarial_acts(limit):
+    """
+    loading data from notarial acts: either for a range of acts or just a specific act
+    (i.e., where addendum is provided)
+    """
+
+    global table_notarial_acts
+    __now__ = time.time()
+
+
+    lim = limit[0]
+    type = limit[1]
+    addendum = limit[2]
+    logging.debug('Loading table notarial_acts.')
+
+    the_query = "select * from notary_acts"
+
+    if type:
+        q_type = None
+        for t in type:
+            if not q_type:
+                q_type = " register_type = '%s'" % t
+            else:
+                q_type += " or register_type = '%s'" % t
+        the_query += " where %s" % q_type
+
+    if lim:
+        the_query += " limit %d" % lim
+
+    if addendum:
+        the_query += " " + addendum
+    cur = basic.run_query(db, the_query)
+    desc = cur.description
+
+    if not addendum:
+        t2 = threading.Thread(target=update_documents_table, args=(db, limit))
+        t2.daemon = True
+        t2.start()
+
+
+    tmp_index = 0
+    for row in cur.fetchall():
+        row_dict = {}
+        tmp_index += 1
+        for index, value in enumerate(row):
+            try:
+                row_dict[desc[index][0]] = value.decode('ascii','ignore')
+            except:
+                row_dict[desc[index][0]] = value
+        table_notarial_acts[row_dict['row_id']] = row_dict
+    logging.debug("table notarial_acts imported in %s" % str(time.time() - __now__))
+
+
 
 
 

@@ -83,7 +83,6 @@ def get_block(block_id = None):
                 else:
                     retry_counter +=1
         else:
-            # print loadData.block_dict.keys()
             block = loadData.block_dict.get(block_id)
 
         return block
@@ -123,6 +122,27 @@ def get_links(db, link_id = None):
         return reference
     else:
         return {'id1': 0, 'id2': 0}
+
+
+def get_notarial_act(text_id= None):
+    ''' (db, integer) -> (dict)
+    return a person with the id
+    '''
+
+    text = None
+    if loadData.table_notarial_acts:
+        if not text_id and loadData.table_all_persons:
+            text_id = random.choice(loadData.table_all_persons.keys())
+
+        text = loadData.table_all_persons.get(int(text_id))
+    if not text and text_id:
+        loadData.update_notarial_acts(['','', 'where row_id = %s'%str(text_id)])
+        text = loadData.table_notarial_acts.get(int(text_id))
+
+    if text:
+        return text
+    else:
+        return None
 
 
 def get_miss_matches(match_index=None, match_id=None ):
@@ -168,5 +188,4 @@ def get_relatives(person_id):
 
 if __name__ == "__main__":
     db = basic.do_connect()
-    print get_block(db, 100)
 

@@ -3,7 +3,7 @@ from flask import render_template
 
 from modules.basic_modules import basic, loadData, myOrm, generatePedigree
 from interface import app
-
+from modules.record_linkage.nerd import dict_based_nerd
 
 
 def routing():
@@ -264,6 +264,39 @@ def routing():
 
         # else:
         #     return render_template('visualization.html', message='No results found!', name='bijan')
+
+
+
+    @app.route('/nerd_vis/', methods=['GET'])
+    @app.route('/nerd_vis/<t_id>', methods=['GET'])
+    def nerd_vis(t_id=1):
+        search_id = request.args.get('search_term')
+        if search_id and search_id.isdigit():
+            t_id = int(search_id)
+
+
+        match_details = {}
+        c = myOrm.get_notarial_act(t_id)
+        navbar_choices = [1,2,3,4,5,6,7,8,9,10]
+
+        if c:
+            word_list = basic.text_pre_processing(c['text1'] + ' ' + c['text2'] + c['text3']).split()
+            name_indexes = dict_based_nerd.extract_name(word_list)
+            text = {'text': word_list,
+                    'name_indexes': name_indexes,
+                    'row_id' : c['row_id'],
+                    'id' : c['id'],
+                    'date': c['date'],
+                    'place': c['place'],
+                    }
+            navbar_choices = [i for i in xrange(int(c['row_id']),int(c['row_id'])+10)  ]
+
+        else:
+            text = {'text': 'no - text - found!'}
+
+        return render_template('nerd_vis.html', text=text, match_details=match_details, navbar_choices=navbar_choices)
+
+
 
 
 
