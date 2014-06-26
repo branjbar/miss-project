@@ -4,16 +4,85 @@ from modules.basic_modules import basic
 from modules.basic_modules.basic import log
 from modules.record_linkage.nerd import html_generate
 
+meertens_names = {}
+prefix_1 = ['van', 'te']
 
 def extract_name(word_list):
-    """ (list) --> (list)
-        extracts the words in a list that can refer to name
+    """ (list) --> (dist)
+        for each word the specifications are reported:
+        1 : started with capital letter
+        2 : last name prefix
+        3 : First word of the whole paragraph
+        4: has capital letter but doesn't exist in the list
     """
-    name_indexes = []
+    global prefix_1
+    # search for capital letters
+    global meertens_names
+    if not meertens_names:
+        import_dutch_data_set()
+
+    word_spec = {}  # for word specificate
     for index, word in enumerate(word_list):
+        word_spec[index] = None
+
         if word[0].isupper() and index > 0 and len(word) > 1:
-            name_indexes.append(index)
-    return name_indexes
+            word_spec[index] = 1
+
+    # Consider first word as a name if second word is already chosen to be a name
+    if word_spec.get(1) == 1:
+        word_spec[0] = 3
+
+    # search for last name prefixes
+    for index, word in enumerate(word_list):
+        if word in prefix_1 and word_spec.get(index - 1) and word_spec.get(index+1):
+            word_spec[index] = 2
+        if word == "den" and word_list[index-1] == "van" and word_spec.get(index - 2) and word_spec.get(index+1):
+            word_spec[index] = 2
+            word_spec[index-1] = 2
+
+    for index, word in enumerate(word_list):
+        if word_spec[index] and not meertens_names.get(word.lower()):
+            word_spec[index] = -1
+
+    return word_spec
+
+
+def extract_references(word_list, word_spec):
+    """ (list) --> (list)
+        connects the extracted names by using the specification of
+
+    """
+
+    refs_list = []
+    reference = ''
+    for index, word in enumerate(word_list):
+        if word_spec[index] :
+            reference += word + ' '
+        else:
+            reference = reference.strip()
+            if len(reference.split(' ')) > 1:
+                refs_list.append(reference)
+            reference = ''
+
+    return refs_list
+
+
+
+def import_dutch_data_set():
+    """
+        imports the Dutch data set for name disambiguation
+    """
+    global meertens_names
+    log('importing names')
+    the_query = "SELECT name, type FROM meertens_names"
+    cur = basic.run_query(None, the_query)
+
+    meertens_names = {}
+    for c in cur.fetchall():
+        meertens_names[c[0].lower()] = c[1]
+
+    log('importing names is done')
+
 
 
 def main():
