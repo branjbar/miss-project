@@ -150,7 +150,7 @@ def routing():
 
         if request.args.get('confirm'):
             opinion = request.args.get('confirm')
-            comment = request.args.get('comment')
+            comment = request.args.get('comment').replace("'","").replace('"','')
             rowid = myOrm.get_miss_matches(p_id)['id']
             if opinion == "True":
                 query = "update %s set eval=1, comment='%s' where id=%s" % (loadData.MATCH_TABLE, comment, rowid)
@@ -273,7 +273,7 @@ def routing():
 
         if request.args.get('confirm'):
             opinion = request.args.get('confirm')
-            comment = request.args.get('comment')
+            comment = request.args.get('comment').replace("'","").replace('"','"')
             if opinion == "True":
                 query = "update notary_acts set eval=1, comment='%s' where row_id=%s" % (comment, t_id)
                 loadData.table_notarial_acts[int(t_id)]['eval'] = 1
