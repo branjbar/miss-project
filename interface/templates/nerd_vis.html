@@ -20,12 +20,13 @@
             <div class="col-xs-1 text-center">
                   <ul class="nav nav-sidebar">
                     {% if navbar_choices %}
+                        <p class="text-success">(Text ID)</p>
                         <li> <a href="/nerd_vis/{{navbar_choices[0]-1}}">
                             <span class="glyphicon glyphicon-chevron-up"/> </a></li>
-                        <li class="current" style="background: #F0F0F0;"><a class="small"> {{navbar_choices[0] - 1}} </a> </li>
+                        <li class="current" style="background: #F0F0F0;"><a class="small"> #{{navbar_choices[0] - 1}} </a> </li>
 
                     {% for item in navbar_choices %}
-                        <li><a href="/nerd_vis/{{item}}" class="small">{{item}}</a>
+                        <li><a href="/nerd_vis/{{item}}" class="small">#{{item}}</a>
                             </li>
                     {% endfor %}
                         <li> <a href="/nerd_vis/{{navbar_choices[0] + 1}}">
