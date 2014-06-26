@@ -38,9 +38,15 @@ def do_connect(type='LOCAL'):
         return db
 
     if type == "LOCAL":
-        db = MySQLdb.connect(host="127.0.0.1", 
-                             user="root", 
-                              passwd="", 
+        try:
+            db = MySQLdb.connect(host="127.0.0.1",
+                             user="root",
+                              passwd="",
+                              db="links_based")
+        except:
+            db = MySQLdb.connect(host="127.0.0.1",
+                             user="bijan",
+                              passwd="****",
                               db="links_based")
         db.autocommit(True)
         return db

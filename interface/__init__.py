@@ -5,9 +5,10 @@ from flask_mail import Mail
 import base64
 
 app = Flask(__name__)
-f = open('/Users/Bijan/linkspy.cnf', 'r')
+try:
+    f = open('/Users/Bijan/linkspy.cnf', 'r')
 
-app.config.update(dict(
+    app.config.update(dict(
         MAIL_SERVER='smtp.gmail.com',
         MAIL_PORT=465,
         MAIL_USE_TLS=False,
@@ -17,4 +18,6 @@ app.config.update(dict(
         DEFAULT_MAIL_SENDER='bij.ranjbar@gmail.com'
     ))
 
+except:
+    pass
 mail = Mail(app)

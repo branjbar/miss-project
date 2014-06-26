@@ -2,6 +2,8 @@
 Created on Feb 7, 2014
 
 @author: Bijan
+
+# to include the modules in python path use export PYTHONPATH=$PYTHONPATH:~/sandbox/stigmergic-robot-coverage
 '''
 import logging
 

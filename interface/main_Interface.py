@@ -324,8 +324,8 @@ def routing():
 
 
     app.debug = True
-    # app.run(host='0.0.0.0')
-    app.run()
+    app.run(host='0.0.0.0', port=20002)
+    # app.run()
 
 
 def main():
