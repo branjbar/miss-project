@@ -21,7 +21,7 @@ def find_deep_families(load_from_file=False, depth=4):
 
         db = basic.do_connect()
         link_query = "Select * from links"
-        cur = basic.run_query(db, link_query)
+        cur = basic.run_query(link_query)
         for row in cur.fetchall():
             if row[2] and int(row[3]) == 1 and (int(row[4]) == 2 or int(row[4]) == 3):
 

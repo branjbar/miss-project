@@ -9,7 +9,7 @@ import logging
 
 genders_dict = {} # this is used to store all the names with majority gender
 
-def extract_block_key(db, person, gender_names):
+def extract_block_key(person, gender_names):
     feature_set = {'id': person['id'],
                    'first_name': person['first_name'].replace("'",""),
                    'last_name': person['last_name'].replace("'",""),
@@ -61,7 +61,7 @@ def get_block_ids(db):
     """
     global block_set, max_block_id
     block_id_query = 'SELECT distinct(block_id), block_key FROM links_based.all_persons_features';
-    cur = basic.run_query(db, block_id_query)
+    cur = basic.run_query(block_id_query)
     for row in cur.fetchall():
         block_set[row[1]] = row[0]
         if row[0] > max_block_id:
@@ -90,12 +90,12 @@ def insert_blocking_keys(sb, f_set):
     # print insert_query
     return insert_query
 
-def do_blocking(db, gender_names):
+def do_blocking(gender_names):
     """
     does the blocking by adding the blocking key and feature_sets for all the persons; everything
     is added to all_persons_features
     """
-    # cur = basic.run_query(db, 'SELECT count(*) FROM links_based.all_persons_features')
+    # cur = basic.run_query('SELECT count(*) FROM links_based.all_persons_features')
     # N = cur.fetchone()[0]
     # N = 1000000
 
@@ -104,7 +104,7 @@ def do_blocking(db, gender_names):
                      "(select all_persons_features.id from all_persons_features " \
                      "where all_persons.id = all_persons_features.id)"
 
-    cur = basic.run_query(db, blocking_query)
+    cur = basic.run_query(blocking_query)
     logging.debug("importing persons")
     row_list = []
     for c in cur.fetchall():
@@ -116,19 +116,19 @@ def do_blocking(db, gender_names):
     t = time.time()
     for row in row_list:
         query_count += 1
-        person = myOrm.row_to_reference(db, row)
-        f_set = extract_block_key(db, person, gender_names)
-        cum_query += insert_blocking_keys(db, f_set)
+        person = myOrm.row_to_reference(row)
+        f_set = extract_block_key(person, gender_names)
+        cum_query += insert_blocking_keys(f_set)
 
         if not query_count % 1000:
             # print cum_query
             query_count = 0
-            basic.run_query(db, cum_query)
+            basic.run_query(cum_query)
             logging.debug('elapsed time in extracting featuresis %s' % str(time.time() - t))
             t = time.time()
             cum_query = ''
 
-    basic.run_query(db, cum_query)
+    basic.run_query(cum_query)
 
 def get_name_gender_list(db):
 
@@ -162,12 +162,12 @@ def get_name_gender_list(db):
                     '''
 
     male_names = []
-    cur = basic.run_query(db, male_query)
+    cur = basic.run_query(male_query)
     for name in cur.fetchall():
         male_names.append(name[0])
 
     female_names = []
-    cur = basic.run_query(db, female_query)
+    cur = basic.run_query(female_query)
     for name in cur.fetchall():
         female_names.append(name[0])
 
@@ -179,4 +179,4 @@ if __name__ == "__main__":
     max_block_id = 0
     block_set = {}
     # get_block_ids(db)
-    do_blocking(db, gender_names)
+    do_blocking(gender_names)

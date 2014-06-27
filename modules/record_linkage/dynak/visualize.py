@@ -51,7 +51,7 @@ def export_to_gephi():
             """
 
     ref_list = []
-    cur = basic.run_query(db, query1)
+    cur = basic.run_query(query1)
     for c in cur.fetchall():
         edge_list = get_family_edge(c[1].split(','))
         for e in edge_list:

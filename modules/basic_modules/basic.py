@@ -72,7 +72,7 @@ def string_compare(str1, str2, method='JARO'):
     print("ERROR: Choose the right string similarity measure : LEV or JARO")
     
 
-def get_match_score(db, ref1, ref2, level):
+def get_match_score(ref1, ref2, level):
     ''' (dict, dict, string) --> double
     
     returns the similarity of reference 1 and 2 according to the level
@@ -93,7 +93,7 @@ def get_match_score(db, ref1, ref2, level):
         return (score_first_name + score_last_name) / 2
     
     if level == 1:
-        score_0 = get_match_score(db, ref1, ref2, 0)
+        score_0 = get_match_score(ref1, ref2, 0)
         MAXDISTANCE = 1.92
         import math
         score_place = 1 - ((math.fabs(ref1['place'][0] - ref2['place'][0]) \
@@ -112,24 +112,23 @@ def get_match_score(db, ref1, ref2, level):
         return (score_0 + score_place + score_year) / 3 #HOSSEIN: DON'T USE WEIGHT
     
     if level == 2:
-        score_1 = get_match_score(db, ref1, ref2, 1)        
-        family_1 = get_family_new(db, ref1)
-        family_2 = get_family_new(db, ref2)
-#         family_1_new = get_family_new(db, ref1)
-#         family_2_new = get_family_new(db, ref2)
+        score_1 = get_match_score(ref1, ref2, 1)
+        family_1 = get_family_new(ref1)
+        family_2 = get_family_new(ref2)
+
         score_family = 0
         
         #print ref1['register_type'],ref1['role'],family_1.keys(),ref2['register_type'],ref2['role'],family_2.keys()
         
         for rel in ['m','f','p','c']:
             if family_1.get(rel) and family_2.get(rel):
-                score_family += get_match_score(db, family_1[rel], family_2[rel], 0)
+                score_family += get_match_score(family_1[rel], family_2[rel], 0)
 
         return (score_1 + score_family) / 4 # in the best case, three relatives would fit. that's why we divide by 3+1=4
 
 
     if level == 3:
-        score_0 = get_match_score(db, ref1, ref2, 0)
+        score_0 = get_match_score(ref1, ref2, 0)
         MAXDISTANCE = 1.92
         import math
         score_place = (math.fabs(ref1['place'][0] - ref2['place'][0]) \
@@ -140,15 +139,15 @@ def get_match_score(db, ref1, ref2, level):
         return (score_0 + score_place ) / 2 #HOSSEIN: DON'T USE WEIGHT
     
     if level == 4:
-        score_1 = get_match_score(db, ref1, ref2, 3)        
-        family_1 = get_family_new(db, ref1)
-        family_2 = get_family_new(db, ref2)
+        score_1 = get_match_score(ref1, ref2, 3)
+        family_1 = get_family_new(ref1)
+        family_2 = get_family_new(ref2)
         score_family = 0
         
         
         for rel in ['m','f','p','c']:
             if family_1.get(rel) and family_2.get(rel):
-                score_family += get_match_score(db, family_1[rel], family_2[rel], 0)
+                score_family += get_match_score(family_1[rel], family_2[rel], 0)
 
 
 
@@ -158,7 +157,7 @@ def get_match_score(db, ref1, ref2, level):
     print("ERROR: Choose the right context level from {0, 1, 2, 3}")
 
 
-def row_to_reference(db, row, table="all_persons"):
+def row_to_reference(row, table="all_persons"):
     ''' (list, table) -> (dict)
     adds labels to different elements of the list, according to the table type,
     and makes a reference
@@ -170,7 +169,7 @@ def row_to_reference(db, row, table="all_persons"):
         place = row[4]
         if place:
             query = 'select latitude, longitude from geocode where municipality = "' + place + '"'
-            cur = run_query(db, query) # fetch the person with the the random id
+            cur = run_query(query) # fetch the person with the the random id
             geocode = cur.fetchone()
         else:
             geocode = None
@@ -205,7 +204,7 @@ def row_to_reference(db, row, table="all_persons"):
         return ref
 
 
-def get_person(db, person_id = None):
+def get_person(person_id = None):
 
     print 'wrong get_person is used!!'
 
@@ -215,8 +214,8 @@ def get_person(db, person_id = None):
     
     # if no id then find a random person
     if person_id:
-        cur = run_query(db, STANDARD_QUERY + ' id = ' + str(person_id)) # fetch the person with the the random id
-        reference = row_to_reference(db, cur.fetchone())
+        cur = run_query(STANDARD_QUERY + ' id = ' + str(person_id)) # fetch the person with the the random id
+        reference = row_to_reference(cur.fetchone())
         return reference
     
     if not person_id:
@@ -227,14 +226,14 @@ def get_person(db, person_id = None):
             from random import randrange
             person_id = randrange(1,5244863)
             
-            cur = run_query(db, STANDARD_QUERY + ' id = ' + str(person_id)) # fetch the person with the the random id
-            reference = row_to_reference(db, cur.fetchone())
+            cur = run_query( STANDARD_QUERY + ' id = ' + str(person_id)) # fetch the person with the the random id
+            reference = row_to_reference(cur.fetchone())
             if reference['first_name'] or reference['last_name']:
                 flag = True # if the person has name, then flag is toggled
         return reference
 
 
-def get_document(db, document_id = None):
+def get_document(document_id = None):
 
     print 'wrong get_document is used, use the one from myOrm!!'
     ''' (integer) -> (dict)
@@ -243,10 +242,10 @@ def get_document(db, document_id = None):
 
     # if no id then find a random person
     if document_id:
-        cur = run_query(db, 'SELECT * FROM all_documents where id =' + str(document_id))
+        cur = run_query( 'SELECT * FROM all_documents where id =' + str(document_id))
         row = cur.fetchone()
         if row:
-            reference = row_to_reference(db, row, "all_documents")
+            reference = row_to_reference(row, "all_documents")
         else:
             reference = {}
 
@@ -260,12 +259,12 @@ def get_document(db, document_id = None):
             from random import randrange
             document_id = randrange(2846095,23729952)
 
-            cur = run_query(db, 'SELECT * FROM all_documents where id =' + str(document_id))
+            cur = run_query('SELECT * FROM all_documents where id =' + str(document_id))
             row = cur.fetchone()
             if row:
                 flag = True # if the person has name, then flag is toggled
 
-        reference = row_to_reference(db, row, "all_documents")
+        reference = row_to_reference(row, "all_documents")
         return reference
 
 
@@ -275,10 +274,10 @@ def get_dutch_names(db):
     returns the list of names and their ids and standards
     '''
 
-    cur = run_query(db, STANDARD_QUERY_MEERTENS)
+    cur = run_query(STANDARD_QUERY_MEERTENS)
     return cur.fetchall()
 
-def insert_features(db, id, name, standard, document_type,  f_list):
+def insert_features(id, name, standard, document_type,  f_list):
     """ (database, int, string, string, list) --> Null
     insert a feature list to the database
     """
@@ -295,7 +294,7 @@ def insert_features(db, id, name, standard, document_type,  f_list):
 
 
     
-def get_family_new(db, person):
+def get_family_new(person):
     ''' (dict) -> (dictionary of lists)
     returns a dictionary which contains the the family members information 
     
@@ -312,10 +311,10 @@ def get_family_new(db, person):
          
         
     query = "select ref2, relation_type from relations where ref1 = " + str(person['id']) +' limit ' + str(lim)
-    cur = run_query(db, query) # fetch the person with the the random id
+    cur = run_query(query) # fetch the person with the the random id
     # for each relative find the relation type
     for row in cur.fetchall():
-        relative = get_person(db, row[0])
+        relative = get_person(row[0])
         family[row[1]] = relative
         
     if not family:
@@ -323,7 +322,7 @@ def get_family_new(db, person):
         
     return family
 
-def get_family(db, person):
+def get_family(person):
     ''' (dict) -> (dictionary of lists)
     returns a dictionary which contains the the family members information 
     
@@ -334,11 +333,11 @@ def get_family(db, person):
     query = STANDARD_QUERY + " register_id = " + str(person['register_id']) \
     + " and register_type = '" + str(person['register_type']) \
     + "' and id != " + str(person['id']) 
-    cur = run_query(db, query) # fetch the person with the the random id
+    cur = run_query(query) # fetch the person with the the random id
 
     # for each relative find the relation type
     for row in cur.fetchall():
-        relative = row_to_reference(db, row)
+        relative = row_to_reference(row)
         rel = relation_decode(person, relative)
         if rel:
             family[rel] = relative
@@ -399,7 +398,7 @@ def relation_decode(person,relative):
 
     return None
 
-def count_islands(db, level):
+def count_islands(level):
     '''(int) -> (int)
     returns number of islands left after the matching of requested level  
    
@@ -410,11 +409,11 @@ def count_islands(db, level):
     '''
     if level == 0:
         query = 'Select count(*) from all_documents'
-        cur = run_query(db, query) # fetch the person with the the random id
+        cur = run_query(query) # fetch the person with the the random id
         return cur.fetchone()[0]
     
 
-def add_blocking_code(db, blocking_type = 2):
+def add_blocking_code(blocking_type = 2):
     '''(int) -> ()
     adds new potential matches according to the blocking technique to the carr_match table.
     
@@ -425,7 +424,7 @@ def add_blocking_code(db, blocking_type = 2):
         import jellyfish
         count = 0
         query = 'Select id, last_name from all_persons'
-        cur1 = run_query(db, query) # fetch the person with the the random id
+        cur1 = run_query(query) # fetch the person with the the random id
 
         ref_list = []
         for row in cur1.fetchall(): 
@@ -437,14 +436,14 @@ def add_blocking_code(db, blocking_type = 2):
             if count%10000 == 0:
                 if query:
                     # print query 
-                    cur = run_query(db, query)
+                    cur = run_query(query)
                     cur.fetchall()
                     cur.close()
                     query = ''
             metaphone = jellyfish.metaphone(ref[1])
             query += 'update all_persons set metaphone = "' + metaphone + '" where id =' + str(ref[0]) + ';'
         if query:
-            cur = run_query(db, query)
+            cur = run_query(query)
             cur.fetchall()
             cur.close()
             query = ''
@@ -456,7 +455,7 @@ def add_blocking_code(db, blocking_type = 2):
 
         # importing all names and their ids
         query = 'Select id, concat(first_name, " ", last_name) from all_persons'
-        cur1 = run_query(db, query) # fetch the person with the the random id
+        cur1 = run_query(query) # fetch the person with the the random id
         ref_list = []
         for row in cur1.fetchall(): 
             ref_list.append([row[0],row[1]])
@@ -472,7 +471,7 @@ def add_blocking_code(db, blocking_type = 2):
                 
             metaphone = jellyfish.metaphone(ref[1])
             query = 'update all_persons set metaphone = "' + metaphone + '" where id =' + str(ref[0]) + ';'
-            cur = run_query(db, query)
+            cur = run_query(query)
             cur.fetchall()
             cur.close()
 
@@ -491,7 +490,7 @@ def do_matching(db):
 
     # get a list of all metaphones
     query = 'SELECT distinct(metaphone) FROM links_based.all_persons where metaphone != "" '
-    cur = run_query(db, query)
+    cur = run_query(query)
     metaphone_list = []
     for metaphone in cur.fetchall():
         metaphone_list.append(metaphone[0])
@@ -508,7 +507,7 @@ def do_matching(db):
         
         # Get a list of all available matches with this metaphone
         query = 'SELECT ref1, ref2, level FROM links_based.carr_match where blocking = "' + metaphone + '"'
-        cur = run_query(db, query)
+        cur = run_query(query)
         match_list = []
         for match in cur.fetchall():
             match_list.append([match[0],match[1],match[2]])
@@ -516,10 +515,10 @@ def do_matching(db):
         
         # Get the complete data of all individuals in this match
         query =  STANDARD_QUERY + ' metaphone = "' + metaphone + '"'
-        cur = run_query(db, query)
+        cur = run_query(query)
         ref_list = []
         for row in cur.fetchall():
-            reference = row_to_reference(db, row)
+            reference = row_to_reference(row)
             ref_list.append(reference)
         for ref1 in ref_list:
             for ref2 in ref_list:
@@ -530,12 +529,12 @@ def do_matching(db):
 
                     for level in [1,2]:
                         if not [ref1['id'], ref2['id'], level+10] in match_list:
-                            score = get_match_score(db, ref1, ref2, level)
+                            score = get_match_score(ref1, ref2, level)
                             date_time = time.strftime('%Y-%m-%d %H:%M:%S')
                             query = 'insert into carr_match (ref1,ref2,score,level, blocking, date) VALUES (' \
                                                 + str(ref1['id']) + ',' + str(ref2['id']) + ',' + str(score) + ',' + str(level+10) \
                                                 + ',"' + str(metaphone) + '","' + str(date_time) +'");'
-                            cur = run_query(db, query)
+                            cur = run_query(query)
                             cur.fetchall()
                             cur.close()
                     
@@ -544,7 +543,7 @@ def do_matching(db):
                     elapsed = end - start
                     print count, elapsed
 
-def generate_relations(db, doc_type):
+def generate_relations(doc_type):
     ''' (str)->()
     generates all the relations for doc_type and inserts them into relatins table
     '''
@@ -569,7 +568,7 @@ def generate_relations(db, doc_type):
 #         if count == 100:
 #             print count
 #             count = 0
-#             cur = run_query(db, query)
+#             cur = run_query(query)
 #             cur.fetchall()
 #             cur.close()
 #             query = ''
@@ -598,7 +597,7 @@ def generate_relations(db, doc_type):
         if count == 100:
             print row[0]
             count = 0
-            cur = run_query(db, query)
+            cur = run_query(query)
             cur.fetchall()
             cur.close()
             query = ''
@@ -640,7 +639,7 @@ def generate_relations(db, doc_type):
         if count == 100:
             print row[0]
             count = 0
-            cur = run_query(db, query)
+            cur = run_query(query)
             cur.fetchall()
             cur.close()
             query = ''
@@ -668,7 +667,7 @@ def longest_common_substring(s1, s2):
     return s1[x_longest - longest: x_longest]
     
 
-def estimate_gender(db, name):
+def estimate_gender(name):
     """
     estimates the gender of a person using the majority of people with the same name
     """
@@ -683,7 +682,7 @@ def estimate_gender(db, name):
         # print query
         # print query
         # t = time.time()
-        cur = run_query(db, query)
+        cur = run_query(query)
         row = cur.fetchone()
         if row:
             gender = row[0]
@@ -724,13 +723,10 @@ def text_pre_processing(text):
          replaces multiple spaces by single ones.
          detects the names connected to previous word
     """
-    text = text.replace(']', ' ] ')  # add space to ]
-    text = text.replace('[', ' [ ')  # add space to [
-    text = text.replace(')', ' ) ')  # add space to )
-    text = text.replace('(', ' ( ')  # add space to (
-    text = text.replace(',', ' , ')  # add space to comma
-    text = text.replace('.', ' . ')  # add space to period
-    text.replace('  ', ' ')
+    punctuation_list = [',', ';', '.', ':', '[', ']', '(', ')', '"', "'"]
+    for c in punctuation_list:
+        text = text.replace(c,' ' + c + ' ')
+    text = text.replace('  ', ' ')
 
     new_text = ''
     for word in text.split():

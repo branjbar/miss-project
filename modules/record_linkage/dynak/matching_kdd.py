@@ -32,7 +32,7 @@ def import_block_and_reference_dicts(from_file=True):
                       " FROM links_based.all_persons_new"
 
         db = basic.do_connect()
-        cur = basic.run_query(db, block_query)
+        cur = basic.run_query(block_query)
         count = 0
         block_dict = {}
         reference_dict = {}

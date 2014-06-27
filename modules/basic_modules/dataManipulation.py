@@ -11,7 +11,7 @@ def refresh_person_id(db):
     """
 
     q = "select id, register_id from all_persons"
-    cur = basic.run_query(db, q)
+    cur = basic.run_query(q)
     register_dict = {}
     for c in cur.fetchall():
         if not register_dict.get(int(c[1])):
@@ -52,7 +52,7 @@ def referesh_register_id(db):
         updates the (register_ids) in table all_documents as the person ids have been changed previously
     """
     q = "select id, register_id from all_persons_new"
-    cur = basic.run_query(db, q)
+    cur = basic.run_query(q)
     register_dict = {}
     for c in cur.fetchall():
         if not register_dict.get(c[1]):

@@ -44,7 +44,7 @@ def load_graph(from_file=False, limit=1000):
                         LIMIT %d
                       """ % limit
         db = basic.do_connect()
-        cur = basic.run_query(db, block_query)
+        cur = basic.run_query(block_query)
 
         for c in cur.fetchall():
             ref_id = c[0]

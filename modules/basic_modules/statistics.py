@@ -11,7 +11,7 @@ def get_migration_list():
 
     query = "select id1, id2 from miss_matches"
     db = basic.do_connect()
-    row_list = basic.run_query(db, query)
+    row_list = basic.run_query(query)
     index = 1
     t = time.time()
     csv_text = ''
