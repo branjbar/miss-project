@@ -7,6 +7,10 @@ from modules.record_linkage.nerd import html_generate
 meertens_names = {}
 prefix_1 = ['van', 'te', 'de']
 
+# TODO move the text pre-processing from basic modules to this place
+# TODO make a class for nerd instead of using module as it is now
+
+
 def extract_name(word_list):
     """ (list) --> (dist)
         for each word the specifications are reported:
@@ -67,6 +71,8 @@ def extract_references(word_list, word_spec):
     return refs_list
 
 
+# TODO here extract relations, e.g., see if names fit to patterns such as ".. en ..”, “.. en zijn vrouw ..”, “.. weduwe van ..”, or "... en haar man ..."
+
 
 def import_dutch_data_set():
     """
@@ -82,8 +88,6 @@ def import_dutch_data_set():
         meertens_names[c[0].lower()] = c[1]
 
     log('importing names is done')
-
-
 
 def main():
     log('importing names')
