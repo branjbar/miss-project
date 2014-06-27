@@ -9,7 +9,7 @@ import random
 
 
 
-def row_to_reference(db, row, table="all_persons"):
+def row_to_reference(row, table="all_persons"):
     ''' (list, table) -> (dict)
     adds labels to different elements of the list, according to the table type,
     and makes a reference
@@ -26,7 +26,7 @@ def row_to_reference(db, row, table="all_persons"):
 
 
 def get_person(person_id = None):
-    ''' (db, integer) -> (dict)
+    ''' (integer) -> (dict)
     return a person with the id
     '''
     person = None
@@ -44,8 +44,8 @@ def get_person(person_id = None):
     else:
         return None
 
-def get_document(document_id=None, db=None):
-    ''' (db, integer) -> (dict)
+def get_document(document_id=None):
+    ''' (integer) -> (dict)
     return a document with the id
     '''
     # if no id then find a random person
@@ -57,7 +57,7 @@ def get_document(document_id=None, db=None):
         document = loadData.table_all_documents.get(int(document_id))
 
     if not document and document_id:
-        loadData.update_documents_table(db, ['','', 'where id = %s'%str(document_id)])
+        loadData.update_documents_table(['','', 'where id = %s'%str(document_id)])
         document = loadData.table_all_documents.get(int(document_id))
 
     if document:
@@ -67,7 +67,7 @@ def get_document(document_id=None, db=None):
 
 
 def get_block(block_id = None):
-    """ (db, integer) -> (dict)
+    """ (integer) -> (dict)
     return the block information with the id
     """
 
@@ -92,8 +92,8 @@ def get_block(block_id = None):
 
 
 
-def get_links(db, link_id = None):
-    ''' (db, integer) -> (dict)
+def get_links(link_id = None):
+    ''' (integer) -> (dict)
     returns the links_match information based on the id
     '''
 
@@ -105,10 +105,10 @@ def get_links(db, link_id = None):
     index = 1
     while index < 3:
         link_query = 'select *, ' + str(link_id) + ' from links where id1 > 0 and id2 > 0 limit ' + str(link_id) + ',1'
-        cur = basic.run_query(db, link_query)
+        cur = basic.run_query(link_query)
         row = cur.fetchone()
         if row:
-            reference = row_to_reference(db, row, "links")
+            reference = row_to_reference(row, "links")
         else:
             reference = {}
 
@@ -125,7 +125,7 @@ def get_links(db, link_id = None):
 
 
 def get_notarial_act(text_id= None):
-    ''' (db, integer) -> (dict)
+    ''' (integer) -> (dict)
     return a person with the id
     '''
 
@@ -146,7 +146,7 @@ def get_notarial_act(text_id= None):
 
 
 def get_miss_matches(match_index=None, match_id=None ):
-    """ (db, integer) -> (dict)
+    """ (integer) -> (dict)
     returns the miss_match information based on the id
     """
 
@@ -187,5 +187,4 @@ def get_relatives(person_id):
     return modified_relative_ids
 
 if __name__ == "__main__":
-    db = basic.do_connect()
-
+    pass

@@ -124,8 +124,7 @@ def routing():
             p_id = int(search_id)
         if p_id and not p_id.isdigit():
             p_id = 0
-        db = basic.do_connect()
-        match = myOrm.get_links(db, p_id)
+        match = myOrm.get_links(p_id)
 
         doc1_id = int(match['id1'])
         doc2_id = int(match['id2'])

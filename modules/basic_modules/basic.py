@@ -9,61 +9,48 @@ and also simple comparison modules for assigning scores to different matches.
 """
 import jellyfish
 import time
+import MySQLdb
 
 STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, role, register_id, register_type \
           FROM all_persons WHERE "
 
 STANDARD_QUERY_MEERTENS = "SELECT id, name, standard, type FROM meertens_names"
 
-db_global = None
+global_db = None
 
 
-def do_connect(type='LOCAL'):
-    ''' 
-    connects to either the server (SRV), or the localhost (LOCAL).
-    
-    Instructions for connecting to server: 
-        First, you should setup an SSH tunel using:
-        ssh USER@SERVER -L 9990:localhost:3306
-        Please not that you cannot connect from outside the network to this server
-    '''
-    #!/usr/bin/python
-    import MySQLdb
-    if type == "SRV":
-        db = MySQLdb.connect(host="127.0.0.1", 
-                             user="bijan", 
-                              passwd="****", 
-                              db="links_based")
-        db.autocommit(True)
-        return db
+class DB:
+    conn = None
+    from modules.basic_modules import config_local, config_server
 
-    if type == "LOCAL":
+    def connect(self):
+
         try:
-            db = MySQLdb.connect(host="127.0.0.1",
-                             user="root",
-                              passwd="",
-                              db="links_based")
+            self.conn = MySQLdb.connect(**self.config_local)
         except:
-            db = MySQLdb.connect(host="127.0.0.1",
-                             user="bijan",
-                              passwd="****",
-                              db="links_based")
-        db.autocommit(True)
-        return db
-    print("ERROR: Choose the right database source : SRV or Local")
+            self.conn = MySQLdb.connect(**self.config_server)
+
+    def query(self, sql):
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(sql)
+        except (AttributeError, MySQLdb.OperationalError):
+            self.connect()
+            cursor = self.conn.cursor()
+            cursor.execute(sql)
+        return cursor
 
 
-def run_query(db, query):
+def run_query(query):
     """ (string) -> (query)
     gets a SQL query and returns the list of results
     """
-    global db_global
+    global global_db
+    if not global_db:
+        global_db = DB()
 
-    if not db_global:
-        db_global = do_connect()
-
-    cur = db_global.cursor()
-    cur.execute(query)
+    # cur = db.cursor()
+    cur = global_db.query(query)
     return cur
 
 

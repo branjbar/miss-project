@@ -75,7 +75,7 @@ def import_dutch_data_set():
     global meertens_names
     log('importing names')
     the_query = "SELECT name, type FROM meertens_names"
-    cur = basic.run_query(None, the_query)
+    cur = basic.run_query(the_query)
 
     meertens_names = {}
     for c in cur.fetchall():

@@ -15,7 +15,6 @@ table_notarial_acts = {}
 block_dict = {}
 match_pairs = {}
 
-db = basic.do_connect()
 
 
 def update_persons_table(db_useless, limit):
@@ -50,11 +49,11 @@ def update_persons_table(db_useless, limit):
     if addendum:
         the_query += " " + addendum
 
-    cur = basic.run_query(db, the_query)
+    cur = basic.run_query(the_query)
     desc = cur.description
 
     if not addendum:
-        t2 = threading.Thread(target=update_documents_table, args=(db, limit))
+        t2 = threading.Thread(target=update_documents_table, args=(limit))
         t2.daemon = True
         t2.start()
 
@@ -103,11 +102,11 @@ def update_notarial_acts(limit):
 
     if addendum:
         the_query += " " + addendum
-    cur = basic.run_query(db, the_query)
+    cur = basic.run_query(the_query)
     desc = cur.description
 
     if not addendum:
-        t2 = threading.Thread(target=update_documents_table, args=(db, limit))
+        t2 = threading.Thread(target=update_documents_table, args=(limit))
         t2.daemon = True
         t2.start()
 
@@ -128,12 +127,12 @@ def update_notarial_acts(limit):
 
 
 
-def update_documents_table(db_useless, limit):
+def update_documents_table(limit):
     """
     loading data from documents table: either for a range of documents or just a specific document
     (i.e., where addendum is provided)
     """
-    global table_all_documents, block_dict, db
+    global table_all_documents, block_dict
 
 
     __now__ = time.time()
@@ -162,7 +161,7 @@ def update_documents_table(db_useless, limit):
         the_query += " " + addendum
 
 
-    cur = basic.run_query(db, the_query)
+    cur = basic.run_query(the_query)
     desc = cur.description
 
     tmp_index = 0
@@ -186,7 +185,7 @@ def get_matching_pairs(limit=1000000):
     loading data from miss_matches table
     """
 
-    global match_pairs, db, MATCH_TABLE
+    global match_pairs, MATCH_TABLE
     __now__ = time.time()
 
 
@@ -219,7 +218,7 @@ def get_matching_pairs(limit=1000000):
                 """
 
 
-    cur = basic.run_query(db, the_query)
+    cur = basic.run_query(the_query)
     desc = cur.description
 
     tmp_index = 1
@@ -236,28 +235,26 @@ def get_matching_pairs(limit=1000000):
 
 
 
-def load_data(db_uselss, limit = None):
+def load_data(limit = None):
     """ (database) --> (list of lists)
     this file imports all important tables to memory in order to increase the process speed.
 
     """
 
-    global table_all_documents, table_all_persons, table_all_persons_features, block_dict, db
+    global table_all_documents, table_all_persons, table_all_persons_features, block_dict
 
     __now__ = time.time()
-    # table_all_persons = load_table(db, 'all_persons', limit)
-    t1 = threading.Thread(target=update_persons_table, args=(db, limit))
+    t1 = threading.Thread(target=update_persons_table, args=(limit))
     t1.daemon = True
     t1.start()
 
 
 
 
-def load_table(db_useless, table_name, limit = None):
-    """ (db, string, integer) --> (list of lists)
+def load_table(table_name, limit = None):
+    """ (string, integer) --> (list of lists)
     returns the a sql table as a python list of lists
     """
-    global db
     rows_dict = {}
     if table_name == 'all_persons':
         # query = "select * from %s " % table_name
@@ -272,7 +269,7 @@ def load_table(db_useless, table_name, limit = None):
         if limit:
             the_query += " limit %d" % int(limit/3)
 
-    cur = basic.run_query(db, the_query)
+    cur = basic.run_query(the_query)
     desc = cur.description
     row_index = 1
     for row in cur.fetchall():
@@ -306,12 +303,7 @@ def load_table(db_useless, table_name, limit = None):
 
 
 def main(limit=None):
-    db = basic.do_connect()
-    if limit:
-        load_data(db,limit)
-    else:
-        load_data(db)
-
+    pass
 
 if __name__ == "__main__":
     pass
