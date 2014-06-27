@@ -88,7 +88,7 @@ def import_dutch_data_set():
 def main():
     log('importing names')
     the_query = "SELECT name, type FROM meertens_names"
-    cur = basic.run_query(None, the_query)
+    cur = basic.run_query(the_query)
     name_dict = {}
     name_list = []
     for c in cur.fetchall():
@@ -97,7 +97,7 @@ def main():
 
     log('importing notarial acts')
     the_query = "SELECT inhoud1, inhoud2, inhoud3, datering, plaats from notary_acts"
-    cur = basic.run_query(None, the_query)
+    cur = basic.run_query(the_query)
     notarial_list = []
     for c in cur.fetchall()[:1000]:
         # each notarial_list element is [text, date, place]
