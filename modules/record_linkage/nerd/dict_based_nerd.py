@@ -32,6 +32,7 @@ def extract_name(word_list):
         if word[0].isupper() and index > 0 and len(word) > 1:
             word_spec[index] = 1
 
+    # TODO Consider a start like this: "Hendrik de Jong, lid der sted.....", here because of "de", it's hard to detect the first name.
     # Consider first word as a name if second word is already chosen to be a name
     if not word_list[0] == 'Testament' and word_spec.get(1) == 1:
         word_spec[0] = 3

@@ -6,6 +6,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import pylab
 
+# TODO: Replace the current random walk with the Java code that Hossein gave me.
 
 # one shot random_walk
 def single_random_step(graph, node_s, visited=[]):

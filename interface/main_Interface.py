@@ -5,6 +5,9 @@ from modules.basic_modules import basic, loadData, myOrm, generatePedigree
 from interface import app
 from modules.record_linkage.nerd import dict_based_nerd
 
+# TODO: designing a nice homepage, with nice pictures and shortcuts to
+# TODO: designing a simple, but fabulous search engine.
+
 
 def routing():
 
