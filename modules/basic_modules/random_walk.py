@@ -9,7 +9,7 @@ import math
 
 # TODO: Replace the current random walk with the Java code that Hossein gave me.
 
-CONVERSION_THRESHOLDS = 0.0000000000001
+CONVERSION_THRESHOLDS = 0.00001
 CONVERSION_ITERATIONS = 10000
 
 
@@ -34,18 +34,19 @@ class RandomWalk():
         """ (int) --> (list)
 
         """
-        x = [0] * self.n
+        x_initial = [1.0/self.n] * self.n   # know as X in the paper
         x_old = [1.0/self.n] * self.n
         diff = 1.0
         it = 0
-        while diff > CONVERSION_THRESHOLDS and it < CONVERSION_ITERATIONS:
 
+        while diff > CONVERSION_THRESHOLDS and it < CONVERSION_ITERATIONS:
+            x = [0] * self.n
             for edge in self.graph.edges():
                 x[edge[0]] += (1.0 - restart) * (1.0 / self.graph.degree(edge[1])) * x_old[edge[1]]
                 # x[self.am[i][0]] += (1.0-restart) * self.w[i] * xold[self.am[i][1]]
 
             for i in xrange(self.n):
-                x[i] += restart/self.n
+                x[i] += restart * x_initial[i]
 
             diff = l2(x, x_old)
             it += 1
