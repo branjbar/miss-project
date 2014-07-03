@@ -10,6 +10,7 @@ and also simple comparison modules for assigning scores to different matches.
 import jellyfish
 import time
 import MySQLdb
+import heapq
 
 STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, role, register_id, register_type \
           FROM all_persons WHERE "
@@ -277,6 +278,7 @@ def get_dutch_names(db):
     cur = run_query(STANDARD_QUERY_MEERTENS)
     return cur.fetchall()
 
+
 def insert_features(id, name, standard, document_type,  f_list):
     """ (database, int, string, string, list) --> Null
     insert a feature list to the database
@@ -289,8 +291,7 @@ def insert_features(id, name, standard, document_type,  f_list):
 
     #print query
 
-    cursor = db.cursor()
-    cursor.execute(query)
+    run_query(query)
 
 
     
