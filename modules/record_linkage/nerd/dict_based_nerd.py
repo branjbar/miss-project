@@ -72,7 +72,7 @@ def extract_references(word_list, word_spec):
     return refs_list
 
 
-# TODO here extract relations, e.g., see if names fit to patterns such as ".. en ..”, “.. en zijn vrouw ..”, “.. weduwe van ..”, or "... en haar man ..."
+# TODO here extract relations, e.g., see if names fit to patterns such as ".. en ..", ".. en zijn vrouw ..", ".. weduwe van ..", or "... en haar man ..."
 
 
 def import_dutch_data_set():
