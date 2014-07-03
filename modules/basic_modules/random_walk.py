@@ -10,8 +10,8 @@ import pylab
 import math
 import copy
 
-CONVERSION_THRESHOLDS = 0.0001
-CONVERSION_ITERATIONS = 10000
+CONVERSION_THRESHOLDS = 0.000000001
+CONVERSION_ITERATIONS = 100
 
 
 def l2(a, b):
@@ -70,7 +70,7 @@ class RandomWalk():
 
         """
 
-        x_old = copy.deepcopy(self.x_initial)  # known as S(t) in the paper
+        x_old = self.x_initial.copy()  # known as S(t) in the paper
         diff = 1.0
         it = 0
 
@@ -78,7 +78,7 @@ class RandomWalk():
             if it and not it % 1000:
                 basic.log("RWR algorithm is in iteration %d and steady state error is %.3f" % (it, diff))
 
-            x = self.zero_dict  # initializing a zero vector
+            x = self.zero_dict.copy()  # initializing a zero vector
 
             for edge in self.graph.edges():
 
@@ -90,9 +90,9 @@ class RandomWalk():
 
             diff = l2(x, x_old)
             it += 1
-            x_old = x
+            x_old = x.copy()
 
-        self.proximity_dict = x_old
+        self.proximity_dict = x_old.copy()
 
 
 def main():

@@ -7,7 +7,7 @@ import time
 import threading
 import logging
 
-MATCH_TABLE = "miss_matches"
+MATCH_TABLE = "miss_matches_random_walk"
 
 table_all_documents = {}
 table_all_persons = {}
@@ -180,6 +180,7 @@ def update_documents_table(limit):
     if not addendum:
         get_matching_pairs()
 
+
 def get_matching_pairs(limit=1000000):
     """
     loading data from miss_matches table
@@ -202,20 +203,20 @@ def get_matching_pairs(limit=1000000):
                 """ + MATCH_TABLE + """
                     order by score desc limit 10000000
                     ) ranked
-                    WHERE rownum % 10000 = 1
+                    # WHERE rownum % 1 = 0
                 """
 
-    the_query = """
-                SELECT id, ref1, ref2, score, eval, comment
-                FROM (
-                    SELECT
-                        @row := @row +1 AS rownum, id, ref1, ref2, score, eval, comment
-                    FROM (SELECT @row :=0) r,
-                """ + MATCH_TABLE + """
-                     where role1 = 4 and rol2 = 4 and type1 = 'death' and type2 = 'death'
-                     order by score desc limit 1000
-                    ) ranked
-                """
+    # the_query = """
+    #             SELECT id, ref1, ref2, score, eval, comment
+    #             FROM (
+    #                 SELECT
+    #                     @row := @row +1 AS rownum, id, ref1, ref2, score, eval, comment
+    #                 FROM (SELECT @row :=0) r,
+    #             """ + MATCH_TABLE + """
+    #                  where role1 = 4 and rol2 = 4 and type1 = 'death' and type2 = 'death'
+    #                  order by score desc limit 1000
+    #                 ) ranked
+    #             """
 
 
     cur = basic.run_query(the_query)
@@ -226,7 +227,7 @@ def get_matching_pairs(limit=1000000):
         row_dict = {}
         for index, value in enumerate(row):
             try:
-                row_dict[desc[index][0]] = value.decode('ascii','ignore')
+                row_dict[desc[index][0]] = value.decode('ascii', 'ignore')
             except:
                 row_dict[desc[index][0]] = value
         match_pairs[tmp_index] = row_dict

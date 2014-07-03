@@ -3,7 +3,7 @@
      or blocking keys.
 
 At the end the exported csv file can be imported in mysql using:
-    LOAD DATA INFILE '/Users/Bijan/sandbox/Eclipse_Projects/linkPy/data/matching_kdd/matches_random_walk_100.csv'
+    LOAD DATA INFILE '/Users/Bijan/sandbox/Eclipse_Projects/linkPy/data/matching_random_walk/matches_random_walk_10000.csv'
     INTO TABLE miss_matches_random_walk FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
 
 
@@ -18,10 +18,12 @@ from modules.record_linkage.dynak.visualize import get_family_edge
 import os
 import heapq  # for finding the k largest element
 from modules.basic_modules.random_walk import RandomWalk
+
 FILE_NAME = "../../../data/matching_random_walk/matches_random_walk_%d.csv"
 
 MAX_BLOCK_SIZE = 30  # the maximum block size which is acceptable
-MAX_REFERENCES = 1000000
+MAX_REFERENCES = 500000
+DEBUG = False  # if true then does extra prints
 
 
 class EntityResolution():
@@ -31,8 +33,17 @@ class EntityResolution():
         self.document_dict = {}  # document_dict = {document_id: [ref1_id, ref2_id, ...]}
         self.reference_dict = {}  # reference_dict = {ref_id: document_id}
 
-        self.graph = networkx.Graph()  # a graph, nodes: references and blocks, edges: family relations and block membership
+        self.graph = networkx.Graph()  # a graph. nodes: refs and blocks, edges: family relations and block membership
+        self.graphs = []  # a list of graph components
+        self.graphs_index = 0  # the index of graph in graphs that is under study
         self.random_walk = None
+
+
+        # some parameters for exporting message in csv file
+        self.export_message = ''  # the message which should be saved in csv file
+        self.message_counter = 1
+        try: os.remove(FILE_NAME % MAX_REFERENCES)  # to be sure data will not be appended to a non-empty file
+        except: pass
 
     def load_dictionary(self, from_file=False, limit=1000):
         """
@@ -86,12 +97,12 @@ class EntityResolution():
                 for e in edge_list:
                     self.graph.add_edge(e[0], e[1])
 
-    def get_similars(self, reference, restart=.3):
+    def get_similars(self, reference, restart=.2):
         """
         """
         similarity_list = []
         if not self.random_walk:
-            self.random_walk = RandomWalk(self.graph)
+            self.random_walk = RandomWalk(self.graphs[self.graphs_index])
 
         self.random_walk.generate_x_initial([reference])
         self.random_walk.run_uniform(restart)
@@ -105,47 +116,72 @@ class EntityResolution():
 
         for key in k_keys_sorted_by_values:
             if not key == reference \
-                    and not self.graph.node[key].get('type') \
-                    and self.graph.node[reference].get('block_id') == self.graph.node[key].get('block_id') \
-                    and (reference - key > 3 or reference - key < -3)\
+                    and not self.graphs[self.graphs_index].node[key].get('type') \
+                    and self.graphs[self.graphs_index].node[reference].get('block_id') == self.graphs[self.graphs_index].node[key].get('block_id') \
+                    and (reference - key > 3 or reference - key < -3) \
                     and self.random_walk.proximity_dict[key] > 0:
                 similarity_list.append([key, self.random_walk.proximity_dict[key]])
 
         return similarity_list
 
+    def find_matches(self):
+        """
+        parses thought all nodes, and reports the potential mathces
+        """
+
+        log("decomposing graph")
+        self.graphs = list(networkx.connected_component_subgraphs(self.graph))
+        print len(self.graphs)
+
+        log("starting the random walk on first graph")
+        this_graph = self.graphs[self.graphs_index]
+
+        for node in this_graph:
+            log('random_walk on node %s' % node)
+            if not this_graph.node[node].get('type'):   # if node is a reference
+                similars_list = self.get_similars(node)
+
+                for sim in similars_list:
+                    self.export_results([node, sim[0], sim[1]])  # ref1, ref2, score
+
+            self.export_results()
+
+    def export_results(self, message_list=None):
+        """
+        gets a list of values that stores them in a csv file with comma delimited
+        """
+
+        if DEBUG:
+            log(message_list)
+
+        if message_list:
+            message = str(self.message_counter) + ','
+            for msg in message_list:
+                message += str(msg) + ','
+            message += '\N,\N\n'
+
+            self.export_message += message
+            self.message_counter += 1
+
+        if self.message_counter % 2 == 1 or not message_list:
+            with open(FILE_NAME % MAX_REFERENCES, 'a') as csv_file:
+                csv_file.write(self.export_message)
+            self.export_message = ''
+
 
 def main():
-    try:
-        os.remove(FILE_NAME % MAX_REFERENCES)  # to be sure data will not be appended to a non-empty file
-    except:
-        pass
-        entity_resolution = EntityResolution()
 
     entity_resolution = EntityResolution()
     log("loading data")
     entity_resolution.load_dictionary(False, MAX_REFERENCES)
     log("constructing graph")
     entity_resolution.load_graph()
+    entity_resolution.find_matches()
 
-    csv_text = ''
-    count = 1
-    log("starting the random walk")
+    # print graphs
 
-    for node in entity_resolution.graph.nodes():
-        log('random_walk on node %s' % node)
-        if not entity_resolution.graph.node[node].get('type'):
-            similars_list = entity_resolution.get_similars(node)
-            # print 'random walk for %d' % node, similars_list
-            for ref2 in similars_list:
-                count += 1
-                csv_text += str(count) + ',' + str(node) + ',' + str(ref2[0]) + ',' + str(ref2[1]) + '\n'
-                if not count % 2:
-                    with open(FILE_NAME % MAX_REFERENCES, "a") as my_file:
-                        my_file.write(csv_text)
-                    csv_text = ''
+    # print entity_resolution.graph.connected_components()
 
-    with open(FILE_NAME % MAX_REFERENCES, "a") as my_file:
-        my_file.write(csv_text)
 
 if __name__ == "__main__":
     main()

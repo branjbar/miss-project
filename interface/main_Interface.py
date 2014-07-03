@@ -179,6 +179,7 @@ def routing():
                 p_id = max(1, p_id)
 
         match = myOrm.get_miss_matches(p_id)
+
         if match:
             ref1 = match['ref1']
             ref2 = match['ref2']

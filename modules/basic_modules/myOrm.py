@@ -8,13 +8,11 @@ STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, rol
 import random
 
 
-
 def row_to_reference(row, table="all_persons"):
     ''' (list, table) -> (dict)
     adds labels to different elements of the list, according to the table type,
     and makes a reference
     '''
-
 
     if table == 'links':
         ref = {}
@@ -25,7 +23,7 @@ def row_to_reference(row, table="all_persons"):
         return ref
 
 
-def get_person(person_id = None):
+def get_person(person_id=None):
     ''' (integer) -> (dict)
     return a person with the id
     '''
@@ -36,13 +34,14 @@ def get_person(person_id = None):
 
         person = loadData.table_all_persons.get(int(person_id))
     if not person and person_id:
-        loadData.update_persons_table('', ['','', 'where id = %s' % str(person_id)])
+        loadData.update_persons_table('', ['', '', 'where id = %s' % str(person_id)])
         person = loadData.table_all_persons.get(int(person_id))
 
     if person:
         return person
     else:
         return None
+
 
 def get_document(document_id=None):
     ''' (integer) -> (dict)
@@ -57,7 +56,7 @@ def get_document(document_id=None):
         document = loadData.table_all_documents.get(int(document_id))
 
     if not document and document_id:
-        loadData.update_documents_table(['','', 'where id = %s'%str(document_id)])
+        loadData.update_documents_table(['', '', 'where id = %s' % str(document_id)])
         document = loadData.table_all_documents.get(int(document_id))
 
     if document:
@@ -66,7 +65,7 @@ def get_document(document_id=None):
         return None
 
 
-def get_block(block_id = None):
+def get_block(block_id=None):
     """ (integer) -> (dict)
     return the block information with the id
     """
@@ -81,7 +80,7 @@ def get_block(block_id = None):
                 if block.get('block_id') and len(block['block_id']) > 1:
                     retry_counter = 100
                 else:
-                    retry_counter +=1
+                    retry_counter += 1
         else:
             block = loadData.block_dict.get(block_id)
 
@@ -91,8 +90,7 @@ def get_block(block_id = None):
         return {}
 
 
-
-def get_links(link_id = None):
+def get_links(link_id=None):
     ''' (integer) -> (dict)
     returns the links_match information based on the id
     '''
@@ -100,7 +98,8 @@ def get_links(link_id = None):
     # if no id provided then get a random block
     if not link_id:
         from random import randrange
-        link_id = randrange(1,2980158)
+
+        link_id = randrange(1, 2980158)
     reference = {}
     index = 1
     while index < 3:
@@ -124,7 +123,7 @@ def get_links(link_id = None):
         return {'id1': 0, 'id2': 0}
 
 
-def get_notarial_act(text_id= None):
+def get_notarial_act(text_id=None):
     ''' (integer) -> (dict)
     return a person with the id
     '''
@@ -136,7 +135,7 @@ def get_notarial_act(text_id= None):
 
         text = loadData.table_all_persons.get(int(text_id))
     if not text and text_id:
-        loadData.update_notarial_acts(['','', 'where row_id = %s'%str(text_id)])
+        loadData.update_notarial_acts(['', '', 'where row_id = %s' % str(text_id)])
         text = loadData.table_notarial_acts.get(int(text_id))
 
     if text:
@@ -145,7 +144,7 @@ def get_notarial_act(text_id= None):
         return None
 
 
-def get_miss_matches(match_index=None, match_id=None ):
+def get_miss_matches(match_index=None, match_id=None):
     """ (integer) -> (dict)
     returns the miss_match information based on the id
     """
@@ -154,9 +153,11 @@ def get_miss_matches(match_index=None, match_id=None ):
     if not loadData.match_pairs:
         loadData.get_matching_pairs()
 
+
     if not match_index:
         from random import randrange
-        match_index = randrange(1,1000)
+
+        match_index = randrange(1, 1000)
 
     match_index = int(match_index)
     if loadData.match_pairs.get(match_index):
@@ -185,6 +186,7 @@ def get_relatives(person_id):
                     modified_relative_ids.append(int(i))
 
     return modified_relative_ids
+
 
 if __name__ == "__main__":
     pass

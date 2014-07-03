@@ -9,6 +9,7 @@ import logging
 
 genders_dict = {} # this is used to store all the names with majority gender
 
+
 def extract_block_key(person, gender_names):
     feature_set = {'id': person['id'],
                    'first_name': person['first_name'].replace("'",""),
