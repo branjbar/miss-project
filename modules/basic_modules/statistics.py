@@ -10,20 +10,19 @@ def get_migration_list():
     """
 
     query = "select id1, id2 from miss_matches"
-    db = basic.do_connect()
     row_list = basic.run_query(query)
     index = 1
     t = time.time()
     csv_text = ''
 
     for row in row_list.fetchall():
-        d1 = myOrm.get_document(row[0], db)
+        d1 = myOrm.get_document(row[0])
         d1_m = d1['municipality']
         d1_geo = d1['geocode']
         d1_year = d1['date'][-4:]
         d1_type = d1['type_text']
 
-        d2 = myOrm.get_document(row[1], db)
+        d2 = myOrm.get_document(row[1])
         d2_m = d2['municipality']
         d2_geo = d2['geocode']
         d2_year = d2['date'][-4:]

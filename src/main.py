@@ -13,8 +13,7 @@ from modules.record_linkage import featureExtraction
 
 def check_a_random_pair():
     
-    db = basic.do_connect()
-    
+
     ref1 = basic.get_person()
     ref2 = basic.get_person()
        
@@ -27,18 +26,16 @@ def check_a_random_pair():
 
 
 def do_matching():
-    from modules import basic
-    db = basic.do_connect()
-    basic.do_matching(db)
-    
+    from modules.basic_modules import basic
+    basic.do_matching()
+
 def feature_set_construct():
     """
         constructs the feature sets for all standard dutch names and inserts that into the feature table
     """
-    from modules import basic
+    from modules.basic_modules import basic
 
-    db = basic.do_connect()
-    records = basic.get_dutch_names(db)
+    records = basic.get_dutch_names()
     for record in records:
         id = record[0]
         name = record[1]

@@ -4,12 +4,11 @@ from modules.basic_modules import basic
 import networkx as nx
 import random
 import matplotlib
+
 matplotlib.use('TkAgg')
 import pylab
 import math
 import copy
-
-# TODO: Replace the current random walk with the Java code that Hossein gave me.
 
 CONVERSION_THRESHOLDS = 0.0001
 CONVERSION_ITERATIONS = 10000
@@ -37,17 +36,22 @@ class RandomWalk():
     Reference: Petko Bogdanov and Ambuj Singh, "Function Prediction Using Neighborhood Patterns"
 
     """
+
     def __init__(self, graph):
         """ (graph)
         initializes the RandomWalk class
         graph: a networkx graph
         """
 
-        self.graph = graph   # a graph in networkx structure
+        self.graph = graph  # a graph in networkx structure
         self.n = self.graph.number_of_nodes()  # size of graph
         self.x_initial = {}
         self.proximity_dict = {}  # stores the final results with respect to starting nodes
         self.start_nodes = []  # stores list of starting nodes for the random walk
+        self.zero_dict = {node: 0 for node in
+                          self.graph.nodes()}  # to save time, this dict is stored to increase efficiency
+
+        self.w = {node: 1.0 / self.graph.degree(node) for node in self.graph.nodes()}
 
     def generate_x_initial(self, start_nodes):
         """
@@ -57,8 +61,6 @@ class RandomWalk():
         self.x_initial = {node: 0 for node in self.graph.nodes()}
         for node in start_nodes:
             self.x_initial[node] = 1.0 / len(start_nodes)
-
-
 
     def run_uniform(self, restart=.3):
         """ (list, int) --> (list)
@@ -76,40 +78,37 @@ class RandomWalk():
             if it and not it % 1000:
                 basic.log("RWR algorithm is in iteration %d and steady state error is %.3f" % (it, diff))
 
-            x = {node: 0 for node in self.graph.nodes()}  # initializing a zero vector
+            x = self.zero_dict  # initializing a zero vector
 
             for edge in self.graph.edges():
-                w_target = 1.0 / self.graph.degree(edge[1])  # normalizing the weights
-                w_source = 1.0 / self.graph.degree(edge[0])  # normalizing the weights
 
-                x[edge[0]] += (1.0 - restart) * w_target * x_old[edge[1]]
-                x[edge[1]] += (1.0 - restart) * w_source * x_old[edge[0]]
+                x[edge[0]] += (1.0 - restart) * self.w[edge[1]] * x_old[edge[1]]
+                x[edge[1]] += (1.0 - restart) * self.w[edge[0]] * x_old[edge[0]]
 
             for node in self.graph.nodes():
                 x[node] += restart * self.x_initial[node]
 
             diff = l2(x, x_old)
             it += 1
-            x_old = copy.deepcopy(x)
+            x_old = x
 
-        self.proximity_dict = copy.deepcopy(x_old)
+        self.proximity_dict = x_old
 
 
 def main():
     n = 20  # 30 nodes
     m = 40  # 40 edges
     from modules.basic_modules.basic import log
+
     log('making the graph')
-    graph = nx.gnm_random_graph(n,m)
+    graph = nx.gnm_random_graph(n, m)
     # log('making the adjcency matrix')
     # A = nx.adjacency_matrix(graph)
 
     rw = RandomWalk(graph)
-    rw.generate_x_initial([1,2])
-    rw.run_uniform(.3)
+    rw.generate_x_initial([1, 2])
+    rw.run_uniform(.1)
 
-
-    #
     # print basic.get_top_k_heap_search(color, 4)
     # print basic.get_top_k_linear_search(color, 4)
 

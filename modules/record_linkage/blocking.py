@@ -174,8 +174,7 @@ def get_name_gender_list(db):
     return {'male':male_names, 'female': female_names}
 if __name__ == "__main__":
 
-    db = basic.do_connect()
-    gender_names = get_name_gender_list(db)
+    gender_names = get_name_gender_list()
     max_block_id = 0
     block_set = {}
     # get_block_ids(db)

@@ -19,7 +19,6 @@ def find_deep_families(load_from_file=False, depth=4):
     if load_from_file:
         global parent_graph, links_matches
 
-        db = basic.do_connect()
         link_query = "Select * from links"
         cur = basic.run_query(link_query)
         for row in cur.fetchall():

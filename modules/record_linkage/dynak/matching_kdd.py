@@ -31,7 +31,6 @@ def import_block_and_reference_dicts(from_file=True):
         block_query = " SELECT id, first_name, last_name, block_key, block_id, role, register_id, register_type" \
                       " FROM links_based.all_persons_new"
 
-        db = basic.do_connect()
         cur = basic.run_query(block_query)
         count = 0
         block_dict = {}

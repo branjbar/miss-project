@@ -41,7 +41,6 @@ def get_family_edge(ref_list):
 
 def export_to_gephi():
     network = NX.Graph()
-    db = basic.do_connect()
     query1 = """
                 SELECT ref1, (select reference_ids from all_documents WHERE id = (
                 SELECT register_id FROM links_based.all_persons_new WHERE id = ref1)),
