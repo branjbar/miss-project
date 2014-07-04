@@ -20,11 +20,13 @@ import heapq  # for finding the k largest element
 from modules.basic_modules.random_walk import RandomWalk
 from modules.basic_modules import random_walk
 import thread
+import threading
+MAXIMUM_NUMBER_OF_THREADS = 15
 
-FILE_NAME = "../../../data/matching_random_walk/matches_random_walk_%d.csv"
+FILE_NAME = "/Users/bijan/sandbox/stigmergic-robot-coverage/data/matching_random_walk/matches_random_walk_%d.csv"
 
 MAX_BLOCK_SIZE = 100  # the maximum block size which is acceptable
-MAX_REFERENCES = 1000000
+MAX_REFERENCES = 10000
 DEBUG = False  # if true then does extra prints
 RESTART = .3  # random walk restart
 
@@ -143,7 +145,7 @@ class EntityResolution():
 
         return similarity_dict
 
-    def find_matches(self, threading=False):
+    def find_matches(self, do_threading=False):
         """
         parses thought all nodes, and reports the potential mathces
         """
@@ -156,13 +158,13 @@ class EntityResolution():
             if this_graph.node[node].get('block_id'):   # if node is a reference
                 if not self.message_counter % 20:
                     log('random_walk on node %s' % node)
-                if not threading:
+                if not do_threading:
                     similars_list = self.get_similars(node, RESTART)
 
                     for sim in similars_list.keys():
                         self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
                 else:
-                    thread.start_new_thread(self.matching_thread, node)
+                    self.matching_thread(node)
 
         self.export_results()
 
@@ -170,10 +172,19 @@ class EntityResolution():
         """
         a thread that checks a specific reference and saves the results in csv file.
         """
-        similars_list = self.get_similars(node, RESTART)
+        thread_limiter = threading.BoundedSemaphore(MAXIMUM_NUMBER_OF_THREADS)
 
-        for sim in similars_list.keys():
-            self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
+        thread_limiter.acquire()
+        try:
+
+            similars_list = self.get_similars(node, RESTART)
+
+            for sim in similars_list.keys():
+                self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
+
+        finally:
+
+            thread_limiter.release()
 
     def export_results(self, message_list=None):
         """
@@ -214,8 +225,8 @@ def main():
     entity_resolution = EntityResolution()
     entity_resolution.load_graph(False)
     entity_resolution.find_matches()
-    print entity_resolution.get_similars(1, RESTART)
-    # entity_resolution.find_matches()
+    # print entity_resolution.get_similars(1, RESTART)
+    entity_resolution.find_matches(True)
 
     # print graphs
 
