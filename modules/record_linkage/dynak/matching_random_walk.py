@@ -22,8 +22,8 @@ from modules.basic_modules import random_walk
 
 FILE_NAME = "../../../data/matching_random_walk/matches_random_walk_%d.csv"
 
-MAX_BLOCK_SIZE = 50  # the maximum block size which is acceptable
-MAX_REFERENCES = 1000000
+MAX_BLOCK_SIZE = 100  # the maximum block size which is acceptable
+MAX_REFERENCES = 6000000
 DEBUG = False  # if true then does extra prints
 RESTART = .3  # random walk restart
 
@@ -75,34 +75,48 @@ class EntityResolution():
                     self.block_dict[block_id] = self.block_dict.get(block_id, []) + [ref_id]
                 self.document_dict[register_id] = self.document_dict.get(register_id, []) + [ref_id]
 
-    def load_graph(self):
+    def load_graph(self, from_file=False):
         """
         generates a graph from the dictionaries
         """
-        log("start building the graph based on blocks")
 
-        # add block edges first
-        for block_id in self.block_dict.keys():
-            block_ref_list = self.block_dict[block_id]
-            if len(block_ref_list) < MAX_BLOCK_SIZE:  # to avoid huge graphs for now
-                block_node_name = '#block_%d' % block_id
-                self.graph.add_node(block_node_name, type="block")
-                for reference in block_ref_list:
-                    self.graph.add_node(reference, block_id=block_id)
-                    self.graph.add_edge(reference, block_node_name)
+        if not from_file:
+            log("loading data")
+            self.load_dictionary(False, MAX_REFERENCES)
 
-        log("start adding the family relations")
+            log("start building the graph based on blocks")
 
-        for node in self.graph.nodes():
-            if not self.graph.node[node].get('type'):
-                edge_list = get_family_edge(self.document_dict[self.reference_dict[node]])
-                for e in edge_list:
-                    self.graph.add_edge(e[0], e[1])
+            # add block edges first
+            for block_id in self.block_dict.keys():
+                block_ref_list = self.block_dict[block_id]
+                if len(block_ref_list) < MAX_BLOCK_SIZE:  # to avoid huge graphs for now
+                    block_node_name = '#block_%d' % block_id
+                    self.graph.add_node(block_node_name, type="block")
+                    for reference in block_ref_list:
+                        self.graph.add_node(reference, block_id=block_id)
+                        self.graph.add_edge(reference, block_node_name)
 
-    def get_similars(self, reference, restart=.2):
+            log("start adding the family relations")
+
+            for node in self.graph.nodes():
+                if not self.graph.node[node].get('type'):
+                    edge_list = get_family_edge(self.document_dict[self.reference_dict[node]])
+                    for e in edge_list:
+                        self.graph.add_edge(e[0], e[1])
+
+            log("exporting graph to file")
+            networkx.write_gpickle(self.graph, "../../../data/matching_random_walk/full_graph")
+            log("exporting graph finished")
+        else:
+            log("importing graph from file")
+            self.graph = networkx.read_gpickle("../../../data/matching_random_walk/full_graph")
+            log("importing graph from file finished")
+
+    def get_similars(self, reference, restart=.3):
+        """ (int, double) -> (dict)
+            for a specific reference, reports all the possible matches from co-block references.
         """
-        """
-        similarity_list = []
+        similarity_dict = {}
         if not self.random_walk:
             self.random_walk = RandomWalk(self.graphs[self.graphs_index])
 
@@ -118,22 +132,21 @@ class EntityResolution():
 
         for key in k_keys_sorted_by_values:
             if not key == reference \
-                    and not self.graphs[self.graphs_index].node[key].get('type') \
-                    and self.graphs[self.graphs_index].node[reference].get('block_id') == self.graphs[self.graphs_index].node[key].get('block_id') \
+                    and not self.graph.node[key].get('type') \
+                    and self.graph.node[reference].get('block_id') == self.graph.node[key].get('block_id') \
                     and (reference - key > 3 or reference - key < -3) \
                     and self.random_walk.proximity_dict[key] > 0:
-                similarity_list.append([key, self.random_walk.proximity_dict[key]])
+                similarity_dict[key] = self.random_walk.proximity_dict[key]
 
-        return similarity_list
+        similarity_dict = normalize_dict(similarity_dict)
+
+        return similarity_dict
 
     def find_matches(self):
         """
         parses thought all nodes, and reports the potential mathces
         """
 
-        # log("decomposing graph")
-        # self.graphs = list(networkx.connected_component_subgraphs(self.graph))
-        # print len(self.graphs)
 
         log("starting the random walk")
         # this_graph = self.graphs[self.graphs_index]
@@ -144,8 +157,8 @@ class EntityResolution():
                 log('random_walk on node %s' % node)
                 similars_list = self.get_similars(node, RESTART)
 
-                for sim in similars_list:
-                    self.export_results([node, sim[0], sim[1]])  # ref1, ref2, score
+                for sim in similars_list.keys():
+                    self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
 
             self.export_results()
 
@@ -183,16 +196,12 @@ def normalize_dict(dict):
 
 def main():
 
-    print normalize_dict({'a':0.12, 'b':0.33 })
-    exit()
 
 
     entity_resolution = EntityResolution()
-    log("loading data")
-    entity_resolution.load_dictionary(False, MAX_REFERENCES)
-    log("constructing graph")
-    entity_resolution.load_graph()
-    entity_resolution.find_matches()
+    entity_resolution.load_graph(True)
+    entity_resolution.get_similars(1,RESTART)
+    # entity_resolution.find_matches()
 
     # print graphs
 
