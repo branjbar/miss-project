@@ -21,14 +21,15 @@ from modules.basic_modules.random_walk import RandomWalk
 from modules.basic_modules import random_walk
 import thread
 import threading
-MAXIMUM_NUMBER_OF_THREADS = 15
 
-FILE_NAME = "/Users/bijan/sandbox/stigmergic-robot-coverage/data/matching_random_walk/matches_random_walk_%d.csv"
+FILE_NAME_1 = "../../../data/matching_random_walk/matches_random_walk_%d.csv"
+FILE_NAME_2 = "/Users/Bijan/sandbox/stigmergic-robot-coverage/data/matching_random_walk/matches_random_walk_%d.csv"
 
 MAX_BLOCK_SIZE = 100  # the maximum block size which is acceptable
 MAX_REFERENCES = 10000
 DEBUG = False  # if true then does extra prints
 RESTART = .3  # random walk restart
+MAXIMUM_NUMBER_OF_THREADS = 3
 
 
 class EntityResolution():
@@ -120,13 +121,12 @@ class EntityResolution():
             for a specific reference, reports all the possible matches from co-block references.
         """
         similarity_dict = {}
-        if not self.random_walk:
-            self.random_walk = RandomWalk(self.graphs[self.graphs_index])
+        random_walk = RandomWalk(self.graphs[self.graphs_index])
 
         excluded_node = '#block_%d' % self.graph.node[reference]['block_id']
-        self.random_walk.run_intelligent_uniform([reference], restart, excluded_node)
-        k_keys_sorted_by_values = heapq.nlargest(20, self.random_walk.proximity_dict,
-                                                 key=self.random_walk.proximity_dict.__getitem__)
+        random_walk.run_intelligent_uniform([reference], restart, excluded_node)
+        k_keys_sorted_by_values = heapq.nlargest(20, random_walk.proximity_dict,
+                                                 key=random_walk.proximity_dict.__getitem__)
         # here the problem is that many of the similar nodes are not acceptable:
         #   * being equal to the reference
         #   * being in the same document as the reference
@@ -138,8 +138,8 @@ class EntityResolution():
                     and not self.graph.node[key].get('type') \
                     and self.graph.node[reference].get('block_id') == self.graph.node[key].get('block_id') \
                     and (reference - key > 3 or reference - key < -3) \
-                    and self.random_walk.proximity_dict[key] > 0:
-                similarity_dict[key] = self.random_walk.proximity_dict[key]
+                    and random_walk.proximity_dict[key] > 0:
+                similarity_dict[key] = random_walk.proximity_dict[key]
 
         similarity_dict = normalize_dict(similarity_dict)
 
@@ -164,11 +164,17 @@ class EntityResolution():
                     for sim in similars_list.keys():
                         self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
                 else:
-                    self.matching_thread(node)
+                    self.manage_thread(node)
 
         self.export_results()
 
     def matching_thread(self, node):
+
+        similars_list = self.get_similars(node, RESTART)
+        for sim in similars_list.keys():
+            self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
+
+    def manage_thread(self, node):
         """
         a thread that checks a specific reference and saves the results in csv file.
         """
@@ -177,10 +183,8 @@ class EntityResolution():
         thread_limiter.acquire()
         try:
 
-            similars_list = self.get_similars(node, RESTART)
-
-            for sim in similars_list.keys():
-                self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
+            t = threading.Thread(target=self.matching_thread, args=(node,))
+            t.start()
 
         finally:
 
@@ -195,7 +199,7 @@ class EntityResolution():
             log(message_list)
 
         if message_list:
-            message = '\N,'  #null for using the auto increment
+            message = '\N,'  # null for using the auto increment
             for msg in message_list:
                 message += str(msg) + ','
             message += '\N, restart = %.2f & local_nbrs = %d \n' % (RESTART, random_walk.LOCAL_NEIGHBORHOOD)
@@ -203,10 +207,16 @@ class EntityResolution():
             self.export_message += message
             self.message_counter += 1
 
-        if self.message_counter % 2 == 1 or not message_list:
-            with open(FILE_NAME % MAX_REFERENCES, 'a') as csv_file:
-                csv_file.write(self.export_message)
-            self.export_message = ''
+        try:
+            if self.message_counter % 2 == 1 or not message_list:
+                with open(FILE_NAME_1 % MAX_REFERENCES, 'a') as csv_file:
+                    csv_file.write(self.export_message)
+                self.export_message = ''
+        except:
+            if self.message_counter % 2 == 1 or not message_list:
+                with open(FILE_NAME_2 % MAX_REFERENCES, 'a') as csv_file:
+                    csv_file.write(self.export_message)
+                self.export_message = ''
 
 
 def normalize_dict(dict):
@@ -220,11 +230,9 @@ def normalize_dict(dict):
 
 def main():
 
-
-
     entity_resolution = EntityResolution()
     entity_resolution.load_graph(False)
-    entity_resolution.find_matches()
+    # entity_resolution.find_matches()
     # print entity_resolution.get_similars(1, RESTART)
     entity_resolution.find_matches(True)
 
