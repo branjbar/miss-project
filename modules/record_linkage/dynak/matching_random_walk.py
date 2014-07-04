@@ -23,7 +23,7 @@ import thread
 import threading
 
 FILE_NAME_1 = "../../../data/matching_random_walk/matches_random_walk_%d.csv"
-FILE_NAME_2 = "/Users/Bijan/sandbox/stigmergic-robot-coverage/data/matching_random_walk/matches_random_walk_%d.csv"
+FILE_NAME_2 = "/Users/bijan/sandbox/stigmergic-robot-coverage/data/matching_random_walk/matches_random_walk_%d.csv"
 
 MAX_BLOCK_SIZE = 100  # the maximum block size which is acceptable
 MAX_REFERENCES = 10000
