@@ -19,11 +19,12 @@ import os
 import heapq  # for finding the k largest element
 from modules.basic_modules.random_walk import RandomWalk
 from modules.basic_modules import random_walk
+import thread
 
 FILE_NAME = "../../../data/matching_random_walk/matches_random_walk_%d.csv"
 
 MAX_BLOCK_SIZE = 100  # the maximum block size which is acceptable
-MAX_REFERENCES = 6000000
+MAX_REFERENCES = 1000000
 DEBUG = False  # if true then does extra prints
 RESTART = .3  # random walk restart
 
@@ -104,9 +105,9 @@ class EntityResolution():
                     for e in edge_list:
                         self.graph.add_edge(e[0], e[1])
 
-            log("exporting graph to file")
-            networkx.write_gpickle(self.graph, "../../../data/matching_random_walk/full_graph")
-            log("exporting graph finished")
+            # log("exporting graph to file (it might take up to 10 minutes for a big graph!!)")
+            # networkx.write_gpickle(self.graph, "../../../data/matching_random_walk/full_graph")
+            # log("exporting graph finished")
         else:
             log("importing graph from file")
             self.graph = networkx.read_gpickle("../../../data/matching_random_walk/full_graph")
@@ -142,7 +143,7 @@ class EntityResolution():
 
         return similarity_dict
 
-    def find_matches(self):
+    def find_matches(self, threading=False):
         """
         parses thought all nodes, and reports the potential mathces
         """
@@ -153,14 +154,26 @@ class EntityResolution():
         this_graph = self.graph
         for node in this_graph:
             if this_graph.node[node].get('block_id'):   # if node is a reference
-                # if not self.message_counter % 1:
-                log('random_walk on node %s' % node)
-                similars_list = self.get_similars(node, RESTART)
+                if not self.message_counter % 20:
+                    log('random_walk on node %s' % node)
+                if not threading:
+                    similars_list = self.get_similars(node, RESTART)
 
-                for sim in similars_list.keys():
-                    self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
+                    for sim in similars_list.keys():
+                        self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
+                else:
+                    thread.start_new_thread(self.matching_thread, node)
 
-            self.export_results()
+        self.export_results()
+
+    def matching_thread(self, node):
+        """
+        a thread that checks a specific reference and saves the results in csv file.
+        """
+        similars_list = self.get_similars(node, RESTART)
+
+        for sim in similars_list.keys():
+            self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
 
     def export_results(self, message_list=None):
         """
@@ -199,8 +212,9 @@ def main():
 
 
     entity_resolution = EntityResolution()
-    entity_resolution.load_graph(True)
-    entity_resolution.get_similars(1,RESTART)
+    entity_resolution.load_graph(False)
+    entity_resolution.find_matches()
+    print entity_resolution.get_similars(1, RESTART)
     # entity_resolution.find_matches()
 
     # print graphs
