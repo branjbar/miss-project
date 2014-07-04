@@ -18,12 +18,14 @@ from modules.record_linkage.dynak.visualize import get_family_edge
 import os
 import heapq  # for finding the k largest element
 from modules.basic_modules.random_walk import RandomWalk
+from modules.basic_modules import random_walk
 
 FILE_NAME = "../../../data/matching_random_walk/matches_random_walk_%d.csv"
 
-MAX_BLOCK_SIZE = 30  # the maximum block size which is acceptable
-MAX_REFERENCES = 500000
+MAX_BLOCK_SIZE = 50  # the maximum block size which is acceptable
+MAX_REFERENCES = 1000000
 DEBUG = False  # if true then does extra prints
+RESTART = .3  # random walk restart
 
 
 class EntityResolution():
@@ -34,14 +36,14 @@ class EntityResolution():
         self.reference_dict = {}  # reference_dict = {ref_id: document_id}
 
         self.graph = networkx.Graph()  # a graph. nodes: refs and blocks, edges: family relations and block membership
-        self.graphs = []  # a list of graph components
+        self.graphs = [self.graph]  # a list of graph components
         self.graphs_index = 0  # the index of graph in graphs that is under study
         self.random_walk = None
 
 
         # some parameters for exporting message in csv file
         self.export_message = ''  # the message which should be saved in csv file
-        self.message_counter = 1
+        self.message_counter = 1290
         try: os.remove(FILE_NAME % MAX_REFERENCES)  # to be sure data will not be appended to a non-empty file
         except: pass
 
@@ -104,9 +106,9 @@ class EntityResolution():
         if not self.random_walk:
             self.random_walk = RandomWalk(self.graphs[self.graphs_index])
 
-        self.random_walk.generate_x_initial([reference])
-        self.random_walk.run_uniform(restart)
-        k_keys_sorted_by_values = heapq.nlargest(10, self.random_walk.proximity_dict,
+        excluded_node = '#block_%d' % self.graph.node[reference]['block_id']
+        self.random_walk.run_intelligent_uniform([reference], restart, excluded_node)
+        k_keys_sorted_by_values = heapq.nlargest(20, self.random_walk.proximity_dict,
                                                  key=self.random_walk.proximity_dict.__getitem__)
         # here the problem is that many of the similar nodes are not acceptable:
         #   * being equal to the reference
@@ -129,17 +131,18 @@ class EntityResolution():
         parses thought all nodes, and reports the potential mathces
         """
 
-        log("decomposing graph")
-        self.graphs = list(networkx.connected_component_subgraphs(self.graph))
-        print len(self.graphs)
+        # log("decomposing graph")
+        # self.graphs = list(networkx.connected_component_subgraphs(self.graph))
+        # print len(self.graphs)
 
-        log("starting the random walk on first graph")
-        this_graph = self.graphs[self.graphs_index]
-
+        log("starting the random walk")
+        # this_graph = self.graphs[self.graphs_index]
+        this_graph = self.graph
         for node in this_graph:
-            log('random_walk on node %s' % node)
-            if not this_graph.node[node].get('type'):   # if node is a reference
-                similars_list = self.get_similars(node)
+            if this_graph.node[node].get('block_id'):   # if node is a reference
+                # if not self.message_counter % 1:
+                log('random_walk on node %s' % node)
+                similars_list = self.get_similars(node, RESTART)
 
                 for sim in similars_list:
                     self.export_results([node, sim[0], sim[1]])  # ref1, ref2, score
@@ -155,10 +158,10 @@ class EntityResolution():
             log(message_list)
 
         if message_list:
-            message = str(self.message_counter) + ','
+            message = '\N,'  #null for using the auto increment
             for msg in message_list:
                 message += str(msg) + ','
-            message += '\N,\N\n'
+            message += '\N, restart = %.2f & local_nbrs = %d \n' % (RESTART, random_walk.LOCAL_NEIGHBORHOOD)
 
             self.export_message += message
             self.message_counter += 1
@@ -169,7 +172,20 @@ class EntityResolution():
             self.export_message = ''
 
 
+def normalize_dict(dict):
+    """ (dict) --> dict
+    gets a dictionary, normalises all values so that they sum to 1
+    """
+    volume = sum(dict.values())  # initial sum of the values
+    dict_n = {key: (dict[key] / volume) for key in dict.keys()}
+    return dict_n
+
+
 def main():
+
+    print normalize_dict({'a':0.12, 'b':0.33 })
+    exit()
+
 
     entity_resolution = EntityResolution()
     log("loading data")
