@@ -6,7 +6,6 @@ At the end the exported csv file can be imported in mysql using:
     LOAD DATA INFILE '/Users/Bijan/sandbox/Eclipse_Projects/linkPy/data/matching_random_walk/matches_random_walk_10000.csv'
     INTO TABLE miss_matches_random_walk FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
 
-
 """
 import matplotlib
 
@@ -19,17 +18,17 @@ import os
 import heapq  # for finding the k largest element
 from modules.basic_modules.random_walk import RandomWalk
 from modules.basic_modules import random_walk
-import thread
 import threading
+import time
 
 FILE_NAME_1 = "../../../data/matching_random_walk/matches_random_walk_%d.csv"
 FILE_NAME_2 = "/Users/bijan/sandbox/stigmergic-robot-coverage/data/matching_random_walk/matches_random_walk_%d.csv"
 
 MAX_BLOCK_SIZE = 100  # the maximum block size which is acceptable
-MAX_REFERENCES = 10000
+MAX_REFERENCES = 6000000
 DEBUG = False  # if true then does extra prints
 RESTART = .3  # random walk restart
-MAXIMUM_NUMBER_OF_THREADS = 3
+MAXIMUM_NUMBER_OF_THREADS = 2
 
 
 class EntityResolution():
@@ -48,7 +47,11 @@ class EntityResolution():
         # some parameters for exporting message in csv file
         self.export_message = ''  # the message which should be saved in csv file
         self.message_counter = 1290
-        try: os.remove(FILE_NAME % MAX_REFERENCES)  # to be sure data will not be appended to a non-empty file
+        try:
+            try:
+                os.remove(FILE_NAME_1 % MAX_REFERENCES)  # to be sure data will not be appended to a non-empty file
+            except:
+                os.remove(FILE_NAME_2 % MAX_REFERENCES)  # to be sure data will not be appended to a non-empty file
         except: pass
 
     def load_dictionary(self, from_file=False, limit=1000):
@@ -150,45 +153,48 @@ class EntityResolution():
         parses thought all nodes, and reports the potential mathces
         """
 
-
         log("starting the random walk")
         # this_graph = self.graphs[self.graphs_index]
         this_graph = self.graph
-        for node in this_graph:
-            if this_graph.node[node].get('block_id'):   # if node is a reference
-                if not self.message_counter % 20:
-                    log('random_walk on node %s' % node)
-                if not do_threading:
-                    similars_list = self.get_similars(node, RESTART)
+        if not do_threading:
+            log("Single-Thread Matching")
+            for node in this_graph:
+                if this_graph.node[node].get('block_id'):   # if node is a reference
+                    # if not self.message_counter % 1:
+                        # log('random_walk on node %s' % node)
+                    self.matching_thread(node)
 
-                    for sim in similars_list.keys():
-                        self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
-                else:
-                    self.manage_thread(node)
+        else:  # if do threading
+            log("Multi-Thread Matching is not active!!")
+
+            # for node in this_graph:
+            #     if this_graph.node[node].get('block_id'):   # if node is a reference
+            #         self.manage_thread(node)
 
         self.export_results()
 
     def matching_thread(self, node):
 
+        # log('random_walk on node %s' % node)
         similars_list = self.get_similars(node, RESTART)
         for sim in similars_list.keys():
             self.export_results([node, sim, similars_list[sim]])  # ref1, ref2, score
 
-    def manage_thread(self, node):
-        """
-        a thread that checks a specific reference and saves the results in csv file.
-        """
-        thread_limiter = threading.BoundedSemaphore(MAXIMUM_NUMBER_OF_THREADS)
-
-        thread_limiter.acquire()
-        try:
-
-            t = threading.Thread(target=self.matching_thread, args=(node,))
-            t.start()
-
-        finally:
-
-            thread_limiter.release()
+    # def manage_thread(self, node):
+    #     """
+    #     a thread that checks a specific reference and saves the results in csv file.
+    #     """
+    #     thread_limiter = threading.BoundedSemaphore(MAXIMUM_NUMBER_OF_THREADS)
+    #
+    #     thread_limiter.acquire()
+    #     try:
+    #
+    #         t = threading.Thread(target=self.matching_thread, args=(node,))
+    #         t.start()
+    #
+    #     finally:
+    #
+    #         thread_limiter.release()
 
     def export_results(self, message_list=None):
         """
@@ -234,7 +240,11 @@ def main():
     entity_resolution.load_graph(False)
     # entity_resolution.find_matches()
     # print entity_resolution.get_similars(1, RESTART)
-    entity_resolution.find_matches(True)
+    __now__ = time.time()
+
+    entity_resolution.find_matches(do_threading=False)
+
+    print time.time() - __now__
 
     # print graphs
 
