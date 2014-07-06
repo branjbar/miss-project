@@ -201,7 +201,7 @@ def get_matching_pairs(limit=1000000):
                         @row := @row +1 AS rownum, id, ref1, ref2, score, eval, comment
                     FROM (SELECT @row :=0) r,
                 """ + MATCH_TABLE + """
-                    order by score desc limit 10000000
+                    order by ref1 desc limit 10000000
                     ) ranked
                     # WHERE rownum % 1 = 0
                 """
