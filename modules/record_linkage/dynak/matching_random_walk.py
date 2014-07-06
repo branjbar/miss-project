@@ -236,20 +236,20 @@ class EntityResolution():
         graph_size = []
         for index, graph in enumerate(graphs):
             print index
-            graph_diameter.append(networkx.diameter(graph))
-            graph_size.append(graph.size())
+            # graph_diameter.append(networkx.diameter(graph))
+            graph_size.append(graph.number_of_nodes())
         from numpy import array, histogram
         graph_diameter = array(graph_diameter)
         graph_size = array(graph_size)
 
-        print "-----GRAPH DIAMETER-----"
-        print 'max is %d' % graph_diameter.max() \
-              + ', min is %d' % graph_diameter.min() \
-              + ', average is %d' % graph_diameter.mean() \
-              + ', std is %d' % graph_diameter.std()
+        # print "-----GRAPH DIAMETER-----"
+        # print 'max is %d' % graph_diameter.max() \
+        #       + ', min is %d' % graph_diameter.min() \
+        #       + ', average is %d' % graph_diameter.mean() \
+        #       + ', std is %d' % graph_diameter.std()
 
-        print 'freq.', list(histogram(graph_diameter)[0])
-        print 'graph_diameter', list(histogram(graph_diameter)[1])
+        # print 'freq.', list(histogram(graph_diameter)[0])
+        # print 'graph_diameter', list(histogram(graph_diameter)[1])
 
         print "-----GRAPH SIZE-----"
         print 'max is %d' % graph_size.max() \
@@ -282,7 +282,6 @@ def main():
 
     entity_resolution = EntityResolution()
     entity_resolution.load_graph(False)
-    entity_resolution.get_statistics()
     # entity_resolution.find_matches()
     # print entity_resolution.get_similars(1, RESTART)
 
