@@ -7,6 +7,13 @@ __author__ = 'Bijan'
 
 from modules.basic_modules import myOrm, basic
 import random, copy, csv
+import os
+
+if os.path.isdir("../data/"):
+    DATA_FOLDER = "../data/"
+else:
+    DATA_FOLDER = "/Users/bijan/sandbox/stigmergic-robot-coverage/data/"
+
 
 
 
@@ -157,17 +164,17 @@ def import_families():
 
     if not family_3:
 
-        with open("../data/family_depth_3.csv", "rb") as myfile:
+        with open(DATA_FOLDER + "family_depth_3.csv", "rb") as myfile:
             reader = csv.reader(myfile)
             for row in reader:
                 family_3.append(row)
 
-        with open("../data/family_depth_4.csv", "rb") as myfile:
+        with open(DATA_FOLDER + "family_depth_4.csv", "rb") as myfile:
             reader = csv.reader(myfile)
             for row in reader:
                 family_4.append(row)
 
-        with open("../data/family_depth_5.csv", "rb") as myfile:
+        with open(DATA_FOLDER + "family_depth_5.csv", "rb") as myfile:
             reader = csv.reader(myfile)
             for row in reader:
                 family_5.append(row)
