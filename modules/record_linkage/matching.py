@@ -9,6 +9,14 @@ from modules.basic_modules import basic
 parent_graph = {} # to store the graph
 links_matches = {} # to store the matches
 
+import os
+if os.path.isdir("../data/"):
+    DATA_FOLDER = "../data/"
+else:
+    DATA_FOLDER = "/Users/bijan/sandbox/stigmergic-robot-coverage/data/"
+
+
+
 
 def find_deep_families(load_from_file=False, depth=4):
     """
@@ -32,11 +40,11 @@ def find_deep_families(load_from_file=False, depth=4):
                     parent_graph[row[2]] = [row[1]]
 
 
-        with open('../data/links_matches.txt', 'w') as f:
+        with open(DATA_FOLDER + 'links_matches.txt', 'w') as f:
             pickle.dump([parent_graph,links_matches], f)
 
     print "--importing data."
-    with open('../data/links_matches.txt', 'r') as f:
+    with open(DATA_FOLDER + 'links_matches.txt', 'r') as f:
         parent_graph, links_matches = pickle.load(f)
 
 
@@ -52,7 +60,7 @@ def find_deep_families(load_from_file=False, depth=4):
                 csv_text = ''.join([ str(d) + ',' for d in doc_tree_list]) + '\n'
 
                 if csv_text:
-                    with open("../data/family_depth_3.csv", "a") as myfile:
+                    with open(DATA_FOLDER + "family_depth_3.csv", "a") as myfile:
                         myfile.write(csv_text)
 
     if depth == 5:
@@ -79,7 +87,7 @@ def find_deep_families(load_from_file=False, depth=4):
                                                                doc_tree_list31 + doc_tree_list32 + doc_tree_list33]) + '\n'
 
                     if csv_text:
-                        with open("../data/family_depth_5.csv", "a") as myfile:
+                        with open(DATA_FOLDER + "family_depth_5.csv", "a") as myfile:
                             myfile.write(csv_text)
 
     if depth == 4:
@@ -94,7 +102,7 @@ def find_deep_families(load_from_file=False, depth=4):
                     csv_text = ''.join([ str(d) + ',' for d in doc_tree_list1 + doc_tree_list2 + doc_tree_list3]) + '\n'
 
                     if csv_text:
-                        with open("../data/family_depth_4.csv", "a") as myfile:
+                        with open(DATA_FOLDER + "family_depth_4.csv", "a") as myfile:
                             myfile.write(csv_text)
 
 
