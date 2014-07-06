@@ -18,6 +18,7 @@ import os
 import heapq  # for finding the k largest element
 from modules.basic_modules.random_walk import RandomWalk
 from modules.basic_modules import random_walk
+import pickle
 import threading
 import time
 
@@ -128,7 +129,7 @@ class EntityResolution():
 
         excluded_node = '#block_%d' % self.graph.node[reference]['block_id']
         random_walk.run_intelligent_uniform([reference], restart, excluded_node)
-        k_keys_sorted_by_values = heapq.nlargest(20, random_walk.proximity_dict,
+        k_keys_sorted_by_values = heapq.nlargest(100, random_walk.proximity_dict,
                                                  key=random_walk.proximity_dict.__getitem__)
         # here the problem is that many of the similar nodes are not acceptable:
         #   * being equal to the reference
@@ -224,6 +225,49 @@ class EntityResolution():
                     csv_file.write(self.export_message)
                 self.export_message = ''
 
+    def get_statistics(self):
+        """
+        gets statistics of the constructed graph, such as diameter and size of graph
+        """
+        print "number of connected components %d" % networkx.number_connected_components(self.graph)
+        networkx.number_connected_components(self.graph)
+        graphs = networkx.connected_component_subgraphs(self.graph)
+        graph_diameter = []
+        graph_size = []
+        for index, graph in enumerate(graphs):
+            print index
+            graph_diameter.append(networkx.diameter(graph))
+            graph_size.append(graph.size())
+        from numpy import array, histogram
+        graph_diameter = array(graph_diameter)
+        graph_size = array(graph_size)
+
+        print "-----GRAPH DIAMETER-----"
+        print 'max is %d' % graph_diameter.max() \
+              + ', min is %d' % graph_diameter.min() \
+              + ', average is %d' % graph_diameter.mean() \
+              + ', std is %d' % graph_diameter.std()
+
+        print 'freq.', list(histogram(graph_diameter)[0])
+        print 'graph_diameter', list(histogram(graph_diameter)[1])
+
+        print "-----GRAPH SIZE-----"
+        print 'max is %d' % graph_size.max() \
+              + ', min is %d' % graph_size.min() \
+              + ', average is %d' % graph_size.mean() \
+              + ', std is %d' % graph_size.std()
+
+        # print 'freq.', list(histogram(graph_size)[0])
+        # print 'size', list(histogram(graph_size)[1])
+
+        import csv
+        with open("graph_size.csv", "wb") as f:
+            writer = csv.writer(f)
+            writer.writerows([list(graph_size)])
+        with open("graph_diameter.csv", "wb") as f:
+            writer = csv.writer(f)
+            writer.writerows([list(graph_diameter)])
+
 
 def normalize_dict(dict):
     """ (dict) --> dict
@@ -238,18 +282,9 @@ def main():
 
     entity_resolution = EntityResolution()
     entity_resolution.load_graph(False)
+    entity_resolution.get_statistics()
     # entity_resolution.find_matches()
     # print entity_resolution.get_similars(1, RESTART)
-    __now__ = time.time()
-
-    entity_resolution.find_matches(do_threading=False)
-
-    print time.time() - __now__
-
-    # print graphs
-
-    # print entity_resolution.graph.connected_components()
-
 
 if __name__ == "__main__":
     main()
