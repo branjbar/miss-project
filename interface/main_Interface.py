@@ -162,9 +162,10 @@ def routing():
                 query = "update %s set eval=0, comment='%s' where id=%s" % (loadData.MATCH_TABLE, comment, rowid)
                 loadData.match_pairs[int(p_id)]['eval'] = 0
                 loadData.match_pairs[int(p_id)]['comment'] = comment
-
+            
             p_id = int(p_id)
             p_id += 1
+            print query
             basic.run_query(query)
 
         else:
