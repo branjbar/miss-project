@@ -155,17 +155,18 @@ def routing():
             comment = request.args.get('comment').replace("'","").replace('"','')
             rowid = myOrm.get_miss_matches(p_id)['id']
             if opinion == "True":
+                comment = loadData.match_pairs[int(p_id)]['comment'] + ' - ' + str(comment) 
                 query = "update %s set eval=1, comment='%s' where id=%s" % (loadData.MATCH_TABLE, comment, rowid)
                 loadData.match_pairs[int(p_id)]['eval'] = 1
                 loadData.match_pairs[int(p_id)]['comment'] = comment
             else:
+                comment = loadData.match_pairs[int(p_id)]['comment'] + ' - ' + str(comment)
                 query = "update %s set eval=0, comment='%s' where id=%s" % (loadData.MATCH_TABLE, comment, rowid)
                 loadData.match_pairs[int(p_id)]['eval'] = 0
                 loadData.match_pairs[int(p_id)]['comment'] = comment
             
             p_id = int(p_id)
             p_id += 1
-            print query
             basic.run_query(query)
 
         else:
