@@ -35,10 +35,12 @@ class DB:
         try:
             cursor = self.conn.cursor()
             cursor.execute(sql)
+            self.conn.commit()
         except (AttributeError, MySQLdb.OperationalError):
             self.connect()
             cursor = self.conn.cursor()
             cursor.execute(sql)
+            self.conn.commit()
         return cursor
 
 
