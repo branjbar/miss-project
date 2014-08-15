@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
     logging.basicConfig(filename='logging.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
     logging.info('________________new________________')
-    matches_dict = extract_matches()
+    matches_dict = extr/Users/bijan/PycharmProjects/MiSS/modules/record_linkage/dynak/matching_kdd.pyact_matches()
 
     index = 1
     csv_text = ''

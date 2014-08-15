@@ -11,6 +11,7 @@ Manual to use dict_based_nerd
 
 
 """
+import time
 from modules.NERD import html_generate
 
 __author__ = 'Bijan'
@@ -107,7 +108,7 @@ def import_dutch_data_set():
     log('importing Meertens names is done')
 
 
-def main():
+def generate_html_report():
     log('importing names')
     the_query = "SELECT name, type FROM meertens_names"
     cur = basic.run_query(the_query)
@@ -132,10 +133,50 @@ def main():
         text = basic.text_pre_processing(text)
         word_list = text.split()
         word_spec = extract_name(word_list)
-        # refs_list = extract_references(word_list, word_spec)
         output.append([text, word_spec])
 
     html_generate.export_html(output)
 
+
+def export_names_to_sql_table():
+    """
+    here we replace frog, and extract names from text.
+    The extracted names are added to natary_acts_refse as following:
+    id, reference, index, text_id, text_row_id
+
+
+    Data can be loaded to sql by using following command
+    LOAD DATA INFILE 'extracted_names.csv'
+    INTO TABLE notary_acts_refs FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+    """
+    ref_id = 0
+    log('importing notarial acts')
+    the_query = "SELECT text1, text2, text3, row_id, id from notary_acts"
+    cur = basic.run_query(the_query)
+    notarial_list = []
+    for c in cur.fetchall():
+        # each notarial_list element is [text, date, place]
+        notarial_list.append([c[0] + ' ' + c[1] + ' ' + c[2], c[4], c[3]])
+
+    log('extracting names')
+    now = time.time()
+    for n in notarial_list:
+        text = n[0]
+        text = basic.text_pre_processing(text)
+        word_list = text.split()
+        if word_list:
+            word_spec = extract_name(word_list)
+            ref_list = extract_references(word_list,word_spec)
+
+            for ref in ref_list:
+                ref_id += 1
+                csv_text = str(ref_id) + ',' + str(ref[1]) + ',' + str(ref[0]) + ',' + str(n[1]) + ',' + str(n[2]) + '\n'
+                with open("../../data/extracted_names.csv", "a") as my_file:
+                                    my_file.write(csv_text)
+
+
+
+    print time.time() - now
+
 if __name__ == "__main__":
-    main()
+    export_names_to_sql_table()
