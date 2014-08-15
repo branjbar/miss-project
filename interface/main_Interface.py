@@ -1,9 +1,10 @@
 from flask import request
 from flask import render_template
 
+from modules.NERD import dict_based_nerd
 from modules.basic_modules import basic, loadData, myOrm, generatePedigree
 from interface import app
-from modules.record_linkage.nerd import dict_based_nerd
+
 
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
@@ -241,7 +242,6 @@ def routing():
     @app.route('/check_pedigrees/<depth>', methods=['GET'])
     @app.route('/check_pedigrees/<depth>/<family_id>', methods=['GET'])
     def check_pedigrees(depth=4,family_id=0):
-        from modules.basic_modules import generatePedigree
 
         json_dict = generatePedigree.check_pedigrees(int(depth), int(family_id))
 
