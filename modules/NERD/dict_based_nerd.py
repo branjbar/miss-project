@@ -119,12 +119,18 @@ def generate_html_report():
         name_list.append(c[0].lower())
 
     log('importing notarial acts')
-    the_query = "SELECT text1, text2, text3, date, place from notary_acts"
+    the_query = """select * from (
+                    select text1, text2, text3 FROM labeled_acts as l1
+                    inner join
+                    notary_acts as l2
+                    where LEFT(text, 200)  = LEFT(text1, 200)
+                    ) as T
+                    """
     cur = basic.run_query(the_query)
     notarial_list = []
     for c in cur.fetchall()[:1000]:
         # each notarial_list element is [text, date, place]
-        notarial_list.append([c[0] + ' ' + c[1] + ' ' + c[2], c[3], c[4]])
+        notarial_list.append([c[0] + ' ' + c[1] + ' ' + c[2]])
 
     log('extracting names')
     output = []
@@ -133,8 +139,8 @@ def generate_html_report():
         text = basic.text_pre_processing(text)
         word_list = text.split()
         word_spec = extract_name(word_list)
-        output.append([text, word_spec])
-
+        ref_list = extract_references(word_list,word_spec)
+        output.append([text, word_spec, ref_list])
     html_generate.export_html(output)
 
 
@@ -179,4 +185,4 @@ def export_names_to_sql_table():
     print time.time() - now
 
 if __name__ == "__main__":
-    export_names_to_sql_table()
+    generate_html_report()

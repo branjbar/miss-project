@@ -50,7 +50,7 @@ def save_html(html_code, file_name="sample_html.html"):
 
 
 def highlight_text(index, text, index_dict):
-    html_code = "<p> #" + str(index+1) + ')  '
+    html_code = "<p> Text #" + str(index+1) + ')  <br>'
 
     for index, word in enumerate(text.split()):
         if index_dict.get(index):
@@ -78,6 +78,11 @@ def export_html(text_list):
 
     for index, text in enumerate(text_list):
         html_code += highlight_text(index, text[0], text[1])
+        id = 0
+        html_code += "Extracted References: <br>"
+        for name in text[2]:
+            id += 1
+            html_code += str(id) + ") "+ name[1] + '<br>'
 
     save_html(html_code)
 
