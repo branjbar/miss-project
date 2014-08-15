@@ -7,7 +7,7 @@ Manual to use dict_based_nerd
         # pre processing the text and splitting the words in a list
     word_spec = extract_name(word_list)  # getting a dictionary of word index and its status regarding being a name or not
     refs_list = extract_references(word_list, word_spec)
-        # the concrete references which consist more than one name and are possible to be more processed
+        # the concrete references which consist more than one name and are good for future check are reported.
 
 
 """
@@ -20,7 +20,6 @@ from modules.basic_modules.basic import log
 from modules.basic_modules import myOrm
 
 meertens_names = {}
-prefix_1 = ['van', 'te', 'de']
 
 # TODO move the text pre-processing from basic modules to this place
 # TODO make a class for nerd instead of using module as it is now
@@ -34,7 +33,6 @@ def extract_name(word_list):
         3 : First word of the whole paragraph
         -1: has capital letter but doesn't exist in the list
     """
-    global prefix_1
     # search for capital letters
     global meertens_names
 
@@ -53,13 +51,14 @@ def extract_name(word_list):
     if not word_list[0] == 'Testament' and word_spec.get(1) == 1:
         word_spec[0] = 3
 
+    PREFIXES = ['van', 'te', 'de', 'van der', 'van den', 'van de']
     # search for last name prefixes
     for index, word in enumerate(word_list):
-        if word in prefix_1 and word_spec.get(index - 1) and word_spec.get(index+1):
+        if word in PREFIXES and word_spec.get(index - 1) and word_spec.get(index+1):
             word_spec[index] = 2
-        if (word == "den" or word == "der") and word_list[index-1] == "van" and word_spec.get(index - 2) and word_spec.get(index+1):
+        if index < len(word_list)-1 and word + " " + word_list[index+1] in PREFIXES and word_spec.get(index - 1) and word_spec.get(index+2):
             word_spec[index] = 2
-            word_spec[index-1] = 2
+            word_spec[index+1] = 2
 
     for index, word in enumerate(word_list):
         if word_spec[index] and not meertens_names.get(word.lower()):
@@ -107,6 +106,7 @@ def import_dutch_data_set():
 
     log('importing Meertens names is done')
 
+
 def main():
     log('importing names')
     the_query = "SELECT name, type FROM meertens_names"
@@ -129,33 +129,13 @@ def main():
     output = []
     for n in notarial_list:
         text = n[0]
-        index_dict = {}
         text = basic.text_pre_processing(text)
-        for index, word in enumerate(text.split()):
-            # uses Meertens data
-            if not word == 'van' and name_dict.get(word.lower()):
-                index_dict[index] = name_dict.get(word.lower())
-
-            # uses the first uppercase character
-            # if word[0].isupper() and index > 0 and len(text.split()[index-1]) > 1:
-            #     index_dict[index] = "last_name"
-            # else:
-            #     if word[0].isupper() and index > 0:
-            #         index_dict[index] = "first_name_m"
-
-        output.append([text, index_dict])
+        word_list = text.split()
+        word_spec = extract_name(word_list)
+        # refs_list = extract_references(word_list, word_spec)
+        output.append([text, word_spec])
 
     html_generate.export_html(output)
 
 if __name__ == "__main__":
-
-    text_id = 500  # choosing row 500
-    act = myOrm.get_notarial_act(text_id)  # Getting the complete row with id 500 from natry_acts table
-    word_list = basic.text_pre_processing(act['text1'] + ' ' + act['text2'] + act['text3']).split()
-        # pre processing the text and splitting the words in a list
-    word_spec = extract_name(word_list)  # getting a dictionary of word index and it's status
-    refs_list = extract_references(word_list, word_spec)
-    print refs_list
-
-
-    # main()
+    main()

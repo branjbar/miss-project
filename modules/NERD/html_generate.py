@@ -7,6 +7,11 @@ __author__ = 'Bijan'
 def initialize_html():
     """
     constructs the body of html
+        1 : started with capital letter
+        2 : last name prefix
+        3 : First word of the whole paragraph
+        -1: has capital letter but doesn't exist in the list
+
     """
     html_code = """
                 <!DOCTYPE html>
@@ -17,9 +22,10 @@ def initialize_html():
 
                 <h4> Each notarial act is first preprocessed to remove extra space and odd symbols.
                 Then Using the Meertens Institute data, names are highlighted as
-                <span style="background-color: #FF88FF"> Female First Name </span>,
-                <span style="background-color: #00FFFF"> Male First Name </span> and
-                <span style="background-color: #FFFF00"> Last Name</span>.
+                <span style="background-color: #FFFF00"> Standard with Capital Letter </span>,
+                <span style="background-color: #00FFFF"> Last name Prefix </span> and
+                <span style="background-color: #FF88FF"> First word name</span>.
+                <span style="background-color: #00FF00"> capital letter but not standard format</span>.
                 </h4>
                 <hr>
             """
@@ -44,16 +50,18 @@ def save_html(html_code, file_name="sample_html.html"):
 
 
 def highlight_text(index, text, index_dict):
-    html_code = "<p> #" + str(index) + ')  '
+    html_code = "<p> #" + str(index+1) + ')  '
 
     for index, word in enumerate(text.split()):
         if index_dict.get(index):
-            if index_dict.get(index) == "last_name":
+            if index_dict.get(index) == 1:
                 html_code += """ <span style="background-color: #FFFF00"> """ + word + """</span> """
-            if index_dict.get(index) == "first_name_m":
+            if index_dict.get(index) == 2:
                 html_code += """ <span style="background-color: #00FFFF"> """ + word + """</span> """
-            if index_dict.get(index) == "first_name_f":
+            if index_dict.get(index) == 3:
                 html_code += """ <span style="background-color: #FF88FF"> """ + word + """</span> """
+            if index_dict.get(index) == -1:
+                html_code += """ <span style="background-color: #00FF00"> """ + word + """</span> """
 
         else:
             html_code += word + ' '
