@@ -1,9 +1,23 @@
+"""
+Manual to use dict_based_nerd
+
+    text_id = 500  # choosing row 500
+    act = myOrm.get_notarial_act(text_id)  # Getting the complete row with id 500 from natry_acts table
+    word_list = basic.text_pre_processing(act['text1'] + ' ' + act['text2'] + act['text3']).split()
+        # pre processing the text and splitting the words in a list
+    word_spec = extract_name(word_list)  # getting a dictionary of word index and its status regarding being a name or not
+    refs_list = extract_references(word_list, word_spec)
+        # the concrete references which consist more than one name and are possible to be more processed
+
+
+"""
 from modules.NERD import html_generate
 
 __author__ = 'Bijan'
 
 from modules.basic_modules import basic
 from modules.basic_modules.basic import log
+from modules.basic_modules import myOrm
 
 meertens_names = {}
 prefix_1 = ['van', 'te', 'de']
@@ -18,11 +32,12 @@ def extract_name(word_list):
         1 : started with capital letter
         2 : last name prefix
         3 : First word of the whole paragraph
-        4: has capital letter but doesn't exist in the list
+        -1: has capital letter but doesn't exist in the list
     """
     global prefix_1
     # search for capital letters
     global meertens_names
+
     if not meertens_names:
         import_dutch_data_set()
 
@@ -66,8 +81,9 @@ def extract_references(word_list, word_spec):
             reference += word + ' '
         else:
             reference = reference.strip()
-            if len(reference.split(' ')) > 1:
-                refs_list.append(reference)
+            ref_len = len(reference.split(' '))
+            if ref_len > 1:
+                refs_list.append([index - ref_len, reference])
             reference = ''
 
     return refs_list
@@ -81,7 +97,7 @@ def import_dutch_data_set():
         imports the Dutch data set for name disambiguation
     """
     global meertens_names
-    log('importing names')
+    log('importing Meertens names')
     the_query = "SELECT name, type FROM meertens_names"
     cur = basic.run_query(the_query)
 
@@ -89,7 +105,7 @@ def import_dutch_data_set():
     for c in cur.fetchall():
         meertens_names[c[0].lower()] = c[1]
 
-    log('importing names is done')
+    log('importing Meertens names is done')
 
 def main():
     log('importing names')
@@ -102,7 +118,7 @@ def main():
         name_list.append(c[0].lower())
 
     log('importing notarial acts')
-    the_query = "SELECT inhoud1, inhoud2, inhoud3, datering, plaats from notary_acts"
+    the_query = "SELECT text1, text2, text3, date, place from notary_acts"
     cur = basic.run_query(the_query)
     notarial_list = []
     for c in cur.fetchall()[:1000]:
@@ -132,4 +148,14 @@ def main():
     html_generate.export_html(output)
 
 if __name__ == "__main__":
-    main()
+
+    text_id = 500  # choosing row 500
+    act = myOrm.get_notarial_act(text_id)  # Getting the complete row with id 500 from natry_acts table
+    word_list = basic.text_pre_processing(act['text1'] + ' ' + act['text2'] + act['text3']).split()
+        # pre processing the text and splitting the words in a list
+    word_spec = extract_name(word_list)  # getting a dictionary of word index and it's status
+    refs_list = extract_references(word_list, word_spec)
+    print refs_list
+
+
+    # main()

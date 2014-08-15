@@ -6,7 +6,6 @@ __author__ = 'Bijan'
 import time
 import threading
 import logging
-
 MATCH_TABLE = "miss_matches_random_walk"
 
 table_all_documents = {}

@@ -89,7 +89,7 @@
                     <span class="glyphicon glyphicon-cloud-download"></span>
                     <b> Reference names extracted from text: </b></p>
                     {% for ref in refs_list %}
-                        <p> <b>{{loop.index}})</b> {{ref}} </p>
+                        <p> <b>{{loop.index}})</b> {{ref[1]}} ({{ref[0]}}) </p>
                     {% endfor %}
                 </div> <!-- eval div -->
 
