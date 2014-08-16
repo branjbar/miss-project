@@ -2,6 +2,7 @@ from flask import request
 from flask import render_template
 
 from modules.NERD import dict_based_nerd
+from modules.NERD.dict_based_nerd import text_pre_processing
 from modules.basic_modules import basic, loadData, myOrm, generatePedigree
 from interface import app
 
@@ -302,7 +303,7 @@ def routing():
         act = myOrm.get_notarial_act(t_id)
         navbar_choices = [1,2,3,4,5,6,7,8,9,10]
         if act:
-            word_list = basic.text_pre_processing(act['text1'] + ' ' + act['text2'] + act['text3']).split()
+            word_list = text_pre_processing(act['text1'] + ' ' + act['text2'] + act['text3']).split()
             word_spec = dict_based_nerd.extract_name(word_list)
             refs_list = dict_based_nerd.extract_references(word_list, word_spec)
             text = {'text': word_list,

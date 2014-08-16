@@ -18,12 +18,40 @@ __author__ = 'Bijan'
 
 from modules.basic_modules import basic
 from modules.basic_modules.basic import log
-from modules.basic_modules import myOrm
 
 meertens_names = {}
 
-# TODO move the text pre-processing from basic modules to this place
 # TODO make a class for nerd instead of using module as it is now
+
+
+def text_pre_processing(text):
+    """
+        preprocesses the text (mostly for notarial acts).
+        E.g., adds space before and after ","
+         replaces multiple spaces by single ones.
+         detects the names connected to previous word
+    """
+    punctuation_list = [',', ';', '.', ':', '[', ']', '(', ')', '"', "'"]
+    for c in punctuation_list:
+        text = text.replace(c,' ' + c + ' ')
+    text = text.replace('  ', ' ')
+
+    new_text = ''
+    for word in text.split():
+        new_word = word
+        if len(word) > 3:
+            new_word = ''
+            for index, letter in enumerate(word):
+                if letter.isupper() and 1 < index < len(word):
+                    new_word += ' '
+                new_word += letter
+        new_text += new_word + ' '
+
+    text = new_text
+    return text
+
+
+
 
 
 def extract_name(word_list):
@@ -107,82 +135,9 @@ def import_dutch_data_set():
 
     log('importing Meertens names is done')
 
+def main():
+    pass
 
-def generate_html_report():
-    log('importing names')
-    the_query = "SELECT name, type FROM meertens_names"
-    cur = basic.run_query(the_query)
-    name_dict = {}
-    name_list = []
-    for c in cur.fetchall():
-        name_dict[c[0].lower()] = c[1]
-        name_list.append(c[0].lower())
-
-    log('importing notarial acts')
-    the_query = """select * from (
-                    select text1, text2, text3 FROM labeled_acts as l1
-                    inner join
-                    notary_acts as l2
-                    where LEFT(text, 200)  = LEFT(text1, 200)
-                    ) as T
-                    """
-    cur = basic.run_query(the_query)
-    notarial_list = []
-    for c in cur.fetchall()[:1000]:
-        # each notarial_list element is [text, date, place]
-        notarial_list.append([c[0] + ' ' + c[1] + ' ' + c[2]])
-
-    log('extracting names')
-    output = []
-    for n in notarial_list:
-        text = n[0]
-        text = basic.text_pre_processing(text)
-        word_list = text.split()
-        word_spec = extract_name(word_list)
-        ref_list = extract_references(word_list,word_spec)
-        output.append([text, word_spec, ref_list])
-    html_generate.export_html(output)
-
-
-def export_names_to_sql_table():
-    """
-    here we replace frog, and extract names from text.
-    The extracted names are added to natary_acts_refse as following:
-    id, reference, index, text_id, text_row_id
-
-
-    Data can be loaded to sql by using following command
-    LOAD DATA INFILE 'extracted_names.csv'
-    INTO TABLE notary_acts_refs FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
-    """
-    ref_id = 0
-    log('importing notarial acts')
-    the_query = "SELECT text1, text2, text3, row_id, id from notary_acts"
-    cur = basic.run_query(the_query)
-    notarial_list = []
-    for c in cur.fetchall():
-        # each notarial_list element is [text, date, place]
-        notarial_list.append([c[0] + ' ' + c[1] + ' ' + c[2], c[4], c[3]])
-
-    log('extracting names')
-    now = time.time()
-    for n in notarial_list:
-        text = n[0]
-        text = basic.text_pre_processing(text)
-        word_list = text.split()
-        if word_list:
-            word_spec = extract_name(word_list)
-            ref_list = extract_references(word_list,word_spec)
-
-            for ref in ref_list:
-                ref_id += 1
-                csv_text = str(ref_id) + ',' + str(ref[1]) + ',' + str(ref[0]) + ',' + str(n[1]) + ',' + str(n[2]) + '\n'
-                with open("../../data/extracted_names.csv", "a") as my_file:
-                                    my_file.write(csv_text)
-
-
-
-    print time.time() - now
 
 if __name__ == "__main__":
-    generate_html_report()
+    main()
