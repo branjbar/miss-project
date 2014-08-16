@@ -9,6 +9,7 @@
 
     <!-- Bootstrap core CSS -->
     <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <script src="/static/d3/d3.js"></script>
 
   </head>
 
@@ -74,41 +75,138 @@
                           </div> <!--panel_body -->
                           {% endif %}
                         </div> <!-- panel -->
+
+                        <div class="text-left">
+                           <p class="text-warning">
+                            <span class="glyphicon glyphicon-cloud-download"></span>
+                            <b> Reference names extracted from text: </b></p>
+                            {% for ref in refs_list %}
+                                <p> <b>{{loop.index}})</b> {{ref[1]}} ({{ref[0]}}) </p>
+                            {% endfor %}
+                        </div> <!-- eval div -->
+
+                <!--<div class="panel panel-default text-left">-->
+                  <!--<div class="panel-body">-->
+                  <!--<p class="text-success">-->
+                        <!--<b> Here are the rules which are used to extract the names from the text (1-6), and merge them in order to construct the references (7)</b>-->
+                        <!--<ol>-->
+                            <!--<li> <code> Name_Set &#8592; [ ] </code></li>-->
+                            <!--<li> <code> Reference_Set &#8592; [ ]</code></li>-->
+                            <!--<li> <code> Name_Set &#8592; Add all words starting with a capital letter (except the first word in each sentence)</code></li>-->
+                            <!--<li> <code> Name_Set &#8592; Add the first word in each sentence if the second word is already in Name_Set (except for the word "Testament")</code></li>-->
+                            <!--<li> <code> Name_Set &#8592; Add "van", "van den", "van der", "te", "de" if they appear between two names </code></li>-->
+                            <!--<li> <code>  Name_Set &#8592; Eliminate the words that don't exist in Meertens database </code></li> This level doesn't work that good as a lot of names don't exist in Meertens institute (see the strike out words.)-->
+                            <!--<li> <code> Reference_Set &#8592; Add any set of names that appear consequently </code> </li> For now we use the set from step 5.-->
+                        <!--</ol>-->
+                    <!--</p>-->
+                  <!--</div> &lt;!&ndash; panel_body &ndash;&gt;-->
+                <!--</div> &lt;!&ndash; panel &ndash;&gt;-->
+
+                        <!---->
                     </div> <!-- text_center -->
 
                     <div class="col-xs-4 text-center">
                         {% include "evaluate_form.html" %}
                     </div> <!-- eval form -->
 
+                    <div class="col-xs-4 text-center">
+                        <div class="panel panel-default">
+                            <div class="panel-body" id="d3_panel" >
+                                <h5>Extracted Relations </h5>
+                                <hr>
+                                <script>
+                                    svg_r = d3.select("body")
+                                                   .select("#d3_panel")
+                                                   .append("svg")
+                                    w = svg_r.style("width").replace("px", "");
+                                    padding = 20;
+
+                                    data_node = [];
+                                    data_link = [];
+                                    text_data = ({{extracted_relations|tojson|safe}})
+                                    for (i in text_data) {
+
+                                        data_node.push({
+                                                         name:text_data[i].ref1[1],
+                                                         x: padding,
+                                                         y: (180 * i + 10)
+                                                        },
+                                                        {
+                                                         name:text_data[i].ref2[1],
+                                                         x: 4 * padding,
+                                                         y: (180 * i + 110)
+                                                        }
+                                                       )
+
+                                        data_link.push({
+                                                         name:text_data[i].relation,
+                                                         x1: padding,
+                                                         x2: 4 * padding,
+                                                         y1: (180 * i + 10),
+                                                         y2: (180 * i + 110)
+                                                        }
+                                                       )
+
+                                    }
+                                    svg_r.selectAll("circle .node")
+                                          .data(data_node)
+                                          .enter()
+                                          .append("circle")
+                                          .attr("class","node")
+                                            .attr("cx",function(d){return d.x})
+                                            .attr("cy",function(d){return d.y})
+                                            .attr("r",4)
+
+                                    svg_r.selectAll("text .node")
+                                          .data(data_node)
+                                          .enter()
+                                          .append("text")
+                                          .attr("class","node")
+                                            .text(function(d){return d.name})
+                                            .attr("x",function(d){return d.x + 10})
+                                            .attr("y",function(d){return d.y})
+                                            .attr("font-family", "sans-serif")
+                                            .attr("font-size", "12px")
+                                            .attr("fill", "black");
+
+                                    svg_r.selectAll("line .link")
+                                          .data(data_link)
+                                          .enter()
+                                          .append("line")
+                                          .attr("class","link")
+                                            .attr("x1",function(d){return d.x1})
+                                            .attr("y1",function(d){return d.y1})
+                                            .attr("x2",function(d){return d.x1})
+                                            .attr("y2",function(d){return d.y1})
+                                           .attr("stroke-width", 2)
+                                           .attr("stroke", "black")
+                                           .transition()
+                                           .duration(2000)
+                                            .attr("x2",function(d){return d.x2})
+                                            .attr("y2",function(d){return d.y2})
+
+                                    svg_r.selectAll("line .link")
+                                          .data(data_link)
+                                          .enter()
+                                           .append("text")
+                                            .text(function(d){return "(" + d.name + ")"})
+                                            .attr("x",function(d){return (d.x1 + d.x2) / 2 + 10})
+                                            .attr("y",function(d){return (d.y1 + d.y2)/2})
+                                            .attr("font-family", "sans-serif")
+                                            .attr("font-size", "12px")
+                                            .attr("fill", "red");
+
+
+                                </script>
+
+                            </div>
+                        </div>
+
+                    </div> <!-- eval form -->
 
 
                 </div> <!--row -->
 
-                <div class="text-left">
-                   <p class="text-warning">
-                    <span class="glyphicon glyphicon-cloud-download"></span>
-                    <b> Reference names extracted from text: </b></p>
-                    {% for ref in refs_list %}
-                        <p> <b>{{loop.index}})</b> {{ref[1]}} ({{ref[0]}}) </p>
-                    {% endfor %}
-                </div> <!-- eval div -->
-
-                <div class="panel panel-default text-left">
-                  <div class="panel-body">
-                  <p class="text-success">
-                        <b> Here are the rules which are used to extract the names from the text (1-6), and merge them in order to construct the references (7)</b>
-                        <ol>
-                            <li> <code> Name_Set &#8592; [ ] </code></li>
-                            <li> <code> Reference_Set &#8592; [ ]</code></li>
-                            <li> <code> Name_Set &#8592; Add all words starting with a capital letter (except the first word in each sentence)</code></li>
-                            <li> <code> Name_Set &#8592; Add the first word in each sentence if the second word is already in Name_Set (except for the word "Testament")</code></li>
-                            <li> <code> Name_Set &#8592; Add "van", "van den", "van der", "te", "de" if they appear between two names </code></li>
-                            <li> <code>  Name_Set &#8592; Eliminate the words that don't exist in Meertens database </code></li> This level doesn't work that good as a lot of names don't exist in Meertens institute (see the strike out words.)
-                            <li> <code> Reference_Set &#8592; Add any set of names that appear consequently </code> </li> For now we use the set from step 5.
-                        </ol>
-                    </p>
-                  </div> <!-- panel_body -->
-                </div> <!-- panel -->
 
             </div> <!-- div 9 -->
 
