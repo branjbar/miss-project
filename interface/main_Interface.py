@@ -303,10 +303,11 @@ def routing():
         act = myOrm.get_notarial_act(t_id)
         navbar_choices = [1,2,3,4,5,6,7,8,9,10]
         if act:
-            nerd = Nerd()
-            nerd.set_text(act['text1'] + ' ' + act['text2'] + act['text3'])
-            nerd.pre_processing()
-            nerd.extract_names()
+            text = act['text1'] + ' ' + act['text2'] + act['text3']
+            nerd = Nerd(text)
+            # nerd.set_text(text)
+            # nerd.pre_processing()
+            # nerd.extract_names()
             text = {'text': nerd.word_list,
                     'name_indexes': nerd.word_list_labeled,
                     'row_id' : act['row_id'],
@@ -315,7 +316,7 @@ def routing():
                     'place': act['place'],
                     }
             match_details['comment'] = act['comment']
-            navbar_choices = [i for i in xrange(int(act['row_id']), int(act['row_id'])+10)  ]
+            navbar_choices = [i for i in xrange(int(act['row_id']), int(act['row_id'])+10)]
 
         else:
             text = None
