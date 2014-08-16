@@ -169,9 +169,6 @@ def look_for_pattern():
             for index1, ref1 in enumerate(ref_list):
                 for index2, ref2 in enumerate(ref_list):
                     if index2 == index1 + 1:
-                        # print ref1[1]
-                        # term_len = ref2[0] - ref1[0] - len(ref1[1].split())
-                        # if term_len < 6:
                         term = ' '.join(word_list[ref1[0] + len(ref1[1].split()) :ref2[0]])
                         if '( president )' in term :
                             print n[2]

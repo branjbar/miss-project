@@ -1,8 +1,8 @@
-from flask import request
+from flask import request, jsonify
 from flask import render_template
 
 from modules.NERD import dict_based_nerd
-from modules.NERD.dict_based_nerd import text_pre_processing
+from modules.NERD.dict_based_nerd import Nerd
 from modules.basic_modules import basic, loadData, myOrm, generatePedigree
 from interface import app
 
@@ -303,26 +303,28 @@ def routing():
         act = myOrm.get_notarial_act(t_id)
         navbar_choices = [1,2,3,4,5,6,7,8,9,10]
         if act:
-            word_list = text_pre_processing(act['text1'] + ' ' + act['text2'] + act['text3']).split()
-            word_spec = dict_based_nerd.extract_name(word_list)
-            refs_list = dict_based_nerd.extract_references(word_list, word_spec)
-            text = {'text': word_list,
-                    'name_indexes': word_spec,
+            nerd = Nerd()
+            nerd.set_text(act['text1'] + ' ' + act['text2'] + act['text3'])
+            nerd.pre_processing()
+            nerd.extract_names()
+            text = {'text': nerd.word_list,
+                    'name_indexes': nerd.word_list_labeled,
                     'row_id' : act['row_id'],
                     'id' : act['id'],
                     'date': act['date'],
                     'place': act['place'],
                     }
             match_details['comment'] = act['comment']
-            navbar_choices = [i for i in xrange(int(act['row_id']),int(act['row_id'])+10)  ]
+            navbar_choices = [i for i in xrange(int(act['row_id']), int(act['row_id'])+10)  ]
 
         else:
             text = None
 
         return render_template('nerd_vis.html', text=text,
                                match_details=match_details,
-                               refs_list=refs_list,
-                               navbar_choices=navbar_choices)
+                               refs_list=nerd.get_references(),
+                               navbar_choices=navbar_choices,
+                               extracted_relations=nerd.get_relations())
 
 
 
