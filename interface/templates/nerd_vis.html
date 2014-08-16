@@ -118,7 +118,7 @@
                                     svg_r = d3.select("body")
                                                    .select("#d3_panel")
                                                    .append("svg")
-                                    w = svg_r.style("width").replace("px", "");
+
                                     padding = 20;
 
                                     data_node = [];
@@ -148,6 +148,9 @@
                                                        )
 
                                     }
+
+                                    svg_r.attr("height",180 * text_data.length);
+
                                     svg_r.selectAll("circle .node")
                                           .data(data_node)
                                           .enter()

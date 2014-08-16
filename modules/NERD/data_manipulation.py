@@ -1,3 +1,7 @@
+"""
+Here we export the results of NERD in form of offline html file, sql table, etc.
+
+"""
 import time
 from modules.NERD import html_generate
 from modules.NERD.dict_based_nerd import extract_references, extract_name, text_pre_processing

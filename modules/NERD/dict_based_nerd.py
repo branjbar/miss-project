@@ -1,7 +1,5 @@
 """
-Manual to use dict_based_nerd
-
-
+a class to extract names.
 
 """
 __author__ = 'Bijan'
@@ -43,20 +41,22 @@ RELATION_INDICATORS_MIDDLE = {"gehuwd met": "married with",
                        }
 
 
-
-
 class Nerd():
     """
     a full class for named entity recognition
     """
 
-    def __init__(self):
-        self.text = ''
+    def __init__(self, text=''):
+        self.text = text
         self.pp_text = ''  # pre-processed text
         self.word_list = []
         self.word_list_labeled = {}
         self.references = []
         self.relations = []
+
+        self.pre_processing()
+        if len(self.text) > 5:
+            self.extract_names()
 
 
     def set_text(self, t):
@@ -188,10 +188,6 @@ class Nerd():
                                 self.relations.append({"ref1": ref1, "ref2": ref2, "relation": "husband of"})
                         except:
                             pass
-
-
-
-
 
 
 def import_dutch_data_set():

@@ -15,6 +15,8 @@ block_dict = {}
 match_pairs = {}
 
 
+# TODO: write a unique class for data load
+
 
 def update_persons_table(db_useless, limit):
     """
@@ -116,11 +118,12 @@ def update_notarial_acts(limit):
         tmp_index += 1
         for index, value in enumerate(row):
             try:
-                row_dict[desc[index][0]] = value.decode('ascii','ignore')
+                row_dict[desc[index][0]] = value.decode('ascii', 'ignore')
             except:
                 row_dict[desc[index][0]] = value
         table_notarial_acts[row_dict['row_id']] = row_dict
     logging.debug("table notarial_acts imported in %s" % str(time.time() - __now__))
+    return row_dict['row_id']
 
 
 

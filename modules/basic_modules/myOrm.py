@@ -135,8 +135,9 @@ def get_notarial_act(text_id=None):
 
         text = loadData.table_all_persons.get(int(text_id))
     if not text and text_id:
-        loadData.update_notarial_acts(['', '', 'where row_id = %s' % str(text_id)])
-        text = loadData.table_notarial_acts.get(int(text_id))
+        index = loadData.update_notarial_acts(['', '', 'where row_id = %s' % str(text_id)])
+        # index = loadData.update_notarial_acts(['', '', 'where date like %s limit %s, 1' % ("'%-18%'", str(text_id))])
+        text = loadData.table_notarial_acts.get(index)
 
     if text:
         return text
