@@ -16,6 +16,7 @@ class FullData():
         self.refs = {}
         self.notaries = {}
         self.matches = {}
+        self.blocks = {}
 
 
     def load_references_all_persons(self, limit=None):
@@ -46,7 +47,6 @@ class FullData():
                 self.docs[doc_id] = doc
         log("load_references_all_persons finished.")
 
-
     def load_notaries(self, limit=None):
         log("load_notaries started.")
         if limit:
@@ -76,9 +76,34 @@ class FullData():
             if ref_list:
                 doc = Document(doc_id, ref_list, place, date, doc_type)
                 self.notaries[doc_id] = doc
+                self.fill_in_blocks(ref_list, doc)
 
         log("load_notaries finished.")
 
+    def fill_in_blocks(self, ref_list, doc):
+        """
+        for each to ref in ref_list add the docuemnt to the block
+        """
+        for ref1 in ref_list:
+            for ref2 in ref_list:
+                if ref1.ref_id < ref2.ref_id:
+                    key_list = [ref1.get_compact_name(),ref2.get_compact_name()]
+                    key_list = sorted(key_list)
+                    block_key = key_list[0] + '_' + key_list[1]
+                    if self.blocks.get(block_key):
+                        if not doc.doc_id in self.blocks.get(block_key):
+                            self.blocks[block_key].append(doc.doc_id)
+                    else:
+                        self.blocks[block_key] = [doc.doc_id]
+
+
+    def generate_blocks(self):
+        log("generate_blocks started")
+
+        for doc in self.docs.values():
+            self.fill_in_blocks(doc.ref_list, doc)
+
+        log("generate_blocks finished")
 
 class Reference():
     """
@@ -162,30 +187,44 @@ class ER():
 if __name__ == '__main__':
     er = ER()
 
-    global data
+    file_name = open('blocks.csv','a')
     data = FullData()
-    data.load_references_all_persons(100)
-    data.load_notaries(100)
-    match_id = 0
-    # print data.notaries
+    data.load_references_all_persons()
+    data.generate_blocks()
+    data.load_notaries()
+    for b in data.blocks.keys():
+        if len(data.blocks[b]) > 1:
+            # print data.blocks[b]
+            file_name.write(str(data.blocks[b]) + '\n')
+        else:
+            del data.blocks[b]
 
-    log("matching started.")
-    for doc_source in data.notaries.values():
-        # for doc_target in data.notaries.values():
-        for doc_target in data.docs.values():
-            # if doc_source.doc_id < doc_target.doc_id:
-            er.document_source = doc_source
-            er.document_target = doc_target
-            similarity = er.compare_docs()
-            if len(similarity) > 2:
-                match_id += 1
-                match = Match(match_id, doc_source.doc_id, doc_target.doc_id, 'notary_to_certificate')
-                data.matches[match_id] = match
 
-    for d in data.matches.values():
-        print d
 
-    log("matching finished.")
+
+
+
+    # data.load_notaries(100)
+    # match_id = 0
+    # # print data.notaries
+    #
+    # log("matching started.")
+    # for doc_source in data.notaries.values():
+    #     # for doc_target in data.notaries.values():
+    #     for doc_target in data.docs.values():
+    #         # if doc_source.doc_id < doc_target.doc_id:
+    #         er.document_source = doc_source
+    #         er.document_target = doc_target
+    #         similarity = er.compare_docs()
+    #         if len(similarity) > 2:
+    #             match_id += 1
+    #             match = Match(match_id, doc_source.doc_id, doc_target.doc_id, 'notary_to_certificate')
+    #             data.matches[match_id] = match
+    #
+    # for d in data.matches.values():
+    #     print d
+    #
+    # log("matching finished.")
 
 
 
