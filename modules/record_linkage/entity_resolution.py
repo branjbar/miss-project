@@ -5,6 +5,7 @@ import pickle
 import time
 from modules.NERD.dict_based_nerd import Nerd
 from modules.basic_modules.basic import string_compare, run_query, log
+from modules.basic_modules.myOrm import Document, Reference
 
 
 class FullData():
@@ -97,7 +98,6 @@ class FullData():
                     else:
                         self.blocks[block_key] = [doc.doc_id]
 
-
     def generate_blocks(self):
         log("generate_blocks started")
 
@@ -106,57 +106,6 @@ class FullData():
 
         log("generate_blocks finished")
 
-class Reference():
-    """
-    a class for using any reference
-    """
-
-    def __init__(self, ref_id=None, name=None):
-        self.ref_id = ref_id
-        self.name = name
-
-    def __repr__(self):
-        return str(self.ref_id) + '_' + str(self.name)
-
-    def get_compact_name(self):
-        if len(self.name) > 1:
-            return self.name.split()[0] + '_' + self.name.split()[-1]
-        else:
-            return ''
-
-
-class Document():
-    """
-    a class for using any document
-    """
-
-    def __init__(self, doc_id=None, ref_list=None, place=None, date=None, doc_type=None):
-        self.doc_id = doc_id
-        self.ref_list = ref_list
-        self.place = place
-        self.date = date
-        self.doc_type = doc_type
-
-    def __repr__(self):
-        return str(self.doc_id) + '_' + str(self.doc_type) + '_' +str(self.ref_list) + '_' + str(self.place) + '_' + str(self.date)
-
-    def add_ref(self, ref):
-        self.ref_list.append(ref)
-
-
-class Match():
-    """
-    a class for storing are found matches
-    """
-    def __init__(self, match_id=None, doc_id1=None, doc_id2=None, match_type=None):
-        self.match_id = match_id
-        self.doc_id1 = doc_id1
-        self.doc_id2 = doc_id2
-        self.match_type = match_type
-
-    def __repr__(self):
-
-        return str(self.match_id) + '_' + str(self.doc_id1) + '_' + str(self.doc_id2) + '_' + str(self.match_type)
 
 
 class ER():

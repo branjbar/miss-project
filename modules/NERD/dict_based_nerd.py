@@ -46,7 +46,7 @@ class Nerd():
     a full class for named entity recognition
     """
 
-    def __init__(self, text=''):
+    def __init__(self, text=""):
         self.text = text
         self.pp_text = ''  # pre-processed text
         self.word_list = []
@@ -164,6 +164,7 @@ class Nerd():
         """
             uses the pre-defined patterns to find relations between individuals
         """
+        self.relations = []
         for index1, ref1 in enumerate(self.get_references()):
                 for index2, ref2 in enumerate(self.get_references()):
                     if index2 == index1 + 1:

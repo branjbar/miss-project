@@ -1,7 +1,7 @@
-from flask import request, jsonify
+import pickle
+from flask import request
 from flask import render_template
 
-from modules.NERD import dict_based_nerd
 from modules.NERD.dict_based_nerd import Nerd
 from modules.basic_modules import basic, loadData, myOrm, generatePedigree
 from interface import app
@@ -9,17 +9,99 @@ from interface import app
 
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
+from modules.basic_modules.myOrm import Reference, Document
 
+print "start importing blocks"
+new_blocks = pickle.load(open("new_blocks_2.p", "r"))
+print "end importing blocks"
+
+# print "start importing blocks"
+# match_blocks = pickle.load(open("blocks.p", "r"))
+# print "end importing blocks"
+#
+# new_blocks = []
+# for b in match_blocks.keys():
+#     flag = False
+#     flag_n = False
+#     for d in match_blocks[b]:
+#         if 'n' in d:
+#             flag_n = True
+#         else:
+#             flag = True
+#
+#     if flag and flag_n:
+#         new_blocks.append([b, match_blocks[b]])
+# pickle.dump(new_blocks, open('new_blocks.p', 'w'))
 
 def routing():
+    @app.route('/complex_matches/', methods=['GET', 'POST'])
+    @app.route('/complex_matches/<p_id>', methods=['GET', 'POST'])
+    def complex_matches(p_id=None):
+        search_id = request.args.get('search_term')
+        if search_id and search_id.isdigit():
+            p_id = int(search_id)
+
+        if p_id:
+            p_id = int(p_id)
+            block_key = new_blocks[p_id][0]
+            block_list = new_blocks[p_id][1]
+        else:
+            block_list = {'Martinus_Delisse_Johanna_Elzen': ['13201190', '13205058', '12835983', 'n71346']}
+            block_key = 'Martinus_Delisse_Johanna_Elzen'
+            p_id = 0
+
+        doc_list = []
+        doc_list_d3 = []
+        for doc_id in block_list:
+            doc = Document()
+            doc.set_id(doc_id)
+            doc_list_d3.append(doc.__dict_new__())
+            html = doc.get_html()
+            for key in block_key.split('_'):
+                html = html.replace(key, '<span class="highlight"> %s </span>'%key)
+            doc_list.append(html)
+
+
+
+            navbar_choices = []
+            for a_match_id in range(p_id, p_id + 11):
+                    navbar_choices.append(a_match_id)
+
+
+        return render_template('match_vis.html', doc_list_d3=doc_list_d3, doc_list=doc_list,
+                               block_key=block_key.split('_'),
+                               navbar_choices=navbar_choices)
+
+
+    @app.route('/get_ref/<p_id>')
+    @app.route('/get_ref/')
+    def get_ref(p_id=None):
+        if p_id:
+            ref = Reference()
+            ref.set_id(p_id)
+
+            return str(ref)
+        else:
+            return 'error'
+
+
+    @app.route('/get_doc/<p_id>')
+    @app.route('/get_doc/')
+    def get_doc(p_id=None):
+        if p_id:
+            doc = Document()
+            doc.set_id(p_id)
+            return str(doc.__dict_new__())
+        else:
+            return 'error'
 
 
     @app.route('/', methods=['GET', 'POST'])
     def home():
         return render_template('index.html', header="Welcome!"
-                               ,  message="to MiSS Web Interface. Use the upper "
-                                          "menu to proceed with data exploration. You "
-                                          "can start with loading data!")
+                               , message="to MiSS Web Interface. Use the upper "
+                                         "menu to proceed with data exploration. You "
+                                         "can start with loading data!")
 
 
     @app.route('/person/', methods=['GET', 'POST'])
@@ -115,10 +197,11 @@ def routing():
                     else:
 
                         tables = {'Persons': len(loadData.table_all_persons),
-                                  'Matches':len(loadData.match_pairs),
-                                  'Documents':len(loadData.table_all_documents),}
+                                  'Matches': len(loadData.match_pairs),
+                                  'Documents': len(loadData.table_all_documents), }
 
-        return render_template('index.html', header=header, message=message, data=tables, name='bijan', page_name='load_data')
+        return render_template('index.html', header=header, message=message, data=tables, name='bijan',
+                               page_name='load_data')
 
     @app.route('/links_matches/', methods=['GET', 'POST'])
     @app.route('/links_matches/<p_id>', methods=['GET', 'POST'])
@@ -138,10 +221,8 @@ def routing():
             doc2 = myOrm.get_document(doc2_id)
 
             if doc1 and doc2:
-
-
-                json_dict_1 = generatePedigree.pedigree(doc1,'', '', match['role1'])
-                json_dict_2 = generatePedigree.pedigree(doc2,'', '', match['role2'])
+                json_dict_1 = generatePedigree.pedigree(doc1, '', '', match['role1'])
+                json_dict_2 = generatePedigree.pedigree(doc2, '', '', match['role2'])
                 return render_template('index.html', doc1=doc1, doc2=doc2, match_details=match, json_dict_h=json_dict_1,
                                        json_dict_h2=json_dict_2, name='bijan', page_name='miss_matches')
         else:
@@ -154,10 +235,10 @@ def routing():
 
         if request.args.get('confirm'):
             opinion = request.args.get('confirm')
-            comment = request.args.get('comment').replace("'","").replace('"','')
+            comment = request.args.get('comment').replace("'", "").replace('"', '')
             rowid = myOrm.get_miss_matches(p_id)['id']
             if opinion == "True":
-                comment = loadData.match_pairs[int(p_id)]['comment'] + ' - ' + str(comment) 
+                comment = loadData.match_pairs[int(p_id)]['comment'] + ' - ' + str(comment)
                 query = "update %s set eval=1, comment='%s' where id=%s" % (loadData.MATCH_TABLE, comment, rowid)
                 loadData.match_pairs[int(p_id)]['eval'] = 1
                 loadData.match_pairs[int(p_id)]['comment'] = comment
@@ -166,7 +247,7 @@ def routing():
                 query = "update %s set eval=0, comment='%s' where id=%s" % (loadData.MATCH_TABLE, comment, rowid)
                 loadData.match_pairs[int(p_id)]['eval'] = 0
                 loadData.match_pairs[int(p_id)]['comment'] = comment
-            
+
             p_id = int(p_id)
             p_id += 1
             basic.run_query(query)
@@ -191,7 +272,6 @@ def routing():
             doc1 = myOrm.get_document(myOrm.get_person(ref1)['register_id'])
             doc2 = myOrm.get_document(myOrm.get_person(ref2)['register_id'])
 
-
             json_dict_1 = generatePedigree.pedigree(doc1, ref1, '')
             json_dict_2 = generatePedigree.pedigree(doc2, ref2, '')
 
@@ -210,6 +290,7 @@ def routing():
     @app.route('/report_error/', methods=['GET'])
     def error_report():
         from feedback import request_error_correction
+
         comment = request.args.get('comment')
 
         if request.args.get('document_id'):
@@ -238,11 +319,10 @@ def routing():
                                                                 ' form and click submit!', name='bijan')
 
 
-
     @app.route('/check_pedigrees/', methods=['GET'])
     @app.route('/check_pedigrees/<depth>', methods=['GET'])
     @app.route('/check_pedigrees/<depth>/<family_id>', methods=['GET'])
-    def check_pedigrees(depth=4,family_id=0):
+    def check_pedigrees(depth=4, family_id=0):
 
         json_dict = generatePedigree.check_pedigrees(int(depth), int(family_id))
 
@@ -258,19 +338,18 @@ def routing():
         for tmp_depth in [5, 4, 3]:
             navbar_choices[tmp_depth] = []
             for tmp_family_id in xrange(1, 10):
-                    reference_id = myOrm.get_document(families[tmp_depth-3][tmp_family_id][0])['reference_ids'].split(',')[:2]
-                    groom_last_name = myOrm.get_person(reference_id[0])['last_name']
-                    bride_last_name = myOrm.get_person(reference_id[1])['last_name']
-                    navbar_choices[tmp_depth].append([groom_last_name + '-' + bride_last_name, tmp_family_id])
-
+                reference_id = myOrm.get_document(families[tmp_depth - 3][tmp_family_id][0])['reference_ids'].split(
+                    ',')[:2]
+                groom_last_name = myOrm.get_person(reference_id[0])['last_name']
+                bride_last_name = myOrm.get_person(reference_id[1])['last_name']
+                navbar_choices[tmp_depth].append([groom_last_name + '-' + bride_last_name, tmp_family_id])
 
         return render_template('visualization.html', details=details,
                                json_dict_h=json_dict, json_dict_v=json_dict, depth=depth,
                                navbar_choices=navbar_choices)
 
         # else:
-        #     return render_template('visualization.html', message='No results found!', name='bijan')
-
+        # return render_template('visualization.html', message='No results found!', name='bijan')
 
 
     @app.route('/nerd_vis/', methods=['GET'])
@@ -279,7 +358,7 @@ def routing():
 
         if request.args.get('confirm'):
             opinion = request.args.get('confirm')
-            comment = request.args.get('comment').replace("'","").replace('"','"')
+            comment = request.args.get('comment').replace("'", "").replace('"', '"')
             if opinion == "True":
                 query = "update notary_acts set eval=1, comment='%s' where row_id=%s" % (comment, t_id)
                 loadData.table_notarial_acts[int(t_id)]['eval'] = 1
@@ -301,7 +380,7 @@ def routing():
         refs_list = []
         match_details = {}
         act = myOrm.get_notarial_act(t_id)
-        navbar_choices = [1,2,3,4,5,6,7,8,9,10]
+        navbar_choices = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         if act:
             text = act['text1'] + ' ' + act['text2'] + act['text3']
             nerd = Nerd(text)
@@ -310,13 +389,13 @@ def routing():
             # nerd.extract_names()
             text = {'text': nerd.word_list,
                     'name_indexes': nerd.word_list_labeled,
-                    'row_id' : act['row_id'],
-                    'id' : act['id'],
+                    'row_id': act['row_id'],
+                    'id': act['id'],
                     'date': act['date'],
                     'place': act['place'],
-                    }
+            }
             match_details['comment'] = act['comment']
-            navbar_choices = [i for i in xrange(int(act['row_id']), int(act['row_id'])+10)]
+            navbar_choices = [i for i in xrange(int(act['row_id']), int(act['row_id']) + 10)]
 
         else:
             text = None
@@ -328,9 +407,6 @@ def routing():
                                extracted_relations=nerd.get_relations())
 
 
-
-
-
     app.debug = True
     app.run(host='0.0.0.0', port=20002)
     # app.run()
@@ -338,6 +414,7 @@ def routing():
 
 def main():
     routing()
+
 
 if __name__ == "__main__":
     main()

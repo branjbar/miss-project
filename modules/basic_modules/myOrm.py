@@ -1,3 +1,5 @@
+from modules.NERD.dict_based_nerd import Nerd
+
 __author__ = 'Bijan'
 
 from modules.basic_modules import basic, loadData
@@ -8,17 +10,34 @@ STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, rol
 import random
 
 
+
+
 class Reference():
     """
     a class for using any reference
     """
+    REF_TYPE = {'birth': {1: "Born",
+                             5: "Parent",
+                             5: "Parent",
+                             },
+                'marriage': {1: "Groom/Bride",
+                             2: "Groom's Parent",
+                             3: "Bride's Parent",
+                             },
+                'death': {1: "Deceased",
+                             4: "Parent",
+                             6: "Relative",
+                             },
+                }
 
-    def __init__(self, ref_id=None, name=None):
+    def __init__(self, ref_id=None, name=None, ref_type=None):
         self.ref_id = ref_id
         self.name = name
+        self.ref_type = ref_type
 
     def __repr__(self):
-        return str(self.ref_id) + '_' + str(self.name)
+        # return str(self.ref_id) + '_' + str(self.name)
+        return str(self.__dict__)
 
     def get_compact_name(self):
         if len(self.name) > 1:
@@ -26,28 +45,135 @@ class Reference():
         else:
             return ''
 
+    def set_id(self, ref_id, doc_type=None):
+        person = get_person(int(ref_id))
+        self.ref_id = person['id']
+        self.name = person['first_name'] + ' ' + person['last_name']
+        if doc_type in ['birth', 'marriage', 'death']:
+            self.ref_type = self.REF_TYPE[doc_type][person['role']]
+        else:
+            self.ref_type = ['Ext. text']
+
 
 class Document():
     """
     a class for using any document
     """
 
-    def __init__(self, doc_id=None, ref_list=None, place=None, date=None, doc_type=None):
+    def __init__(self, doc_id=None, ref_list=[], place=None, date=None, doc_type=None):
         self.doc_id = doc_id
         self.ref_list = ref_list
         self.place = place
         self.date = date
         self.doc_type = doc_type
+        self.text = None
 
     def __repr__(self):
-        return str(self.doc_id) + '_' + str(self.doc_type) + '_' +str(self.ref_list) + '_' + str(self.place) + '_' + str(self.date)
+        # return str(self.doc_id) + '_' + str(self.doc_type) + '_' +str(self.ref_list) + '_' + str(self.place) + '_' + str(self.date)
+        return str(self.__dict__)
+
+    def __dict_new__(self):
+
+        dict = self.__dict__
+        ref_list = []
+        for ref in self.ref_list:
+            ref_list.append(ref.__dict__)
+        dict['ref_list'] = ref_list
+        return dict
+
+    def get_html(self):
+        if self.doc_type == "notarial act":
+            html = """ <div class="panel-body col-xs-8" >"""
+        else:
+            html = """ <div class="panel-body col-xs-4" >"""
+
+        html += """
+                                <div class="panel panel-default">
+                                  <div class="panel-heading">
+                                    <h3 class="panel-title">%s</h3>
+                                  </div>
+                                  <div class="panel-body" >
+
+
+                """ % self.doc_type.title()
+
+        if self.doc_type == "notarial act":
+            html += """<div class="col-xs-6">"""
+            html += self.text
+            html += "</div>"
+            html += """<div class="col-xs-6">"""
+
+
+
+
+        html += """ <table class="table" style="margin-bottom: 0px;"> """
+        html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>id</b>',
+                                                                                                      self.doc_id)
+        html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>place</b>',
+                                                                                                      self.place)
+        html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>date</b?',
+                                                                                                      self.date)
+        for ref in self.ref_list:
+            html += "<tr> \n <td><small> <b>%s</b> </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % (ref['ref_type'], ref['name'])
+
+        html += "</table>"
+        if self.doc_type == "notarial act":
+             html += "</div>"
+
+
+        html += """
+                                          </div>
+                                </div>
+                            </div>
+
+        """
+
+        return html
 
     def add_ref(self, ref):
         self.ref_list.append(ref)
 
+    def set_id(self, doc_id):
+        if doc_id.isdigit():
+            document = get_document(int(doc_id))
+            self.doc_id = int(doc_id)
+            self.place = document['municipality']
+            self.date = document['date']
+            self.doc_type = document['type_text']
+            self.ref_list = []
+
+            for ref_id in document['reference_ids'].split(','):
+                ref = Reference()
+                ref.set_id(ref_id,self.doc_type)
+                self.add_ref(ref)
+        else:  # extract from notary
+            if doc_id[0] == 'n':
+                text_id = doc_id[1:]
+                text_doc = get_notarial_act(text_id)
+                text = text_doc['text1'] + ' ' + text_doc['text2'] + ' ' + text_doc['text3']
+                nerd = Nerd(text)
+
+                self.doc_id = doc_id
+                self.place = text_doc['place']
+                self.date = text_doc['date']
+                self.doc_type = 'notarial act'
+                self.text = text
+
+                ref_id = 0
+                self.ref_list = []
+
+                for rel in nerd.get_relations():
+                    ref_id += 1
+                    ref1 = Reference(doc_id + '_' + str(ref_id), rel['ref1'][1], 'couple_' + str((ref_id+1)/2))
+                    ref_id += 1
+                    ref2 = Reference(doc_id + str(ref_id), rel['ref2'][1], 'couple_' + str((ref_id)/2))
+                    self.add_ref(ref1)
+                    self.add_ref(ref2)
+
+
 #
 # class Match():
-#     """
+# """
 #     a class for storing are found matches
 #     """
 #     def __init__(self, match_id=None, doc_id1=None, doc_id2=None, match_type=None):
@@ -60,9 +186,6 @@ class Document():
 #
 #         return str(self.match_id) + '_' + str(self.doc_id1) + '_' + str(self.doc_id2) + '_' + str(self.match_type)
 #
-
-
-
 
 def row_to_reference(row, table="all_persons"):
     ''' (list, table) -> (dict)
@@ -209,7 +332,6 @@ def get_miss_matches(match_index=None, match_id=None):
     # if no id provided then get a random block
     if not loadData.match_pairs:
         loadData.get_matching_pairs()
-
 
     if not match_index:
         from random import randrange
