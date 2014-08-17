@@ -41,14 +41,15 @@ def routing():
         if search_id and search_id.isdigit():
             p_id = int(search_id)
 
-        if p_id:
-            p_id = int(p_id)
-            block_key = new_blocks[p_id][0]
-            block_list = new_blocks[p_id][1]
-        else:
-            block_list = {'Martinus_Delisse_Johanna_Elzen': ['13201190', '13205058', '12835983', 'n71346']}
-            block_key = 'Martinus_Delisse_Johanna_Elzen'
+        if not p_id:
             p_id = 0
+
+        p_id = int(p_id)
+        if p_id < 0:
+            p_id = 0
+
+        block_key = new_blocks[p_id][0]
+        block_list = new_blocks[p_id][1]
 
         doc_list = []
         doc_list_d3 = []
