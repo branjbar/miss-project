@@ -1,6 +1,7 @@
 """
 A class for different types of entity resolution
 """
+import pickle
 import time
 from modules.NERD.dict_based_nerd import Nerd
 from modules.basic_modules.basic import string_compare, run_query, log
@@ -187,17 +188,16 @@ class ER():
 if __name__ == '__main__':
     er = ER()
 
-    file_name = open('blocks.csv','a')
+    file_name = open('blocks.csv', 'wa')
     data = FullData()
     data.load_references_all_persons()
     data.generate_blocks()
     data.load_notaries()
     for b in data.blocks.keys():
-        if len(data.blocks[b]) > 1:
-            # print data.blocks[b]
-            file_name.write(str(data.blocks[b]) + '\n')
-        else:
+        if len(data.blocks[b]) < 2:
             del data.blocks[b]
+
+    pickle.dump(data.blocks, file_name)
 
 
 
