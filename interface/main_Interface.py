@@ -325,13 +325,14 @@ def routing():
     @app.route('/check_pedigrees/<depth>/<family_id>', methods=['GET'])
     def check_pedigrees(depth=4, family_id=0):
 
+        from modules.basic_modules import generatePedigree
+
         json_dict = generatePedigree.check_pedigrees(int(depth), int(family_id))
 
         document_ids = list(set(generatePedigree.get_document_ids(json_dict['parents'])))
         document_ids = [x for x in document_ids if x]
         details = {'document_id': document_ids,
                    'document_type': ''}
-        from modules.basic_modules import generatePedigree
 
 
         families = generatePedigree.import_families()
