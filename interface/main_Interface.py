@@ -12,26 +12,12 @@ from interface import app
 from modules.basic_modules.myOrm import Reference, Document
 
 print "start importing blocks"
-new_blocks = pickle.load(open("new_blocks_2.p", "r"))
+new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
+
+
 print "end importing blocks"
 
-# print "start importing blocks"
-# match_blocks = pickle.load(open("blocks.p", "r"))
-# print "end importing blocks"
-#
-# new_blocks = []
-# for b in match_blocks.keys():
-#     flag = False
-#     flag_n = False
-#     for d in match_blocks[b]:
-#         if 'n' in d:
-#             flag_n = True
-#         else:
-#             flag = True
-#
-#     if flag and flag_n:
-#         new_blocks.append([b, match_blocks[b]])
-# pickle.dump(new_blocks, open('new_blocks.p', 'w'))
+
 
 def routing():
     @app.route('/complex_matches/', methods=['GET', 'POST'])

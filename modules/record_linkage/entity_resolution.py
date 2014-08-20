@@ -80,7 +80,7 @@ class FullData():
                 self.notaries[doc_id] = doc
 
                 for index in xrange(len(ref_list)/2):
-                    self.fill_in_blocks(ref_list[2 * index:2 * index+1], doc)
+                    self.fill_in_blocks([ref_list[2 * index], ref_list[2 * index+1]], doc)
 
         log("load_notaries finished.")
 
@@ -154,13 +154,15 @@ if __name__ == '__main__':
             else:
                 flag_civil = True
 
-            if flag_notarial or (flag_notarial and flag_civil):
+            if (len(data.blocks[b]) > 1 and flag_notarial) or (flag_notarial and flag_civil):
                 useful_blocks[b] = data.blocks[b]
 
-    for key, value in useful_blocks:
-        print key, value
+    new_block_list = []
+    for index, key in enumerate(useful_blocks.keys()):
+        new_block_list.append([key, useful_blocks[key]])
 
-    pickle.dump(useful_blocks, file_name)
+    pickle.dump(new_block_list, open("matches_notary_civil.p", "w"))
+
 
 
 
