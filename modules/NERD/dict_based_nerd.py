@@ -2,6 +2,8 @@
 a class to extract names.
 
 """
+import copy
+
 __author__ = 'Bijan'
 
 from modules.basic_modules import basic
@@ -65,7 +67,9 @@ class Nerd():
     def get_relations(self):
         if not self.relations:
             self.extract_relations()
-        return self.relations
+
+        rel_list = self.relations
+        return rel_list
 
     def get_references(self):
         if not self.references:

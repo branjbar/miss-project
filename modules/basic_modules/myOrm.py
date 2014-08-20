@@ -35,6 +35,7 @@ class Reference():
         self.name = name
         self.ref_type = ref_type
 
+
     def __repr__(self):
         # return str(self.ref_id) + '_' + str(self.name)
         return str(self.__dict__)
@@ -60,13 +61,14 @@ class Document():
     a class for using any document
     """
 
-    def __init__(self, doc_id=None, ref_list=[], place=None, date=None, doc_type=None):
+    def __init__(self, doc_id=None, ref_list=[], place=None, date=None, doc_type=None, rel_list=None):
         self.doc_id = doc_id
         self.ref_list = ref_list
         self.place = place
         self.date = date
         self.doc_type = doc_type
         self.text = None
+        self.rel_list = None
 
     def __repr__(self):
         # return str(self.doc_id) + '_' + str(self.doc_type) + '_' +str(self.ref_list) + '_' + str(self.place) + '_' + str(self.date)
@@ -81,7 +83,7 @@ class Document():
         dict['ref_list'] = ref_list
         return dict
 
-    def get_html(self):
+    def get_html(self, key_list=['Adriaan_Heuvel', 'Gertruda_Uden']):
         if self.doc_type == "notarial act":
             html = """ <div class="panel-body col-xs-8" >"""
         else:
@@ -99,7 +101,16 @@ class Document():
 
         if self.doc_type == "notarial act":
             html += """<div class="col-xs-6">"""
-            html += self.text
+            text = self.text
+
+            for rel in self.rel_list:
+                for ref_name in [rel['ref1'][1], rel['ref2'][1]]:
+                    if len(ref_name.split()) > 1:
+                        ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
+                        if ref_key in key_list:
+                            text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
+
+            html += text
             html += "</div>"
             html += """<div class="col-xs-6">"""
 
@@ -114,9 +125,16 @@ class Document():
         html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>date</b?',
                                                                                                       self.date)
         for ref in self.ref_list:
-            html += "<tr> \n <td><small> <b>%s</b> </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % (ref['ref_type'], ref['name'])
+            ref_name = ref['name']
+            if len(ref_name.split()) > 1:
+                ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
+                if ref_key in key_list:
+                    ref_name = '<span class="highlight"> %s </span>' % ref_name
+
+            html += "<tr> \n <td><small> <b>%s</b> </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % (ref['ref_type'], ref_name)
 
         html += "</table>"
+
         if self.doc_type == "notarial act":
              html += "</div>"
 
@@ -161,6 +179,8 @@ class Document():
 
                 ref_id = 0
                 self.ref_list = []
+
+                self.rel_list = nerd.get_relations()
 
                 for rel in nerd.get_relations():
                     ref_id += 1

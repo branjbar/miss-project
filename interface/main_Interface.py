@@ -57,9 +57,9 @@ def routing():
             doc = Document()
             doc.set_id(doc_id)
             doc_list_d3.append(doc.__dict_new__())
-            html = doc.get_html()
-            for key in block_key.split('_'):
-                html = html.replace(key, '<span class="highlight"> %s </span>'%key)
+            html = doc.get_html(block_key)
+            # for key in block_key.split('_'):
+            #     html = html.replace(key, '<span class="highlight"> %s </span>'%key)
             doc_list.append(html)
 
 

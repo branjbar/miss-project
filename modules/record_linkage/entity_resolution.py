@@ -82,6 +82,13 @@ class FullData():
 
         log("load_notaries finished.")
 
+    def get_key(self, ref1, ref2):
+        key_list = [ref1.get_compact_name(), ref2.get_compact_name()]
+        key_list = sorted(key_list)
+        block_key = key_list[0] + '_' + key_list[1]
+
+
+
     def fill_in_blocks(self, ref_list, doc):
         """
         for each to ref in ref_list add the docuemnt to the block
