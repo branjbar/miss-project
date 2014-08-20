@@ -22,7 +22,7 @@ class DocGraph():
         :return:
         """
 
-        query = "SELECT id, block_id, register_id FROM links_based.all_persons_new limit 1000"
+        query = "SELECT id, block_id, register_id FROM links_based.all_persons_new limit 1000000"
 
         cur = run_query(query)
         for c in cur:
@@ -37,7 +37,6 @@ class DocGraph():
                 self.document_dict[doc_id]['block_id'].append(block_key)
             else:
                 self.document_dict[doc_id] = {'block_id': [block_key], 'component_id': doc_id}
-
 
             self.component_dict[doc_id] = [doc_id]
 
@@ -76,22 +75,21 @@ class DocGraph():
 
 
     def get_number_of_connected_components(self):
-        return len(self.component_dict.keys())
-        # return networkx.number_connected_components(self.graph)
+        # return len(self.component_dict.keys())
+        return networkx.number_connected_components(self.graph)
 
 if __name__ == '__main__':
 
-    for thresh in xrange(100):
-        my_graph = DocGraph()
-        print thresh,
-        my_graph.collect_data()
-        print ', ',
+    # for thresh in xrange(100):
+    #     my_graph = DocGraph()
+    #     print thresh,
+    #     my_graph.collect_data()
+    #     print ', ',
+    #
+    #     my_graph.add_blocking_nodes(thresh)
+    #     print my_graph.get_number_of_connected_components()
 
-        my_graph.add_blocking_nodes(thresh)
-        print my_graph.get_number_of_connected_components()
 
-"""
-    # print my_graph.get_number_of_connected_components()
 
 
     # for thresh in xrange(100):
@@ -107,8 +105,7 @@ if __name__ == '__main__':
 
     for thresh in xrange(100):
         my_graph.graph = networkx.Graph()
-        my_graph.construct_graph(thresh)
-        print str(thresh) + ', ' + str(my_graph.get_number_of_connected_components())
+        my_graph.construct_graph(thresh + 2)
+        print str(thresh + 2) + ', ' + str(my_graph.get_number_of_connected_components())
 
 
-"""
