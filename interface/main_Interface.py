@@ -15,8 +15,8 @@ print "start importing blocks"
 new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
 
 hast_table = {}
-for block_k in new_blocks.keys():
-    block_v = new_blocks[block_k]
+for block_v in new_blocks:
+    
     hast_table[block_v[0]] = block_v[1]
     
 pickle.dump(hash_table, open("hashing_v1.p", 'w'))
