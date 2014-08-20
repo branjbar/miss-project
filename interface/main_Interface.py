@@ -29,7 +29,7 @@ def routing():
 
     @app.route('/hash_matches/', methods=['GET', 'POST'])
     @app.route('/hash_matches/<p_id>', methods=['GET', 'POST'])
-    def complex_matches(p_id=None):
+    def hash_matches(p_id=None):
         search_id = request.args.get('search_term')
         if search_id and search_id.isdigit():
             p_id = int(search_id)
