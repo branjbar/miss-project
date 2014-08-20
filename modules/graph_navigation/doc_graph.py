@@ -22,7 +22,7 @@ class DocGraph():
         :return:
         """
 
-        query = "SELECT id, block_id, register_id FROM links_based.all_persons_new"
+        query = "SELECT id, block_id, register_id FROM links_based.all_persons_new limit 1000"
 
         cur = run_query(query)
         for c in cur:
@@ -83,10 +83,12 @@ if __name__ == '__main__':
 
     for thresh in xrange(100):
         my_graph = DocGraph()
-
+        print thresh,
         my_graph.collect_data()
+        print ', ',
+
         my_graph.add_blocking_nodes(thresh)
-        print str(thresh) + ', ' + str(my_graph.get_number_of_connected_components())
+        print my_graph.get_number_of_connected_components()
 
 """
     # print my_graph.get_number_of_connected_components()
