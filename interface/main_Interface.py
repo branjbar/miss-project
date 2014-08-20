@@ -14,12 +14,53 @@ from modules.basic_modules.myOrm import Reference, Document
 print "start importing blocks"
 new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
 
+hast_table = {}
+for block_k in new_blocks.keys():
+    block_v = new_blocks[block_k]
+    hast_table[block_v[0]] = block_v[1]
+    
+pickle.dump(hash_table, open("hashing_v1.p", 'w'))
 
 print "end importing blocks"
 
 
 
 def routing():
+
+    @app.route('/hash_matches/', methods=['GET', 'POST'])
+    @app.route('/hash_matches/<p_id>', methods=['GET', 'POST'])
+    def complex_matches(p_id=None):
+        search_id = request.args.get('search_term')
+        if search_id and search_id.isdigit():
+            p_id = int(search_id)
+
+        if not p_id:
+            p_id = 0
+
+        p_id = int(p_id)
+        if p_id < 0:
+            p_id = 0
+
+
+        user_query = "Antonie_Biggelaar & Geertruida Bekkers"
+        block_key = user_query.replace('&','_').replace(' ','_').raplace('__','_')
+        block_list = hash_table[block_key]
+
+        doc_list = []
+        doc_list_d3 = []
+        for doc_id in block_list:
+            doc = Document()
+            doc.set_id(doc_id)
+            html = doc.get_html(block_key)
+            doc_list.append(html)
+
+
+        
+        return render_template('match_vis.html', doc_list=doc_list,
+                               user_query=user_query)
+
+
+
     @app.route('/complex_matches/', methods=['GET', 'POST'])
     @app.route('/complex_matches/<p_id>', methods=['GET', 'POST'])
     def complex_matches(p_id=None):
