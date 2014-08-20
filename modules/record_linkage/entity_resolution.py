@@ -166,9 +166,6 @@ if __name__ == '__main__':
 
 
 
-
-
-
     # data.load_notaries(100)
     # match_id = 0
     # # print data.notaries

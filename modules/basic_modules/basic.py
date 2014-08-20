@@ -730,8 +730,7 @@ def log(msg):
 
 
 def main():
-    print text_pre_processing('bijan is nice andHodaIsNicer. HoweverBijanIs evenBetter .')
-
+    pass
 
 if __name__ == '__main__':
     main()

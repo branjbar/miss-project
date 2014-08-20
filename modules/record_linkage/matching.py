@@ -16,8 +16,6 @@ else:
     DATA_FOLDER = "/Users/bijan/sandbox/stigmergic-robot-coverage/data/"
 
 
-
-
 def find_deep_families(load_from_file=False, depth=4):
     """
     uses links data to find the deepest trees which are there
