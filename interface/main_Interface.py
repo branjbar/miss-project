@@ -43,7 +43,7 @@ def routing():
 
 
         user_query = "Antonie_Biggelaar & Geertruida Bekkers"
-        block_key = user_query.replace('&','_').replace(' ','_').raplace('__','_')
+        block_key = user_query.replace('&','_').replace(' ','_').replace('__','_')
         block_list = hash_table[block_key]
 
         doc_list = []
