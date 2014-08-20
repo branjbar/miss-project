@@ -78,16 +78,11 @@ class FullData():
             if ref_list:
                 doc = Document(doc_id, ref_list, place, date, doc_type)
                 self.notaries[doc_id] = doc
-                self.fill_in_blocks(ref_list, doc)
+
+                for index in xrange(len(ref_list)/2):
+                    self.fill_in_blocks(ref_list[2 * index:2 * index+1], doc)
 
         log("load_notaries finished.")
-
-    def get_key(self, ref1, ref2):
-        key_list = [ref1.get_compact_name(), ref2.get_compact_name()]
-        key_list = sorted(key_list)
-        block_key = key_list[0] + '_' + key_list[1]
-
-
 
     def fill_in_blocks(self, ref_list, doc):
         """
@@ -144,16 +139,28 @@ class ER():
 if __name__ == '__main__':
     er = ER()
 
-    file_name = open('blocks.csv', 'wa')
+    file_name = open('new_blocks_3.p', 'wa')
     data = FullData()
     data.load_references_all_persons()
     data.generate_blocks()
     data.load_notaries()
+    useful_blocks = {}
     for b in data.blocks.keys():
-        if len(data.blocks[b]) < 2:
-            del data.blocks[b]
+        flag_notarial = False
+        flag_civil = False
+        for doc in data.blocks[b]:
+            if 'n' in doc:
+                flag_notarial = True
+            else:
+                flag_civil = True
 
-    pickle.dump(data.blocks, file_name)
+            if flag_notarial or (flag_notarial and flag_civil):
+                useful_blocks[b] = data.blocks[b]
+
+    for key, value in useful_blocks:
+        print key, value
+
+    pickle.dump(useful_blocks, file_name)
 
 
 
