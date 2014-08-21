@@ -61,8 +61,6 @@ class Nerd():
             self.extract_names()
 
 
-    def set_text(self, t):
-        self.text = t
 
     def get_relations(self):
         if not self.relations:

@@ -35,21 +35,56 @@ def routing():
 
         # user_query = "Antonie_Biggelaar & Geertruida Bekkers"
         doc_list = []
+        block_key_list = []
         if user_query:
-            block_key = user_query.replace(' & ','_').replace(' ','_').replace('__','_')
+            if 'and' in user_query:
+                user_query = user_query.split('and')[0] + 'en' + user_query.split('and')[1] + ' echtelieden'
+            text_query = Nerd(user_query)
+            print text_query.get_relations()
+            ref_list = []
+            for index, rel in enumerate(text_query.relations):
+
+                ref_list.append(Reference(0, rel['ref1'][1]))
+                ref_list.append(Reference(0, rel['ref2'][1]))
+
+            if ref_list:
+                for index in xrange(len(ref_list)/2):
+                    ref1 = ref_list[2 * index]
+                    ref2 = ref_list[2 * index+1]
+                    key_list = [ref1.get_compact_name(), ref2.get_compact_name()]
+                    key_list = sorted(key_list)
+                    block_key_list.append(key_list[0] + '_' + key_list[1])
+
+
+            #
+            #
+            #
+            # try:
+            #     block_key = user_query.split('&')[0].split()[0] + '_' + user_query.split('&')[0].split()[-1]
+            #     block_key += '_' + user_query.split('&')[1].split()[0] + '_' + user_query.split('&')[1].split()[-1]
+            # except:
+            #     user_query = user_query
+
+            # block_key = user_query.replace(' & ','_').replace(' ','_').replace('__','_')
+
+            block_key = ''
+            if block_key_list:
+                block_key = block_key_list[0]
             block_list = hash_table.get(block_key)
+
             if block_list:
                 doc_list = []
-                doc_list_d3 = []
                 for doc_id in block_list:
                     doc = Document()
                     doc.set_id(doc_id)
                     html = doc.get_html(block_key)
                     doc_list.append(html)
 
+        if not user_query:
+            user_query = ''
 
         return render_template('hash_vis.html', doc_list=doc_list,
-                                   user_query=user_query)
+                                   user_query=user_query, block_key_list= block_key_list)
 
 
 

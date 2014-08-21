@@ -20,10 +20,16 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-12 text-center">
-                 <form class="span6">
-                      <h2>Search Your Family</h2><br>
-                      <input class="span6" type="text" name="user_query" value="{{user_query}}"placeholder="Your Query" required>
-                      <button type="submit" class="btn btn-primary">Submit</button>
+             <h4> NEW STORIES, NEVER HEARD BEFORE!  </h4>
+                 <form role="form" class="col-xs-12">
+                     <p class="text-info text-left">Following you can search for one or more couples. Please start the names by capital letters,
+                         and use '... en .... echtelieden' to denote the spouses. </p>
+                     <div class="form-group">
+                         <!--<label>Search Here:</label>-->
+                         <textarea class="form-control col-xs-2" rows="3"  name="user_query"
+                                     required>{{user_query}}</textarea>
+                          <button type="submit" class="btn btn-primary">Enter Your Query and Submit</button>
+                     </div>
                 </form><!--/.span6-->
 
               </div> <!-- div col2 -->
@@ -32,7 +38,7 @@
 
                 <div class="row" id="content" >
                     <div class="col-xs-12 text-center">
-                         <h4> NEW STORIES, NEVER HEARD BEFORE!  </h4>
+                        <h5>{{block_key_list}}</h5>
 
                         {% for doc in doc_list %}
                             {{doc|safe}}

@@ -150,24 +150,31 @@ if __name__ == '__main__':
     data.load_references_all_persons()
     data.generate_blocks()
     data.load_notaries()
-    useful_blocks = {}
-    for b in data.blocks.keys():
-        flag_notarial = False
-        flag_civil = False
-        for doc in data.blocks[b]:
-            if 'n' in doc:
-                flag_notarial = True
-            else:
-                flag_civil = True
+    log("start pickling")
+    pickle.dump(data.blocks, open("full_hash.p", "w"))
+    log("end pickling")
 
-            if (len(data.blocks[b]) > 1 and flag_notarial) or (flag_notarial and flag_civil):
-                useful_blocks[b] = data.blocks[b]
+    # useful_blocks = {}
+    # for b in data.blocks.keys():
+    #     flag_notarial = False
+    #     flag_civil = False
+    #     for doc in data.blocks[b]:
+    #         if 'n' in doc:
+    #             flag_notarial = True
+    #         else:
+    #             flag_civil = True
+    #
+    #         # if (len(data.blocks[b]) > 1 and flag_notarial) or (flag_notarial and flag_civil):
+    #         #     useful_blocks[b] = data.blocks[b]
+    #
+    #             useful_blocks[b] = data.blocks[b]
 
-    new_block_list = []
-    for index, key in enumerate(useful_blocks.keys()):
-        new_block_list.append([key, useful_blocks[key]])
 
-    pickle.dump(new_block_list, open("matches_notary_civil.p", "w"))
+    # new_block_list = []
+    # for index, key in enumerate(useful_blocks.keys()):
+    #     new_block_list.append([key, useful_blocks[key]])
+    #
+    # pickle.dump(new_block_list, open("matches_notary_civil.p", "w"))
 
 
 
