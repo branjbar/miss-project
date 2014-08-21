@@ -92,7 +92,7 @@ class FullData():
             for ref2 in ref_list:
                 if ref1.ref_id < ref2.ref_id:
                     key_list = [ref1.get_compact_name(),ref2.get_compact_name()]
-                    key_list = sorted(key_list)
+                    # key_list = sorted(key_list)
                     # block_key = key_list[0] + '_' + key_list[1]
                     # if self.blocks.get(block_key):
                     #     if not doc.doc_id in self.blocks.get(block_key):
@@ -106,12 +106,14 @@ class FullData():
                             self.blocks[block_key].append(doc.doc_id)
                     else:
                         self.blocks[block_key] = [doc.doc_id]
+
                     block_key = key_list[1]
                     if self.blocks.get(block_key):
                         if not doc.doc_id in self.blocks.get(block_key):
                             self.blocks[block_key].append(doc.doc_id)
                     else:
                         self.blocks[block_key] = [doc.doc_id]
+
 
     def generate_blocks(self):
         log("generate_blocks started")
@@ -160,12 +162,19 @@ if __name__ == '__main__':
 
     file_name = open('new_blocks_3.p', 'wa')
     data = FullData()
-    data.load_references_all_persons()
+    data.load_references_all_persons(1000)
     data.generate_blocks()
     # data.load_notaries(100000)
     log("start pickling")
-    pickle.dump(data.blocks, open("full_hash_2.p", "w"))
+    # hast_file = open('hast_tmp', 'a')
+    # for b in data.blocks:
+    #     hast_file.write('%s, %s \n' %(b, data.blocks[b]))
+
+    pickle.dump(data.blocks, open("full_hash_tmp.p", "w"))
     log("end pickling")
+
+    #
+
 
     # useful_blocks = {}
     # for b in data.blocks.keys():

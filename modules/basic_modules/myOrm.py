@@ -42,7 +42,10 @@ class Reference():
 
     def get_compact_name(self):
         if len(self.name) > 1:
-            return self.name.split()[0] + '_' + self.name.split()[-1]
+            import unicodedata
+            compact_name = (self.name.split()[0] + '_' + self.name.split()[-1]).replace('\xeb','')
+            # compact_name = unicodedata.normalize('NFKD', compact_name)
+            return compact_name
         else:
             return ''
 
