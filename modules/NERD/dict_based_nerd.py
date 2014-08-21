@@ -129,7 +129,7 @@ class Nerd():
         if not self.word_list[0] == 'Testament' and word_spec.get(1) == 1:
             word_spec[0] = 3
 
-        PREFIXES = ['van', 'te', 'de', 'van der', 'van den', 'van de']
+        PREFIXES = ['van', 'de', 'van der', 'van den', 'van de']
         # search for last name prefixes
         for index, word in enumerate(self.word_list):
             if word in PREFIXES and word_spec.get(index - 1) and word_spec.get(index+1):
