@@ -93,7 +93,20 @@ class FullData():
                 if ref1.ref_id < ref2.ref_id:
                     key_list = [ref1.get_compact_name(),ref2.get_compact_name()]
                     key_list = sorted(key_list)
-                    block_key = key_list[0] + '_' + key_list[1]
+                    # block_key = key_list[0] + '_' + key_list[1]
+                    # if self.blocks.get(block_key):
+                    #     if not doc.doc_id in self.blocks.get(block_key):
+                    #         self.blocks[block_key].append(doc.doc_id)
+                    # else:
+                    #     self.blocks[block_key] = [doc.doc_id]
+
+                    block_key = key_list[0]
+                    if self.blocks.get(block_key):
+                        if not doc.doc_id in self.blocks.get(block_key):
+                            self.blocks[block_key].append(doc.doc_id)
+                    else:
+                        self.blocks[block_key] = [doc.doc_id]
+                    block_key = key_list[1]
                     if self.blocks.get(block_key):
                         if not doc.doc_id in self.blocks.get(block_key):
                             self.blocks[block_key].append(doc.doc_id)
@@ -149,9 +162,9 @@ if __name__ == '__main__':
     data = FullData()
     data.load_references_all_persons()
     data.generate_blocks()
-    data.load_notaries()
+    # data.load_notaries(100000)
     log("start pickling")
-    pickle.dump(data.blocks, open("full_hash.p", "w"))
+    pickle.dump(data.blocks, open("full_hash_2.p", "w"))
     log("end pickling")
 
     # useful_blocks = {}
