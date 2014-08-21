@@ -10,7 +10,7 @@ s = solr.SolrConnection('http://localhost:8983/solr')
 __author__ = 'bijan'
 
 
-query = "select first_name, last_name, register_id from all_persons_new limit 1000000"
+query = "select first_name, last_name, register_id from all_persons_new"
 
 cur = run_query(query)
 
