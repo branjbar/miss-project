@@ -19,7 +19,7 @@ class FullData():
         self.notaries = {}
         self.matches = {}
         self.blocks = {}
-
+        self.hash_table = {}
 
     def load_references_all_persons(self, limit=None):
         log("load_references_all_persons started.")
@@ -86,7 +86,7 @@ class FullData():
 
     def fill_in_blocks(self, ref_list, doc):
         """
-        for each to ref in ref_list add the docuemnt to the block
+        for each to ref in ref_list add the document to the block
         """
         for ref1 in ref_list:
             for ref2 in ref_list:
@@ -107,6 +107,12 @@ class FullData():
             self.fill_in_blocks(doc.ref_list, doc)
 
         log("generate_blocks finished")
+
+    def generate_hash_code(self):
+        """
+        here we generate a 2D hashcode
+        :return:
+        """
 
 
 

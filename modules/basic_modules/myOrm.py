@@ -125,13 +125,19 @@ class Document():
         html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>date</b?',
                                                                                                       self.date)
         for ref in self.ref_list:
-            ref_name = ref['name']
+            try:
+                ref_name = ref['name']
+                ref_type = ref['ref_type']
+            except:
+                ref_name = ref.name
+                ref_type = ref.ref_type
+
             if len(ref_name.split()) > 1:
                 ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
                 if ref_key in key_list:
                     ref_name = '<span class="highlight"> %s </span>' % ref_name
 
-            html += "<tr> \n <td><small> <b>%s</b> </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % (ref['ref_type'], ref_name)
+            html += "<tr> \n <td><small> <b>%s</b> </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % (ref_type, ref_name)
 
         html += "</table>"
 

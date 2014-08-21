@@ -30,34 +30,26 @@ def routing():
     @app.route('/hash_matches/', methods=['GET', 'POST'])
     @app.route('/hash_matches/<p_id>', methods=['GET', 'POST'])
     def hash_matches(p_id=None):
-        search_id = request.args.get('search_term')
-        if search_id and search_id.isdigit():
-            p_id = int(search_id)
-
-        if not p_id:
-            p_id = 0
-
-        p_id = int(p_id)
-        if p_id < 0:
-            p_id = 0
+        user_query = request.args.get('user_query')
 
 
-        user_query = "Antonie_Biggelaar & Geertruida Bekkers"
-        block_key = user_query.replace(' & ','_').replace(' ','_').replace('__','_')
-        block_list = hash_table[block_key]
-
+        # user_query = "Antonie_Biggelaar & Geertruida Bekkers"
         doc_list = []
-        doc_list_d3 = []
-        for doc_id in block_list:
-            doc = Document()
-            doc.set_id(doc_id)
-            html = doc.get_html(block_key)
-            doc_list.append(html)
+        if user_query:
+            block_key = user_query.replace(' & ','_').replace(' ','_').replace('__','_')
+            block_list = hash_table.get(block_key)
+            if block_list:
+                doc_list = []
+                doc_list_d3 = []
+                for doc_id in block_list:
+                    doc = Document()
+                    doc.set_id(doc_id)
+                    html = doc.get_html(block_key)
+                    doc_list.append(html)
 
 
-        
-        return render_template('match_vis.html', doc_list=doc_list,
-                               user_query=user_query)
+        return render_template('hash_vis.html', doc_list=doc_list,
+                                   user_query=user_query)
 
 
 
