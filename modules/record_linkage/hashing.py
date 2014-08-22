@@ -119,7 +119,7 @@ class Hashing():
                 query += feature + '~.01 OR '
 
             query = query[:-4]
-            print query
+            # print query
             query_results = self.s.query(query, rows=200, highlight=True, fields="features, id")
 
         return query_results

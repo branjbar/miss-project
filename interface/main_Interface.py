@@ -79,7 +79,7 @@ def routing():
             user_query = ''
 
         sample_families = []
-        for i in xrange(5):
+        for i in xrange(6):
             key = random.choice(new_blocks)[0]
             sample_families.append(' '.join(key.split('_')[:2])
                                    + ' en '
