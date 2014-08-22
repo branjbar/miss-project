@@ -87,9 +87,9 @@ class Document():
         dict['ref_list'] = ref_list
         return dict
 
-    def get_html(self, key_list=[], block_key_ref=[]):
+    def get_html(self, hash_key=[], block_key_ref=[]):
         if self.doc_type == "notarial act":
-            html = """ <div class="panel-body col-xs-8" >"""
+            html = """ <div class="panel-body col-xs-4" >"""
         else:
             html = """ <div class="panel-body col-xs-4" >"""
 
@@ -104,58 +104,55 @@ class Document():
                 """ % self.doc_type.title()
 
         if self.doc_type == "notarial act":
-            html += """<div class="col-xs-6">"""
+            html += """<code>#%s</code> on <code>%s</code> in <code>%s</code>
+                        <hr> <div class="col-xs-12">
+                    """ % (self.doc_id, self.date, self.place)
             text = self.text
 
             for rel in self.rel_list:
                 for ref_name in [rel['ref1'][1], rel['ref2'][1]]:
                     if len(ref_name.split()) > 1:
                         ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
-                        for key in key_list:
-                            if ref_key in key:
-                                if key in block_key_ref:
-                                    text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
-                                    break
-                                else:
-                                    text = text.replace(ref_name, '<span class="highlight_fuzzy"> %s </span>' % ref_name)
+                        if ref_key in hash_key:
+                            if ref_key in ['_'.join(key.split('_')[:2]) for key in block_key_ref] + ['_'.join(key.split('_')[2:]) for key in block_key_ref]:
+                                text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
+                            else:
+                                text = text.replace(ref_name, '<span class="highlight_fuzzy"> %s </span>' % ref_name)
 
 
             html += text
             html += "</div>"
             html += """<div class="col-xs-6">"""
 
+        else:
 
 
+            html += """ <table class="table table-condensed" style="margin-bottom: 0px;"> """
+            html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>id</b>',
+                                                                                                          self.doc_id)
+            html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>place</b>',
+                                                                                                          self.place)
+            html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>date</b?',
+                                                                                                          self.date)
+            for ref in self.ref_list:
+                try:
+                    ref_name = ref['name']
+                    ref_type = ref['ref_type']
+                except:
+                    ref_name = ref.name
+                    ref_type = ref.ref_type
 
-        html += """ <table class="table" style="margin-bottom: 0px;"> """
-        html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>id</b>',
-                                                                                                      self.doc_id)
-        html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>place</b>',
-                                                                                                      self.place)
-        html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>date</b?',
-                                                                                                      self.date)
-        for ref in self.ref_list:
-            try:
-                ref_name = ref['name']
-                ref_type = ref['ref_type']
-            except:
-                ref_name = ref.name
-                ref_type = ref.ref_type
+                if len(ref_name.split()) > 1:
+                    ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
+                    if ref_key in hash_key:
+                        if ref_key in ['_'.join(key.split('_')[:2]) for key in block_key_ref] + ['_'.join(key.split('_')[2:]) for key in block_key_ref]:
+                            ref_name = '<span class="highlight"> %s </span>' % ref_name
+                        else:
+                            ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
 
-            if len(ref_name.split()) > 1:
-                ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
-                highlight = False
-                for key in key_list:
-                            if ref_key in key:
-                                if key in block_key_ref:
-                                    ref_name = '<span class="highlight"> %s </span>' % ref_name
-                                    break
-                                else:
-                                    ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
+                html += "<tr> \n <td><small> <b>%s</b> </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % (ref_type, ref_name)
 
-            html += "<tr> \n <td><small> <b>%s</b> </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % (ref_type, ref_name)
-
-        html += "</table>"
+            html += "</table>"
 
         if self.doc_type == "notarial act":
              html += "</div>"
