@@ -26,6 +26,7 @@ print "end importing blocks"
 
 my_hash = Hashing()
 
+
 def routing():
 
     @app.route('/hash_matches/', methods=['GET', 'POST'])
@@ -37,10 +38,10 @@ def routing():
         # user_query = "Antonie_Biggelaar & Geertruida Bekkers"
         doc_list = []
         block_key_list = []
-        block_list = []
+        hash_key_dict = {}
         if user_query:
-            if 'and' in user_query:
-                user_query = user_query.split('and')[0] + 'en' + user_query.split('and')[1] + ' echtelieden'
+            if '&' in user_query:
+                user_query = user_query.split('&')[0] + 'en' + user_query.split('&')[1] + ' echtelieden'
             text_query = Nerd(user_query)
             text_query.get_relations()
             ref_list = []
@@ -49,7 +50,6 @@ def routing():
                 ref_list.append(Reference(0, rel['ref1'][1]))
                 ref_list.append(Reference(0, rel['ref2'][1]))
 
-            print ref_list
             if ref_list:
                 for index in xrange(len(ref_list)/2):
                     ref1 = ref_list[2 * index]
@@ -60,33 +60,29 @@ def routing():
 
 
 
-
-            block_list = []
-
             solr_results = my_hash.search(block_key_list)
             if solr_results:
-                for result in solr_results.results:
-                    block_list.append(result['id'])
+                # for result in solr_results:
+                #     block_list.append(result['id'])
 
-                hash_key_list = []
+                hash_key_dict = {}
                 for result in solr_results.highlighting.iteritems():
                     # print result[1]['features'][0]
-                    hash_key = result[1]['features'][0].replace('<em>','').replace('</em>','')
-                    hash_key_list.append(hash_key)
-
-            if block_list:
+                    hash_key_dict[result[0]] = result[1]['features'][0].replace('<em>','').replace('</em>', '')
+                    # hash_key_list.append(hash_key)
+            if hash_key_dict:
                 doc_list = []
-                for doc_id in block_list:
+                for doc_id in hash_key_dict.keys():
                     doc = Document()
                     doc.set_id(doc_id)
-                    html = doc.get_html(hash_key_list, block_key_list)
+                    html = doc.get_html(hash_key_dict[doc_id], block_key_list)
                     doc_list.append(html)
 
         if not user_query:
             user_query = ''
 
         return render_template('hash_vis.html', doc_list=doc_list,
-                                   user_query=user_query, block_key_list=block_key_list, found_results=len(block_list))
+                                   user_query=user_query, block_key_list=block_key_list, found_results=len(hash_key_dict))
 
 
 
@@ -113,7 +109,7 @@ def routing():
             doc = Document()
             doc.set_id(doc_id)
             doc_list_d3.append(doc.__dict_new__())
-            html = doc.get_html([block_key],[block_key])
+            html = doc.get_html(block_key,[block_key])
             # for key in block_key.split('_'):
             #     html = html.replace(key, '<span class="highlight"> %s </span>'%key)
             doc_list.append(html)
