@@ -1,4 +1,5 @@
 import pickle
+import random
 from flask import request
 from flask import render_template
 
@@ -12,7 +13,6 @@ from interface import app
 from modules.basic_modules.myOrm import Reference, Document
 from modules.record_linkage.hashing import Hashing
 
-print "start importing blocks"
 new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
 
 hash_table = {}
@@ -22,7 +22,6 @@ for block_v in new_blocks:
     
 pickle.dump(hash_table, open("hashing_v1.p", 'w'))
 
-print "end importing blocks"
 
 my_hash = Hashing()
 
@@ -67,9 +66,7 @@ def routing():
 
                 hash_key_dict = {}
                 for result in solr_results.highlighting.iteritems():
-                    # print result[1]['features'][0]
                     hash_key_dict[result[0]] = result[1]['features'][0].replace('<em>','').replace('</em>', '')
-                    # hash_key_list.append(hash_key)
             if hash_key_dict:
                 doc_list = []
                 for doc_id in hash_key_dict.keys():
@@ -81,8 +78,21 @@ def routing():
         if not user_query:
             user_query = ''
 
-        return render_template('hash_vis.html', doc_list=doc_list,
-                                   user_query=user_query, block_key_list=block_key_list, found_results=len(hash_key_dict))
+        sample_families = []
+        for i in xrange(5):
+            key = random.choice(new_blocks)[0]
+            sample_families.append(' '.join(key.split('_')[:2])
+                                   + ' en '
+                                   + ' '.join(key.split('_')[2:])
+                                   + ' echtelieden')
+
+
+        return render_template('hash_vis.html',
+                               doc_list=doc_list,
+                               user_query=user_query,
+                               block_key_list=block_key_list,
+                               found_results=len(hash_key_dict),
+                               sample_families=sample_families)
 
 
 

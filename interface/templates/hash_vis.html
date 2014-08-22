@@ -21,18 +21,39 @@
         <div class="row">
             <div class="col-xs-12 text-center">
              <h4> NEW STORIES, NEVER HEARD BEFORE!  </h4>
-                 <form role="form" class="col-xs-12">
-                     <p class="text-info text-left">Following you can search for one or more couples. Please start the names by capital letters,
-                         and use '... en .... echtelieden' to denote the spouses. </p>
-                     <div class="form-group">
-                         <!--<label>Search Here:</label>-->
-                         <textarea class="form-control col-xs-2" rows="3"  name="user_query"
-                                     required>{{user_query}}</textarea>
-                          <button type="submit" class="btn btn-primary">Enter Your Query and Submit</button>
+                 <div class="panel-body col-xs-6" >
+                     <div class="panel panel-default">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">Search for a family</h3>
+                          </div>
+                          <div class="panel-body" >
+                             <form role="form" class="col-xs-12">
+                                 <div class="form-group">
+                                     <!--<label>Search Here:</label>-->
+                                     <textarea class="form-control col-xs-2" rows="3"  name="user_query" default="... en .... echtelieden"
+                                                 required>{{user_query}}</textarea>
+                                      <button type="submit" class="btn btn-primary">Enter Your Query and Click Here</button>
+                                 </div>
+                            </form><!--/.span6-->
+                          </div>
                      </div>
-                </form><!--/.span6-->
 
-              </div> <!-- div col2 -->
+                 </div> <!-- div col2 -->
+                 <div class="panel-body col-xs-6" >
+                     <div class="panel panel-default">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">Explore one of the following randomly chosen families</h3>
+                          </div>
+                          <div class="panel-body text-left">
+                              {% for family in sample_families %}
+                                <a href="./?user_query={{family}}">{{family}}</a>
+                                    <br>
+                              {% endfor %}
+
+                          </div>
+                     </div>
+                 </div> <!-- div col2 -->
+            </div>
 
             <div class="col-xs-12 text-center">
 

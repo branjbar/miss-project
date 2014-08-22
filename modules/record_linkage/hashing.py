@@ -116,7 +116,7 @@ class Hashing():
             query = 'features:'
             for feature in features_list:
 
-                query += feature + '~ OR '
+                query += feature + '~.01 OR '
 
             query = query[:-4]
             print query
