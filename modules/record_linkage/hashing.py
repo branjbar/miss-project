@@ -111,13 +111,18 @@ class Hashing():
                 self.commit_number += 1
 
     def search(self, features_list=[]):
+        query_results = ''
         if features_list:
-            feature = features_list[0]
-            query = 'features:%s~'% feature
+            query = 'features:'
+            for feature in features_list:
 
-            return self.s.query(query, rows=200, highlight=True, fields="features, id")
+                query += feature + '~ OR '
 
-        return []
+            query = query[:-4]
+            print query
+            query_results = self.s.query(query, rows=200, highlight=True, fields="features, id")
+
+        return query_results
 
 if __name__ == '__main__':
     my_hash = Hashing()
