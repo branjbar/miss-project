@@ -337,11 +337,12 @@ def get_notarial_act(text_id=None):
     '''
 
     text = None
-    if loadData.table_notarial_acts:
-        if not text_id and loadData.table_all_persons:
-            text_id = random.choice(loadData.table_all_persons.keys())
+    # if loadData.table_notarial_acts:
+    #     if not text_id and loadData.table_notarial_acts:
+    #         text_id = random.choice(loadData.table_notarial_acts.keys())
+    #
+    #     text = loadData.table_notarial_acts.get(int(text_id))
 
-        text = loadData.table_all_persons.get(int(text_id))
     if not text and text_id:
         index = loadData.update_notarial_acts(['', '', 'where row_id = %s' % str(text_id)])
         # index = loadData.update_notarial_acts(['', '', 'where date like %s limit %s, 1' % ("'%-18%'", str(text_id))])
