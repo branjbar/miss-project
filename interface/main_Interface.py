@@ -10,6 +10,7 @@ from interface import app
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
 from modules.basic_modules.myOrm import Reference, Document
+from modules.record_linkage.hashing import Hashing
 
 print "start importing blocks"
 new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
@@ -23,7 +24,7 @@ pickle.dump(hash_table, open("hashing_v1.p", 'w'))
 
 print "end importing blocks"
 
-
+my_hash = Hashing()
 
 def routing():
 
@@ -36,17 +37,19 @@ def routing():
         # user_query = "Antonie_Biggelaar & Geertruida Bekkers"
         doc_list = []
         block_key_list = []
+        block_list = []
         if user_query:
             if 'and' in user_query:
                 user_query = user_query.split('and')[0] + 'en' + user_query.split('and')[1] + ' echtelieden'
             text_query = Nerd(user_query)
-            print text_query.get_relations()
+            text_query.get_relations()
             ref_list = []
             for index, rel in enumerate(text_query.relations):
 
                 ref_list.append(Reference(0, rel['ref1'][1]))
                 ref_list.append(Reference(0, rel['ref2'][1]))
 
+            print ref_list
             if ref_list:
                 for index in xrange(len(ref_list)/2):
                     ref1 = ref_list[2 * index]
@@ -56,35 +59,34 @@ def routing():
                     block_key_list.append(key_list[0] + '_' + key_list[1])
 
 
-            #
-            #
-            #
-            # try:
-            #     block_key = user_query.split('&')[0].split()[0] + '_' + user_query.split('&')[0].split()[-1]
-            #     block_key += '_' + user_query.split('&')[1].split()[0] + '_' + user_query.split('&')[1].split()[-1]
-            # except:
-            #     user_query = user_query
 
-            # block_key = user_query.replace(' & ','_').replace(' ','_').replace('__','_')
 
-            block_key = ''
-            if block_key_list:
-                block_key = block_key_list[0]
-            block_list = hash_table.get(block_key)
+            block_list = []
+
+            solr_results = my_hash.search(block_key_list)
+            if solr_results:
+                for result in solr_results.results:
+                    block_list.append(result['id'])
+
+                hash_key_list = []
+                for result in solr_results.highlighting.iteritems():
+                    # print result[1]['features'][0]
+                    hash_key = result[1]['features'][0].replace('<em>','').replace('</em>','')
+                    hash_key_list.append(hash_key)
 
             if block_list:
                 doc_list = []
                 for doc_id in block_list:
                     doc = Document()
                     doc.set_id(doc_id)
-                    html = doc.get_html(block_key)
+                    html = doc.get_html(hash_key_list, block_key_list)
                     doc_list.append(html)
 
         if not user_query:
             user_query = ''
 
         return render_template('hash_vis.html', doc_list=doc_list,
-                                   user_query=user_query, block_key_list= block_key_list)
+                                   user_query=user_query, block_key_list=block_key_list, found_results=len(block_list))
 
 
 
@@ -111,7 +113,7 @@ def routing():
             doc = Document()
             doc.set_id(doc_id)
             doc_list_d3.append(doc.__dict_new__())
-            html = doc.get_html(block_key)
+            html = doc.get_html([block_key],[block_key])
             # for key in block_key.split('_'):
             #     html = html.replace(key, '<span class="highlight"> %s </span>'%key)
             doc_list.append(html)

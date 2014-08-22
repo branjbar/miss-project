@@ -9,6 +9,7 @@ STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, rol
 
 import random
 
+NOTARY_OFFSET = 30000000
 
 
 
@@ -43,7 +44,7 @@ class Reference():
     def get_compact_name(self):
         if len(self.name) > 1:
             import unicodedata
-            compact_name = (self.name.split()[0] + '_' + self.name.split()[-1]).replace('\xeb','')
+            compact_name = (self.name.split()[0] + '_' + self.name.split()[-1])
             # compact_name = unicodedata.normalize('NFKD', compact_name)
             return compact_name
         else:
@@ -86,7 +87,7 @@ class Document():
         dict['ref_list'] = ref_list
         return dict
 
-    def get_html(self, key_list=['Adriaan_Heuvel', 'Gertruda_Uden']):
+    def get_html(self, key_list=[], block_key_ref=[]):
         if self.doc_type == "notarial act":
             html = """ <div class="panel-body col-xs-8" >"""
         else:
@@ -110,8 +111,14 @@ class Document():
                 for ref_name in [rel['ref1'][1], rel['ref2'][1]]:
                     if len(ref_name.split()) > 1:
                         ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
-                        if ref_key in key_list:
-                            text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
+                        for key in key_list:
+                            if ref_key in key:
+                                if key in block_key_ref:
+                                    text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
+                                    break
+                                else:
+                                    text = text.replace(ref_name, '<span class="highlight_fuzzy"> %s </span>' % ref_name)
+
 
             html += text
             html += "</div>"
@@ -137,8 +144,14 @@ class Document():
 
             if len(ref_name.split()) > 1:
                 ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
-                if ref_key in key_list:
-                    ref_name = '<span class="highlight"> %s </span>' % ref_name
+                highlight = False
+                for key in key_list:
+                            if ref_key in key:
+                                if key in block_key_ref:
+                                    ref_name = '<span class="highlight"> %s </span>' % ref_name
+                                    break
+                                else:
+                                    ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
 
             html += "<tr> \n <td><small> <b>%s</b> </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % (ref_type, ref_name)
 
@@ -161,7 +174,10 @@ class Document():
         self.ref_list.append(ref)
 
     def set_id(self, doc_id):
-        if doc_id.isdigit():
+        if 'n' in doc_id:
+            doc_id = int(doc_id[1:]) + NOTARY_OFFSET
+
+        if int(doc_id) < NOTARY_OFFSET:
             document = get_document(int(doc_id))
             self.doc_id = int(doc_id)
             self.place = document['municipality']
@@ -174,9 +190,9 @@ class Document():
                 ref.set_id(ref_id,self.doc_type)
                 self.add_ref(ref)
         else:  # extract from notary
-            if doc_id[0] == 'n':
-                text_id = doc_id[1:]
-                text_doc = get_notarial_act(text_id)
+            if int(doc_id) >= NOTARY_OFFSET:
+                text_id = int(doc_id)
+                text_doc = get_notarial_act(text_id - NOTARY_OFFSET)
                 text = text_doc['text1'] + ' ' + text_doc['text2'] + ' ' + text_doc['text3']
                 nerd = Nerd(text)
 
@@ -193,9 +209,9 @@ class Document():
 
                 for rel in nerd.get_relations():
                     ref_id += 1
-                    ref1 = Reference(doc_id + '_' + str(ref_id), rel['ref1'][1], 'couple_' + str((ref_id+1)/2))
+                    ref1 = Reference(str(doc_id) + '_' + str(ref_id), rel['ref1'][1], 'couple_' + str((ref_id+1)/2))
                     ref_id += 1
-                    ref2 = Reference(doc_id + str(ref_id), rel['ref2'][1], 'couple_' + str((ref_id)/2))
+                    ref2 = Reference(str(doc_id) + str(ref_id), rel['ref2'][1], 'couple_' + str((ref_id)/2))
                     self.add_ref(ref1)
                     self.add_ref(ref2)
 
