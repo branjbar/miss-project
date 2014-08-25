@@ -44,7 +44,9 @@
                     <h4> NEW STORIES, NEVER HEARD BEFORE! (#{{navbar_choices[0]}}) </h4>
 
                         {% for doc in doc_list %}
-                            {{doc|safe}}
+                        <div class="col-xs-5">
+                            {{doc['html']|safe}}
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
