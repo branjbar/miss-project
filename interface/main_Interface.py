@@ -20,7 +20,7 @@ for block_v in new_blocks:
     
     hash_table[block_v[0]] = block_v[1]
     
-pickle.dump(hash_table, open("hashing_v1.p", 'w'))
+# pickle.dump(hash_table, open("hashing_v1.p", 'w'))
 
 
 my_hash = Hashing()
@@ -38,6 +38,7 @@ def routing():
         doc_list = []
         block_key_list = []
         hash_key_dict = {}
+        html_year = []
         if user_query:
             if '&' in user_query:
                 user_query = user_query.split('&')[0] + 'en' + user_query.split('&')[1] + ' echtelieden'
@@ -69,11 +70,18 @@ def routing():
                     hash_key_dict[result[0]] = result[1]['features'][0].replace('<em>','').replace('</em>', '')
             if hash_key_dict:
                 doc_list = []
+                html_year = []
+                html_id = 1
                 for doc_id in hash_key_dict.keys():
                     doc = Document()
                     doc.set_id(doc_id)
-                    html = doc.get_html(hash_key_dict[doc_id], block_key_list)
+                    html = doc.get_html(hash_key_dict[doc_id], block_key_list) #  {year:....., html:.....}
+                    if {'year': html['year']} not in html_year:
+                        html_year.append({'year': html['year']})
+                    html_id += 1
                     doc_list.append(html)
+
+        html_year.sort(key=lambda x: x['year'])
 
         if not user_query:
             user_query = ''
@@ -81,10 +89,10 @@ def routing():
         sample_families = []
         for i in xrange(6):
             key = random.choice(new_blocks)[0]
-            sample_families.append(' '.join(key.split('_')[:2])
+            sample_families.append((' '.join(key.split('_')[:2])
                                    + ' en '
                                    + ' '.join(key.split('_')[2:])
-                                   + ' echtelieden')
+                                   + ' echtelieden').decode('utf-8', "ignore"))
 
 
         return render_template('hash_vis.html',
@@ -92,7 +100,8 @@ def routing():
                                user_query=user_query,
                                block_key_list=block_key_list,
                                found_results=len(hash_key_dict),
-                               sample_families=sample_families)
+                               sample_families=sample_families,
+                               html_year=html_year)
 
 
 

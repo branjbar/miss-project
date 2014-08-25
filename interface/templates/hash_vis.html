@@ -11,6 +11,8 @@
     <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <script src="/static/d3/d3.js"></script>
 
+
+
   </head>
 
   <body>
@@ -54,18 +56,127 @@
                      </div>
                  </div> <!-- div col2 -->
             </div>
+            <p class="text-center">{{found_results}} results found for:  {{block_key_list}}</p>
+            <div class="col-xs-12  center-block">
+                    <div class="panel-body" id="d3_panel" />
 
-            <div class="col-xs-12 text-center">
+                    <script>
+                        svg_r = d3.select("body")
+                                       .select("#d3_panel")
+                                       .append("svg")
 
-                <div class="row" id="content" >
-                    <div class="col-xs-12 text-center">
-                        <h5>{{found_results}} results found for:  {{block_key_list}}</h5>
+                        padding = 50;
+                        w = svg_r.style("width").replace("px", "");
+                        h = 50;
+                        svg_r.attr("height", h)
+                        /*
+                        doc_list = []
+                        doc_list.push({year:1629, id:1})
+                        doc_list.push({year:1799, id:2})
+                        doc_list.push({year:1810, id:3})
+                        doc_list.push({year:1829, id:4})
+                        */
+                        doc_list = {{html_year|tojson|safe}}
+
+                        min_year = d3.min(doc_list, function(d){return d.year})
+                        max_year = d3.max(doc_list, function(d){return d.year})
+                        var year_scale = d3.scale.linear()
+                        .domain([min_year, max_year])
+                        .range([padding, w-padding]);
+
+
+                        svg_r.append("line")
+                        .attr("x1",padding/2)
+                        .attr("y1",h/2)
+                        .attr("x2",padding/2)
+                        .attr("y2",h/2)
+                       .attr("stroke-width", 2)
+                       .attr("stroke", "black")
+                       .transition()
+                       .duration(1000)
+                        .attr("x2",w - padding/2)
+                        .attr("y2",h/2)
+
+
+                        MOUSE_CLICK = "FALSE"
+
+                        svg_r.selectAll("circle")
+                        .data(doc_list)
+                        .enter()
+                        .append("circle")
+                        .attr("cx",function(d){return year_scale(d.year)})
+                        .attr("cy",h/2)
+                        .attr("r",6)
+                        .attr("fill","gray")
+                        .attr("stroke","black")
+                        .on("mouseover", function(d) {
+                            MOUSE_CLICK = "FALSE"
+                            d3.select(this)
+                            .transition()
+                            .duration(500)
+                            .attr("fill", "orange")
+                            .attr("r", 8);
+
+
+                            //Show the tooltip
+                                d3.selectAll("#a" + d.year ).classed("hidden", false);
+                            })
+
+                         .on("mouseout", function(d) {
+
+                            if (MOUSE_CLICK == "FALSE") {
+                                d3.select(this)
+                                .transition()
+                                .duration(500)
+                                .attr("fill", "gray")
+                                .attr("r", 6);
+
+                                //Hide the tooltip
+                                d3.selectAll("#a" + d.year).classed("hidden", true);
+                                }
+
+                        })
+                         .on("mousedown", function(d) {
+                            console.log(d3.select("#a" + d.year).style('hidden'))
+                            if (MOUSE_CLICK == "TRUE") {
+                                MOUSE_CLICK = "FALSE"
+
+                                d3.select(this)
+                                .transition()
+                                .duration(500)
+                                .attr("fill", "gray")
+                                .attr("r", 6);
+
+
+                                //Hide the tooltip
+                                d3.selectAll("#a" + d.year).classed("hidden", true);
+                            }
+                            else{
+                                MOUSE_CLICK = "TRUE"
+
+                            }
+
+                        })
+
+
+                        svg_r.selectAll("text")
+                        .data(doc_list)
+                        .enter()
+                        .append("text")
+                        .attr("x",function(d){return year_scale(d.year)})
+                        .attr("y",function(d,i){return h/2 + 20 - (i%2 * 30)})
+                        .text(function(d,i){return d.year})
+                        .attr("font-family", "sans-serif")
+                        .attr("font-size", "10px")
+                        .attr("text-anchor", "middle")
+
+
+                     </script>
+
 
                         {% for doc in doc_list %}
-                            {{doc|safe}}
+                            <div class="hidden" id="a{{doc['year']}}">{{doc['html']|safe}}</div>
                         {% endfor %}
-                    </div>
-                </div>
              </div>
         </div>
     </div>

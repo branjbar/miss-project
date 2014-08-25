@@ -13,10 +13,12 @@ meertens_names = {}
 
 PUNCTUATION_LIST = [',', ';', '.', ':', '[', ']', '(', ')', '"', "'"]
 PREFIXES = ['van', 'de', 'van der', 'van den', 'van de']
-FREQ_NAMES = ['te', 'een', 'eende', 'voor', 'als', 'zijn', 'die', 'gulden', 'heeft',
-              'gelegen', 'door', 'huis', 'kinderen', 'schepenen', 'wijlen', 'goederen',
-              'haar',  'hij', 'andere', 'groot', 'genaamd', 'dochter', 'verkopen', 'sijn',
-              'land', 'heer']
+# FREQ_NAMES = ['te', 'een', 'eende', 'voor', 'als', 'zijn', 'die', 'gulden', 'heeft',
+#               'gelegen', 'door', 'huis', 'kinderen', 'schepenen', 'wijlen', 'goederen',
+#               'haar',  'hij', 'andere', 'groot', 'genaamd', 'dochter', 'verkopen', 'sijn',
+#               'land', 'heer']
+FREQ_NAMES = ['te', 'kinderen', 'dochter']
+
 
 RELATION_INDICATORS_MIDDLE = {"gehuwd met": "married with",
                        "weduwe van": "widow of",
@@ -27,7 +29,7 @@ RELATION_INDICATORS_MIDDLE = {"gehuwd met": "married with",
                        "vrouw van": "wife of",
                        ", gehuwd met": "married with",
                        "man van": "husband of",
-                       "weduwe wijlen": "weduwe wijlen",
+                       "weduwe wijlen": "widow of",
                        ", weduwnaar van": ", wedower of",
                        ", de weduwe van": "widow of",
                        "getrouwt met": "married with",
@@ -45,7 +47,8 @@ RELATION_INDICATORS_MIDDLE = {"gehuwd met": "married with",
                        "zoon van": "son of",
                        ", dochter van": "daughter of",
                        ", zoon van": "son of",
-                       "dochter van":"daughter of"
+                       "dochter van":"daughter of",
+                       "dochter":"daughter of"
                        }
 
 
@@ -176,13 +179,24 @@ class Nerd():
 
         refs_list = []
         reference = ''
+        need_last_name_flag = False
         for index, word in enumerate(self.word_list):
             if self.word_list_labeled[index] in [1, 2, 3] :
                 reference += word + ' '
             else:
                 reference = reference.strip()
                 ref_len = len(reference.split(' '))
+                # if more than one name is extracted:
                 if ref_len > 1:
+                    refs_list.append([index - ref_len, reference])
+                    # if need_last_name_flag:
+                    #     refs_list[-2][1] = refs_list[-2][1] + ' ' + reference.split()[-1]
+                    #     need_last_name_flag = False
+
+                # if name is single, but is connected to the next name by "dochter"
+                if index < len(self.word_list) and self.word_list[index] == 'dochter':
+
+                    need_last_name_flag = True  # let the next reference borrow its last name to this reference
                     refs_list.append([index - ref_len, reference])
                 reference = ''
 

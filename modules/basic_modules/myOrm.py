@@ -89,7 +89,7 @@ class Document():
 
     def get_html(self, hash_key=[], block_key_ref=[]):
         if self.doc_type == "notarial act":
-            html = """ <div class="panel-body col-xs-4" >"""
+            html = """ <div class="panel-body col-xs-12">"""
         else:
             html = """ <div class="panel-body col-xs-4" >"""
 
@@ -165,7 +165,8 @@ class Document():
 
         """
 
-        return html
+        year = self.date[-4:]
+        return {'year' : year, 'html': html}
 
     def add_ref(self, ref):
         self.ref_list.append(ref)

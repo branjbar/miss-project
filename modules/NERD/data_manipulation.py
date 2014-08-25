@@ -3,13 +3,35 @@ Here we export the results of NERD in form of offline html file, sql table, etc.
 
 """
 import time
+import operator
 from modules.NERD import html_generate
-from modules.NERD.dict_based_nerd import extract_references, extract_name, text_pre_processing
+from modules.NERD.dict_based_nerd import Nerd
 from modules.basic_modules import basic
 from modules.basic_modules.basic import log
 
 __author__ = 'bijan'
 
+def find_frequent_words():
+    """
+    here we parse through all the available names and find the most frequent ones.
+    :return:
+    """
+
+    word_dict = {}
+
+    log('importing names')
+    the_query = "SELECT text1, text2, text3, row_id, id from notary_acts"
+    cur = basic.run_query(the_query)
+    for c in cur.fetchall():
+        text = c[0] + ' ' + c[1] + ' ' + c[2]
+        nerd = Nerd(text)
+        for word in nerd.pp_text.split():
+            word_dict[word] = word_dict.get(word,0) + 1
+
+    sorted_x = sorted(word_dict.iteritems(), key=operator.itemgetter(1), reverse=True)
+
+    for x in sorted_x[:100]:
+        print x
 
 
 def generate_html_report():
@@ -178,5 +200,5 @@ def look_for_pattern():
                             print n[2]
 
 if __name__ == "__main__":
-    export_patterns_to_sql_table()
+    find_frequent_words()
 
