@@ -48,7 +48,13 @@ class Nerd():
     a full class for named entity recognition
     """
 
-    def __init__(self, text=""):
+    def __init__(self, text, extract_flag=True):
+        """
+
+        :param text: gets text as input.
+        :param extract_flag:
+        :return:
+        """
         self.text = text
         self.pp_text = ''  # pre-processed text
         self.word_list = []
@@ -56,9 +62,10 @@ class Nerd():
         self.references = []
         self.relations = []
 
-        self.pre_processing()
-        if len(self.text) > 5:
-            self.extract_names()
+        if extract_flag:
+            self.pre_processing()
+            if len(self.text) > 5:
+                self.extract_names()
 
 
 
