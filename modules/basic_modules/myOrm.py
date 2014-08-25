@@ -91,7 +91,7 @@ class Document():
         if self.doc_type == "notarial act":
             html = """ <div class="panel-body col-xs-12">"""
         else:
-            html = """ <div class="panel-body col-xs-4" >"""
+            html = """ <div class="panel-body col-xs-12" >"""
 
         html += """
                                 <div class="panel panel-default">
@@ -160,13 +160,14 @@ class Document():
 
         html += """
                                           </div>
-                                </div>
-                            </div>
-
-        """
+                                          </div>
+                                          </div>
+                                          """
 
         year = self.date[-4:]
-        return {'year' : year, 'html': html}
+        return {'year': year, 'html': html,
+                'title': self.doc_type.title(),
+                'concept': "test"}
 
     def add_ref(self, ref):
         self.ref_list.append(ref)

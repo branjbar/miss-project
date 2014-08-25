@@ -71,17 +71,16 @@ def routing():
             if hash_key_dict:
                 doc_list = []
                 html_year = []
-                html_id = 1
                 for doc_id in hash_key_dict.keys():
                     doc = Document()
                     doc.set_id(doc_id)
-                    html = doc.get_html(hash_key_dict[doc_id], block_key_list) #  {year:....., html:.....}
-                    if {'year': html['year']} not in html_year:
-                        html_year.append({'year': html['year']})
-                    html_id += 1
+                    html = doc.get_html(hash_key_dict[doc_id], block_key_list)  # {year:....., html:.....}
+                    html_year.append({'year': html['year'], 'title': html['title'], 'concept': html['concept']})
+
                     doc_list.append(html)
 
         html_year.sort(key=lambda x: x['year'])
+        doc_list.sort(key=lambda x: x['year'])
 
         if not user_query:
             user_query = ''
@@ -93,6 +92,9 @@ def routing():
                                    + ' en '
                                    + ' '.join(key.split('_')[2:])
                                    + ' echtelieden').decode('utf-8', "ignore"))
+        for i, block_key in enumerate(block_key_list):
+            block_key_list[i] = block_key.split('_')[0] +' '+ block_key.split('_')[1] + ' & ' \
+                                + block_key.split('_')[2] +' '+ block_key.split('_')[3]
 
 
         return render_template('hash_vis.html',
