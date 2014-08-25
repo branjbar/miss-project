@@ -122,10 +122,10 @@ class Nerd():
             -1: has capital letter but doesn't exist in the list
         """
         # search for capital letters
-        global meertens_names
-
-        if not meertens_names:
-            import_dutch_data_set()
+        # global meertens_names
+        #
+        # if not meertens_names:
+        #     import_dutch_data_set()
 
         self.word_list = self.pp_text.split()
 
@@ -143,16 +143,24 @@ class Nerd():
 
         # search for last name prefixes
         for index, word in enumerate(self.word_list):
+            # one component prefixes
             if word in PREFIXES and word_spec.get(index - 1) and word_spec.get(index+1):
                 word_spec[index] = 2
-            if index < len(self.word_list)-1 and word + " " + self.word_list[index+1] in PREFIXES and word_spec.get(index - 1) and word_spec.get(index+2):
+
+            # two component prefixes
+            if index < len(self.word_list)-1 and word + " " + self.word_list[index+1] in PREFIXES \
+                    and word_spec.get(index - 1) and word_spec.get(index+2):
                 word_spec[index] = 2
                 word_spec[index+1] = 2
+
 
 
         for index, word in enumerate(self.word_list):
             if word in FREQ_NAMES:
                 word_spec[index] = 4
+
+
+
 
         # for index, word in enumerate(self.word_list):
         #     if word_spec[index] and not meertens_names.get(word.lower()):
@@ -209,6 +217,8 @@ class Nerd():
                                 self.relations.append({"ref1": ref1, "ref2": ref2, "relation": "husband of"})
                         except:
                             pass
+
+
 
 
 def import_dutch_data_set():
