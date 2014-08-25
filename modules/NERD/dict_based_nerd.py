@@ -12,6 +12,12 @@ from modules.basic_modules.basic import log
 meertens_names = {}
 
 PUNCTUATION_LIST = [',', ';', '.', ':', '[', ']', '(', ')', '"', "'"]
+PREFIXES = ['van', 'de', 'van der', 'van den', 'van de']
+FREQ_NAMES = ['te', 'een', 'eende', 'voor', 'als', 'zijn', 'die', 'gulden', 'heeft',
+              'gelegen', 'door', 'huis', 'kinderen', 'schepenen', 'wijlen', 'goederen',
+              'haar',  'hij', 'andere', 'groot', 'genaamd', 'dochter', 'verkopen', 'sijn',
+              'land', 'heer']
+
 RELATION_INDICATORS_MIDDLE = {"gehuwd met": "married with",
                        "weduwe van": "widow of",
                        "weduwe": "widow of",
@@ -112,6 +118,7 @@ class Nerd():
             1 : started with capital letter
             2 : last name prefix
             3 : First word of the whole paragraph
+            4: Very frequent words
             -1: has capital letter but doesn't exist in the list
         """
         # search for capital letters
@@ -134,7 +141,6 @@ class Nerd():
         if not self.word_list[0] == 'Testament' and word_spec.get(1) == 1:
             word_spec[0] = 3
 
-        PREFIXES = ['van', 'de', 'van der', 'van den', 'van de']
         # search for last name prefixes
         for index, word in enumerate(self.word_list):
             if word in PREFIXES and word_spec.get(index - 1) and word_spec.get(index+1):
@@ -143,9 +149,14 @@ class Nerd():
                 word_spec[index] = 2
                 word_spec[index+1] = 2
 
+
         for index, word in enumerate(self.word_list):
-            if word_spec[index] and not meertens_names.get(word.lower()):
-                word_spec[index] = -1
+            if word in FREQ_NAMES:
+                word_spec[index] = 4
+
+        # for index, word in enumerate(self.word_list):
+        #     if word_spec[index] and not meertens_names.get(word.lower()):
+        #         word_spec[index] = -1
 
         self.word_list_labeled = word_spec
 
@@ -158,7 +169,7 @@ class Nerd():
         refs_list = []
         reference = ''
         for index, word in enumerate(self.word_list):
-            if self.word_list_labeled[index] :
+            if self.word_list_labeled[index] in [1, 2, 3] :
                 reference += word + ' '
             else:
                 reference = reference.strip()
