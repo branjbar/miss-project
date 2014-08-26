@@ -106,8 +106,6 @@
                         .attr("r",c_r)
                         .attr("fill","gray")
                         .attr("stroke","black")
-                        .append("title")
-                        .text("click here to freeze the card!")
                         .on("mouseover", function(d,i) {
 
                             d3.select(this)
@@ -167,6 +165,8 @@
                             }
 
                         })
+                                                .append("title")
+                        .text("click here to freeze the card!")
 
 
                         svg_r.selectAll("text .year")
