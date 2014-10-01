@@ -67,12 +67,26 @@
                                        .select("#d3_panel")
                                        .append("svg")
 
+
+
                         padding = 20;
 
                         c_r = 6
                         w = svg_r.style("width").replace("px", "");
                         w = 1000;
                         h = 650;
+
+
+                        var card_id = 0   // the number of cards shown so far
+                        var card_positions = [  {x:0, y:0},
+                                                {x:w/2 + 4 * padding , y:0},
+                                                {x:0, y:h/2},
+                                                {x:w/2 + 4 * padding , y:h/2}
+                                              ] // the optimal positions for up to four cards
+
+                         var color_set = ["orange", "BurlyWood 	 ", "yellow", "green"]
+
+
                         svg_r.attr("height", h)
                         .attr("width",w)
 
@@ -113,12 +127,15 @@
                             d3.select(this)
                             .transition()
                             .duration(500)
-                            .attr("fill", "orange")
+                            .attr("fill", color_set[card_id])
                             .attr("r", 2 * c_r);
 
                             //Get this bar's x/y values, then augment for the tooltip
                             var xPosition = i%2? padding : w/2 + 6 * padding ;
                             var yPosition = 0 ;
+
+                            var xPosition = card_positions[card_id].x ;
+                            var yPosition = card_positions[card_id].y ;
 
                             //Update the tooltip position and value
                             d3.selectAll("#a" + i)
@@ -126,10 +143,33 @@
                               .style("top", yPosition + "px")
                               .style("position", "absolute")
 
+/*
+                            // draw the horizontal line
+                            svg_r
+                            .append("line")
+                            .attr("x1", function(d,i){return w/2 + 2 * c_r  -  (1 + card_id) % 2 * 4 * c_r })
+                            .attr("y1", year_scale(i))
+                            .attr("x2", function(d,i){return card_id % 2 ?  w - 5 * padding : 5 * padding})
+                            .attr("y2", year_scale(i))
+                            .attr("stroke", "black")
+                            .attr("fill", "white")
 
+                            // draw the vertical line
+                            svg_r
+                            .append("line")
+                            .attr("x1", (1 + card_id) % 2 ? 5 * padding : w - 5 * padding)
+                            .attr("y1", year_scale(i))
+                            .attr("x2", ((1 + card_id) % 2) ? 5 * padding : w - 5 * padding)
+                            .attr("y2", function() { return .5 * (card_id < 2) ? year_scale(0) : 3 * h/4 })
+                            .attr("stroke", "black")
+                            .attr("fill", "white")
 
+*/
                             //Show the tooltip
-                            d3.selectAll("#a" + i ).classed("hidden", false);
+                            d3.selectAll("#a" + i )
+                            .classed("hidden", false)
+                            .style("background-color", color_set[card_id]);
+
                             })
 
                          .on("mouseout", function(d,i) {
@@ -142,7 +182,8 @@
                                 .attr("r", c_r);
 
                                 //Hide the tooltip
-                                d3.selectAll("#a" + i).classed("hidden", true);
+                                d3.selectAll("#a" + i)
+                                .classed("hidden", true);
                                 }
 
                         })
@@ -160,9 +201,12 @@
                                 //Hide the tooltip
                                 d3.selectAll("#a" + i).classed("hidden", true);
                                 d.show = false
+                                card_id -= 1
                             }
                             else {
                                 d.show = true
+                                if (card_id < 4)
+                                    card_id += 1
 
                             }
 
@@ -182,23 +226,11 @@
                         .attr("font-family", "sans-serif")
                         .attr("font-size", "10px")
                         .attr("text-anchor", "middle")
-                        /*
-                        svg_r.selectAll("text .title")
-                        .data(doc_list)
-                        .enter()
-                        .append("text")
-                        .attr("class","hidden title")
-                        .attr("id", function(d,i) {return ("a" + i)})
-                        .attr("x",function(d,i){return (i%2) ? w/2 - 100 : w/2 + 50})
-                        .attr("y",function(d,i){return  -5 + year_scale(i)})
-                        .text(function(d,i){return "(" + d.title + ")"})
-                        .attr("font-family", "sans-serif")
-                        .attr("font-size", "10px")
-                        .attr("text-anchor", function(d,i) { return i%2 ? "left": "right"})
-                        */
+
                         rect_width = 120
 
 
+                        /*
                         // horizontal line
                         svg_r.selectAll("line .c2r")
                         .data(doc_list)
@@ -228,41 +260,14 @@
                         .attr("y2", function(d,i){return year_scale(0)})
                         .attr("stroke", "black")
                         .attr("fill", "white")
-
-                        /*
-                        svg_r.selectAll("rect")
-                        .data(doc_list)
-                        .enter()
-                        .append("rect")
-                        .attr("class","hidden")
-                        .attr("id", function(d,i) {return ("a" + i)})
-                        .attr("x", function(d,i){return (i%2) ? padding : w - padding - rect_width })
-                        .attr("y", function(d,i){return year_scale(i) - rect_width/2})
-                        .attr("width", rect_width)
-                        .attr("height", 120)
-                        .attr("stroke", "black")
-                        .attr("fill", "white")
-
-                        svg_r.selectAll("text .concept")
-                        .data(doc_list)
-                        .enter()
-                        .append("text")
-                        .attr("class", "hidden concept")
-                        .attr("id", function(d,i) {return ("a" + i)})
-                        .attr("x", function(d,i){return (i%2) ? padding + rect_width / 2 : w - padding  - rect_width  + rect_width / 2})
-                        .attr("y", function(d,i){return year_scale(i) - rect_width / 3})
-                        .attr("font-family", "sans-serif")
-                        .attr("fill", "red")
-                        .attr("font-size", "13px")
-                        .attr("text-anchor", "middle")
-                        .text(function(d){return d.title})
                         */
+
 
                      </script>
 
                         <!--Here we have the hidden cards that will show up once we move on the key -->
                         {% for doc in doc_list %}
-                            <div class="col-xs-5 hidden "  style="height:400px; overflow:auto" id="a{{loop.index-1}}">{{doc['html']|safe}}</div>
+                            <div class="col-xs-5 hidden"  style="height:300px; overflow:auto" id="a{{loop.index-1}}">{{doc['html']|safe}}</div>
                         {% endfor %}
              </div>
             {% else %}

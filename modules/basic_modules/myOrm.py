@@ -105,7 +105,8 @@ class Document():
 
         if self.doc_type == "notarial act":
             html += """<code>#%s</code> on <code>%s</code> in <code>%s</code>
-                        <hr> <div class="col-xs-12">
+                        <hr style="margin: 8px 0;">
+                        <div class="col-xs-12">
                     """ % (self.doc_id, self.date, self.place)
             text = self.text
 
@@ -120,19 +121,19 @@ class Document():
                                 text = text.replace(ref_name, '<span class="highlight_fuzzy"> %s </span>' % ref_name)
 
 
-            html += text
+            html += """<small> """ +  text + "</small>"
             html += "</div>"
             html += """<div class="col-xs-6">"""
 
         else:
 
 
-            html += """ <table class="table table-condensed" style="margin-bottom: 0px;"> """
-            html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>id</b>',
+            html += """ <table class="table table-condensed" style="margin-bottom: 0px; border: none"> """
+            html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % ('<b>id</b>',
                                                                                                           self.doc_id)
-            html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>place</b>',
+            html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % ('<b>place</b>',
                                                                                                           self.place)
-            html += "<tr> \n <td><small> %s </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % ('<b>date</b?',
+            html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % ('<b>date</b?',
                                                                                                           self.date)
             for ref in self.ref_list:
                 try:
@@ -150,7 +151,8 @@ class Document():
                         else:
                             ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
 
-                html += "<tr> \n <td><small> <b>%s</b> </small></td> \n <td><small> %s</small> </td>  \n </tr>\n" % (ref_type, ref_name)
+                html += "<tr > \n <td style='padding: 1px'><small> <b>%s</b> </small></td> \n <td style='padding: 1px'>" \
+                        "<small> %s</small> </td>  \n </tr>\n" % (ref_type, ref_name)
 
             html += "</table>"
 
