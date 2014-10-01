@@ -7,7 +7,7 @@ import jellyfish
 import time
 import logging
 
-genders_dict = {} # this is used to store all the names with majority gender
+genders_dict = {}  # this is used to store all the names with majority gender
 
 
 def extract_block_key(person, gender_names):
@@ -20,7 +20,7 @@ def extract_block_key(person, gender_names):
     if person['gender'] == "male" or person['gender'] == "female":
         feature_set['gender'] = person['gender']
 
-    if person['first_name'] and person['last_name']:
+    if p['first_name'] and person['last_name']:
         if not(person['gender'] == "male" or person['gender'] == "female"):
             first_split = person['first_name'].split()[0]
             if first_split in gender_names['male']:
@@ -173,6 +173,8 @@ def get_name_gender_list(db):
         female_names.append(name[0])
 
     return {'male':male_names, 'female': female_names}
+
+
 if __name__ == "__main__":
 
     gender_names = get_name_gender_list()
