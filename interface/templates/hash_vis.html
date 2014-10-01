@@ -21,43 +21,43 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-xs-12 text-center">
-             <h4> NEW STORIES, NEVER HEARD BEFORE!  </h4>
-             <!-- TODO: Remove search place and samples, and just use the simple search box in navbar.
-                  TODO: Also use a "I feel lucky" icon to have a random search. -->
-                 <div class="panel-body col-xs-6" >
-                     <div class="panel panel-default">
+            <!--<div class="col-xs-12 text-center">-->
+             <h4 align="center"> NEW STORIES, NEVER HEARD BEFORE!  </h4>
+            <hr>
+
+                 <!--<div class="panel-body col-xs-6" >-->
+                     <!--<div class="panel panel-default">-->
+                          <!--&lt;!&ndash;<div class="panel-heading">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<h3 class="panel-title">Search for a family</h3>&ndash;&gt;-->
+                          <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                          <!--&lt;!&ndash;<div class="panel-body" >&ndash;&gt;-->
+                             <!--&lt;!&ndash;<form role="form" class="col-xs-12">&ndash;&gt;-->
+                                 <!--&lt;!&ndash;<div class="form-group">&ndash;&gt;-->
+                                     <!--&lt;!&ndash;<label>Search Here:</label><br>&ndash;&gt;-->
+                                     <!--&lt;!&ndash;<textarea class="form-control col-xs-2" rows="4"  name="user_query" placeholder="... en .... echtelieden"&ndash;&gt;-->
+                                                 <!--&lt;!&ndash;required>{{user_query}}</textarea>&ndash;&gt;-->
+                                      <!--&lt;!&ndash;<button type="submit" class="btn btn-primary">Enter Your Query and Click Here</button>&ndash;&gt;-->
+                                 <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</form>&lt;!&ndash;/.span6&ndash;&gt;&ndash;&gt;-->
+                          <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                     <!--</div>-->
+
+                 <!--</div> &lt;!&ndash; div co6 &ndash;&gt;-->
+                 <!--<div class="panel-body col-xs-6" >-->
+                     <!--<div class="panel panel-default">-->
                           <!--<div class="panel-heading">-->
-                            <!--<h3 class="panel-title">Search for a family</h3>-->
+                            <!--<h3 class="panel-title">Explore one of the following randomly chosen families</h3>-->
                           <!--</div>-->
-                          <div class="panel-body" >
-                             <form role="form" class="col-xs-12">
-                                 <div class="form-group">
-                                     <label>Search Here:</label><br>
-                                     <textarea class="form-control col-xs-2" rows="4"  name="user_query" placeholder="... en .... echtelieden"
-                                                 required>{{user_query}}</textarea>
-                                      <button type="submit" class="btn btn-primary">Enter Your Query and Click Here</button>
-                                 </div>
-                            </form><!--/.span6-->
-                          </div>
-                     </div>
+                          <!--<div class="panel-body text-left">-->
+                              <!--{% for family in sample_families %}-->
+                                <!--<a href="./?search_term={{family}}">{{family}}</a>-->
+                                    <!--<br>-->
+                              <!--{% endfor %}-->
 
-                 </div> <!-- div co6 -->
-                 <div class="panel-body col-xs-6" >
-                     <div class="panel panel-default">
-                          <div class="panel-heading">
-                            <h3 class="panel-title">Explore one of the following randomly chosen families</h3>
-                          </div>
-                          <div class="panel-body text-left">
-                              {% for family in sample_families %}
-                                <a href="./?user_query={{family}}">{{family}}</a>
-                                    <br>
-                              {% endfor %}
-
-                          </div>
-                     </div>
-                 </div> <!-- div col2 -->
-            </div>
+                          <!--</div>-->
+                     <!--</div>-->
+                 <!--</div> &lt;!&ndash; div col2 &ndash;&gt;-->
+            {% if found_results %}
             <p class="text-center">{{found_results}} results found for:  {% for block_key in block_key_list%} <strong>{{block_key}}</strong> {% endfor%}</p>
             <div class="col-xs-12  center-block">
                     <div class="col-xs-12" id="d3_panel" />
@@ -72,7 +72,7 @@
                         c_r = 6
                         w = svg_r.style("width").replace("px", "");
                         w = 1000;
-                        h = 400;
+                        h = 650;
                         svg_r.attr("height", h)
                         .attr("width",w)
 
@@ -260,11 +260,15 @@
 
                      </script>
 
-
+                        <!--Here we have the hidden cards that will show up once we move on the key -->
                         {% for doc in doc_list %}
                             <div class="col-xs-5 hidden "  style="height:400px; overflow:auto" id="a{{loop.index-1}}">{{doc['html']|safe}}</div>
                         {% endfor %}
              </div>
+            {% else %}
+                <p class="text-warning" align="center">No results found! Either search for a couple (e.g., Anna Hout & Johannes Timmers) using the top right search bar,
+                    or click on the question mark at the top-right corner to look at a random couple.</p>
+            {% endif %}
         </div>
     </div>
 

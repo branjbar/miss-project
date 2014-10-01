@@ -31,18 +31,21 @@ def routing():
     @app.route('/hash_matches/', methods=['GET', 'POST'])
     @app.route('/hash_matches/<p_id>', methods=['GET', 'POST'])
     def hash_matches(p_id=None):
-        user_query = request.args.get('user_query')
-
+        search_term = request.args.get('search_term')
+        lucky = request.args.get('lucky')
+        if lucky:
+            the_key = random.choice(new_blocks)[0]
+            search_term = (' '.join(the_key.split('_')[:2]) + ' en ' + ' '.join(the_key.split('_')[2:]) + ' echtelieden').decode('utf-8', "ignore")
 
         # user_query = "Antonie_Biggelaar & Geertruida Bekkers"
         doc_list = []
         block_key_list = []
         hash_key_dict = {}
         html_year = []
-        if user_query:
-            if '&' in user_query:
-                user_query = user_query.split('&')[0] + 'en' + user_query.split('&')[1] + ' echtelieden'
-            text_query = Nerd(user_query)
+        if search_term:
+            if '&' in search_term:
+                search_term = search_term.split('&')[0] + 'en' + search_term.split('&')[1] + ' echtelieden'
+            text_query = Nerd(search_term)
             text_query.get_relations()
             ref_list = []
             for index, rel in enumerate(text_query.relations):
@@ -82,16 +85,16 @@ def routing():
         html_year.sort(key=lambda x: x['year'])
         doc_list.sort(key=lambda x: x['year'])
 
-        if not user_query:
-            user_query = ''
+        if not search_term:
+            search_term = ''
 
         sample_families = []
-        for i in xrange(6):
-            key = random.choice(new_blocks)[0]
-            sample_families.append((' '.join(key.split('_')[:2])
-                                   + ' en '
-                                   + ' '.join(key.split('_')[2:])
-                                   + ' echtelieden').decode('utf-8', "ignore"))
+        # for i in xrange(6):
+        #     key = random.choice(new_blocks)[0]
+        #     sample_families.append((' '.join(key.split('_')[:2])
+        #                            + ' en '
+        #                            + ' '.join(key.split('_')[2:])
+        #                            + ' echtelieden').decode('utf-8', "ignore"))
         for i, block_key in enumerate(block_key_list):
             block_key_list[i] = block_key.split('_')[0] +' '+ block_key.split('_')[1] + ' & ' \
                                 + block_key.split('_')[2] +' '+ block_key.split('_')[3]
@@ -99,7 +102,7 @@ def routing():
 
         return render_template('hash_vis.html',
                                doc_list=doc_list,
-                               user_query=user_query,
+                               search_term=search_term,
                                block_key_list=block_key_list,
                                found_results=len(hash_key_dict),
                                sample_families=sample_families,
