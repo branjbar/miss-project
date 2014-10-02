@@ -77,7 +77,6 @@
                         .attr("width",w)
 
                         doc_list = {{html_year|tojson|safe}}
-
                         min_year = d3.min(doc_list, function(d){return d.year})
                         max_year = d3.max(doc_list, function(d){return d.year})
 
@@ -176,9 +175,9 @@
                         .enter()
                         .append("text")
                         .attr("class", "year")
-                        .attr("x",function(d,i){return w/2 + 20 - (i%2 * 40)})
+                        .attr("x",function(d,i){return w/2 + 40 - (i%2 * 80)})
                         .attr("y",function(d,i){return -5 + year_scale(i)})
-                        .text(function(d,i){return d.year})
+                        .text(function(d,i){return d.year + ' (' + d.city + ')'})
                         .attr("font-family", "sans-serif")
                         .attr("font-size", "10px")
                         .attr("text-anchor", "middle")
