@@ -134,12 +134,13 @@ class Hashing():
         if block_keys:
             query = 'blockKeys:'
             for block in block_keys:
-                query += block + '~.01 OR '
+                # query += block + '~.01 OR '
+                query += block + ' OR '
 
             query = query[:-4]
             # print query
             query_results = self.s.query(query, rows=200, highlight=True, fields="features, id")
-            print query_results.results
+            # print query_results.results
             return query_results
 
         if features_list:
