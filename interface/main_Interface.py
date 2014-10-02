@@ -17,9 +17,8 @@ new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
 
 hash_table = {}
 for block_v in new_blocks:
-    
     hash_table[block_v[0]] = block_v[1]
-    
+
 # pickle.dump(hash_table, open("hashing_v1.p", 'w'))
 
 
@@ -27,7 +26,6 @@ my_hash = Hashing()
 
 
 def routing():
-
     @app.route('/hash_matches/', methods=['GET', 'POST'])
     @app.route('/hash_matches/<p_id>', methods=['GET', 'POST'])
     def hash_matches(p_id=None):
@@ -35,7 +33,9 @@ def routing():
         lucky = request.args.get('lucky')
         if lucky:
             the_key = random.choice(new_blocks)[0]
-            search_term = (' '.join(the_key.split('_')[:2]) + ' en ' + ' '.join(the_key.split('_')[2:]) + ' echtelieden').decode('utf-8', "ignore")
+            search_term = (
+                ' '.join(the_key.split('_')[:2]) + ' en ' + ' '.join(the_key.split('_')[2:]) + ' echtelieden').decode(
+                'utf-8', "ignore")
 
         # user_query = "Antonie_Biggelaar & Geertruida Bekkers"
         doc_list = []
@@ -49,28 +49,25 @@ def routing():
             text_query.get_relations()
             ref_list = []
             for index, rel in enumerate(text_query.relations):
-
                 ref_list.append(Reference(0, rel['ref1'][1]))
                 ref_list.append(Reference(0, rel['ref2'][1]))
 
             if ref_list:
-                for index in xrange(len(ref_list)/2):
+                for index in xrange(len(ref_list) / 2):
                     ref1 = ref_list[2 * index]
-                    ref2 = ref_list[2 * index+1]
+                    ref2 = ref_list[2 * index + 1]
                     key_list = [ref1.get_compact_name(), ref2.get_compact_name()]
                     key_list = sorted(key_list)
                     block_key_list.append(key_list[0] + '_' + key_list[1])
 
-
-
             solr_results = my_hash.search(block_key_list)
             if solr_results:
                 # for result in solr_results:
-                #     block_list.append(result['id'])
+                # block_list.append(result['id'])
 
                 hash_key_dict = {}
                 for result in solr_results.highlighting.iteritems():
-                    hash_key_dict[result[0]] = result[1]['features'][0].replace('<em>','').replace('</em>', '')
+                    hash_key_dict[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
             if hash_key_dict:
                 doc_list = []
                 html_year = []
@@ -78,6 +75,7 @@ def routing():
                     doc = Document()
                     doc.set_id(doc_id)
                     html = doc.get_html(hash_key_dict[doc_id], block_key_list)  # {year:....., html:.....}
+                    # TODO: Later we sort the html_year based on the years. For equal years we can think of reordering the card based on their type and roles!
                     html_year.append({'year': html['year'], 'title': html['title'], 'concept': html['concept']})
 
                     doc_list.append(html)
@@ -90,15 +88,14 @@ def routing():
 
         sample_families = []
         # for i in xrange(6):
-        #     key = random.choice(new_blocks)[0]
-        #     sample_families.append((' '.join(key.split('_')[:2])
+        # key = random.choice(new_blocks)[0]
+        # sample_families.append((' '.join(key.split('_')[:2])
         #                            + ' en '
         #                            + ' '.join(key.split('_')[2:])
         #                            + ' echtelieden').decode('utf-8', "ignore"))
         for i, block_key in enumerate(block_key_list):
-            block_key_list[i] = block_key.split('_')[0] +' '+ block_key.split('_')[1] + ' & ' \
-                                + block_key.split('_')[2] +' '+ block_key.split('_')[3]
-
+            block_key_list[i] = block_key.split('_')[0] + ' ' + block_key.split('_')[1] + ' & ' \
+                                + block_key.split('_')[2] + ' ' + block_key.split('_')[3]
 
         return render_template('hash_vis.html',
                                doc_list=doc_list,
@@ -107,7 +104,6 @@ def routing():
                                found_results=len(hash_key_dict),
                                sample_families=sample_families,
                                html_year=html_year)
-
 
 
     @app.route('/complex_matches/', methods=['GET', 'POST'])
@@ -133,17 +129,14 @@ def routing():
             doc = Document()
             doc.set_id(doc_id)
             doc_list_d3.append(doc.__dict_new__())
-            html = doc.get_html(block_key,[block_key])
+            html = doc.get_html(block_key, [block_key])
             # for key in block_key.split('_'):
-            #     html = html.replace(key, '<span class="highlight"> %s </span>'%key)
+            # html = html.replace(key, '<span class="highlight"> %s </span>'%key)
             doc_list.append(html)
-
-
 
             navbar_choices = []
             for a_match_id in range(p_id, p_id + 11):
-                    navbar_choices.append(a_match_id)
-
+                navbar_choices.append(a_match_id)
 
         return render_template('match_vis.html', doc_list_d3=doc_list_d3, doc_list=doc_list,
                                block_key=block_key.split('_'),
@@ -409,7 +402,6 @@ def routing():
         document_ids = [x for x in document_ids if x]
         details = {'document_id': document_ids,
                    'document_type': ''}
-
 
         families = generatePedigree.import_families()
         navbar_choices = {}
