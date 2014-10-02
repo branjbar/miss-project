@@ -6,6 +6,7 @@ from modules.basic_modules.basic import run_query
 import solr
 import copy
 from modules.basic_modules.myOrm import Reference
+from modules.record_linkage.blocking import get_block_key
 
 NOTARY_OFFSET_old = 4000000
 NOTARY_OFFSET = 30000000
@@ -20,7 +21,7 @@ class Hashing():
         self.s = solr.SolrConnection('http://localhost:8983/solr')
         self.commit_counter = 0
         self.commit_number = 0
-        self.current_document_id = 2846095
+        self.current_document_id = 0
 
     def add_key(self, ref_list, document_id):
         """
@@ -30,27 +31,30 @@ class Hashing():
         :return:
         """
         if document_id and ref_list:
-                feature_list = []
-                for i1, key1 in enumerate(ref_list):
-                    for i2, key2 in enumerate(ref_list):
-                        if i1 < i2:
-                            feature = sorted([key1, key2])
-                            feature_list.append(feature[0] + '_' + feature[1])
+            feature_list = []  # features based on exact names
+            block_keys = []  # blocking keys based on hossein's key
+            for i1, key1 in enumerate(ref_list):
+                for i2, key2 in enumerate(ref_list):
+                    if i1 < i2:
+                        feature = sorted(['_'.join(key1), '_'.join(key2)])
+                        blocks = sorted([get_block_key(key1[0], key1[1]), get_block_key(key2[0], key2[1])])
+                        feature_list.append(feature[0] + '_' + feature[1])
+                        block_keys.append('_'.join(blocks).decode('utf-8', 'ignore'))
 
-                if feature_list:
-                    self.s.add(features=feature_list, id=document_id)
+            if feature_list:
+                self.s.add(features=feature_list, blockKeys=block_keys, id=document_id)
 
-                self.commit_counter += 1
-                if self.commit_counter > 5000:
-                    self.s.commit()
-                    self.commit_counter = 0
+            self.commit_counter += 1
+            if self.commit_counter > 5000:
+                self.s.commit()
+                self.commit_counter = 0
 
-                    print self.commit_number
-                    self.commit_number += 1
+                print self.commit_number
+                self.commit_number += 1
 
     def update_all_persons(self):
-
-        query = "select first_name, last_name, register_id from all_persons_new limit 100"
+        print "wait for 250"
+        query = "select first_name, last_name, register_id from all_persons_new"
 
         cur = run_query(query)
         self.commit_number = 0
@@ -70,17 +74,22 @@ class Hashing():
             if first_name and last_name:
 
                 if d_id == self.current_document_id:
+                    # if we're still selecting references from current_document_id
 
-                    ref_list.append(first_name + '_' + last_name)
+                    ref_list.append([first_name, last_name])
                 else:
+                    # if we have moved to references of a new document_id let's first commit the previous Solr
+                    # features and then we make a new reference list
                     self.add_key(ref_list, self.current_document_id)
                     self.current_document_id = copy.copy(d_id)
-                    ref_list = [first_name + '_' + last_name]
+                    ref_list = [[first_name, last_name]]
 
     def update_notaries(self):
+        print "wait for 39"
+
         query = """
-        SELECT row_id, text1, text2, text3, place, date from notary_acts
-        """
+                SELECT row_id, text1, text2, text3, place, date from notary_acts
+                """
         cur = run_query(query)
         for c in cur.fetchall():
             notary_id = c[0] + NOTARY_OFFSET
@@ -91,16 +100,25 @@ class Hashing():
             relations = nerd.get_relations()
             ref_list = []
             for index, rel in enumerate(relations):
-
                 ref_list.append(Reference(str(doc_id) + str(2 * index), rel['ref1'][1]))
                 ref_list.append(Reference(str(doc_id) + str(2 * index + 1), rel['ref2'][1]))
 
             if ref_list:
                 feature_list = []
-                for index in xrange(len(ref_list)/2):
-                    feature_list.append('_'.join(sorted([ref_list[2 * index].get_compact_name(), ref_list[2 * index+1].get_compact_name()])).decode('utf-8', 'ignore'))
+                block_keys = []
+                for index in xrange(len(ref_list) / 2):
+                    person_1_name = ref_list[2 * index].get_compact_name()
+                    person_2_name = ref_list[2 * index + 1].get_compact_name()
+                    if person_1_name and person_2_name:
+                        sorted_keys = sorted([person_1_name, person_2_name])
+                        blocks = sorted([get_block_key(person_1_name.split('_')[0], person_1_name.split('_')[-1]),
+                                         get_block_key(person_2_name.split('_')[0], person_2_name.split('_')[-1])])
+                        feature_list.append('_'.join(sorted_keys).decode('utf-8', 'ignore'))
+                        block_keys.append('_'.join(blocks).decode('utf-8', 'ignore'))
 
-                self.s.add(features=feature_list, id=notary_id)
+
+                if feature_list and block_keys:
+                    self.s.add(features=feature_list, blockKeys=block_keys, id=notary_id)
 
             self.commit_counter += 1
             if self.commit_counter > 5000:
@@ -115,7 +133,6 @@ class Hashing():
         if features_list:
             query = 'features:'
             for feature in features_list:
-
                 query += feature + '~.01 OR '
 
             query = query[:-4]
@@ -123,6 +140,7 @@ class Hashing():
             query_results = self.s.query(query, rows=200, highlight=True, fields="features, id")
 
         return query_results
+
 
 if __name__ == '__main__':
     my_hash = Hashing()
