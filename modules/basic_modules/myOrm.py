@@ -1,4 +1,5 @@
 from modules.NERD.dict_based_nerd import Nerd
+from modules.basic_modules.basic import get_block_key
 
 __author__ = 'Bijan'
 
@@ -87,7 +88,7 @@ class Document():
         dict['ref_list'] = ref_list
         return dict
 
-    def get_html(self, hash_key=[], block_key_ref=[]):
+    def get_html(self, hash_key=[], features_ref=[], block_keys=[]):
         if self.doc_type == "notarial act":
             html = """ <div class="panel-body col-xs-12">"""
         else:
@@ -114,11 +115,12 @@ class Document():
                 for ref_name in [rel['ref1'][1], rel['ref2'][1]]:
                     if len(ref_name.split()) > 1:
                         ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
-                        if ref_key in hash_key:
-                            if ref_key in ['_'.join(key.split('_')[:2]) for key in block_key_ref] + ['_'.join(key.split('_')[2:]) for key in block_key_ref]:
-                                text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
-                            else:
+                        ref_block_key = get_block_key(ref_name.split()[0], ref_name.split()[-1])
+                        if ref_block_key in block_keys[0]:
+                            if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
                                 text = text.replace(ref_name, '<span class="highlight_fuzzy"> %s </span>' % ref_name)
+                            else:
+                                text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
 
 
             html += """<small> """ +  text + "</small>"
@@ -145,11 +147,13 @@ class Document():
 
                 if len(ref_name.split()) > 1:
                     ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
-                    if ref_key in hash_key:
-                        if ref_key in ['_'.join(key.split('_')[:2]) for key in block_key_ref] + ['_'.join(key.split('_')[2:]) for key in block_key_ref]:
-                            ref_name = '<span class="highlight"> %s </span>' % ref_name
-                        else:
+                    ref_block_key = get_block_key(ref_name.split()[0], ref_name.split()[-1])
+                    if ref_block_key in block_keys[0]:
+                    # if ref_key in hash_key:
+                        if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
                             ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
+                        else:
+                            ref_name = '<span class="highlight"> %s </span>' % ref_name
 
                 html += "<tr > \n <td style='padding: 1px'><small> <b>%s</b> </small></td> \n <td style='padding: 1px'>" \
                         "<small> %s</small> </td>  \n </tr>\n" % (ref_type, ref_name)
