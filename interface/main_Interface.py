@@ -16,9 +16,13 @@ from modules.record_linkage.hashing import Hashing
 
 new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
 
-hash_table = {}
-for block_v in new_blocks:
-    hash_table[block_v[0]] = block_v[1]
+story_file = open('../data/good_stories.txt','r')
+lucky_stories = []
+line = story_file.readline()
+while line:
+    lucky_stories.append(line.split()[1])
+    line = story_file.readline()
+
 
 # pickle.dump(hash_table, open("hashing_v1.p", 'w'))
 
@@ -33,10 +37,10 @@ def routing():
         search_term = request.args.get('search_term')
         lucky = request.args.get('lucky')
         if lucky:
-            the_key = random.choice(new_blocks)[0]
-            search_term = (
-                ' '.join(the_key.split('_')[:2]) + ' en ' + ' '.join(the_key.split('_')[2:]) + ' echtelieden').decode(
-                'utf-8', "ignore")
+            search_term = random.choice(lucky_stories)
+            # search_term = (
+            #     ' '.join(the_key.split('_')[:2]) + ' en ' + ' '.join(the_key.split('_')[2:]) + ' echtelieden').decode(
+            #     'utf-8', "ignore")
 
         # user_query = "Antonie_Biggelaar & Geertruida Bekkers"
         doc_list = []
@@ -119,6 +123,7 @@ def routing():
         return render_template('hash_vis.html',
                                doc_list=doc_list,
                                search_term=search_term,
+                               block_key=block_keys,
                                block_key_list=feature_list,
                                found_results=len(hash_key_dict),
                                sample_families=sample_families,
