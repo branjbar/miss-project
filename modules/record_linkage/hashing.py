@@ -6,7 +6,7 @@ from modules.basic_modules.basic import run_query
 import solr
 import copy
 from modules.basic_modules.myOrm import Reference
-from modules.record_linkage.blocking import get_block_key
+from modules.basic_modules.basic import get_block_key
 
 NOTARY_OFFSET_old = 4000000
 NOTARY_OFFSET = 30000000
@@ -128,8 +128,20 @@ class Hashing():
                 print self.commit_number
                 self.commit_number += 1
 
-    def search(self, features_list=[]):
+    def search(self, features_list=[], block_keys=[]):
         query_results = ''
+
+        if block_keys:
+            query = 'blockKeys:'
+            for block in block_keys:
+                query += block + '~.01 OR '
+
+            query = query[:-4]
+            # print query
+            query_results = self.s.query(query, rows=200, highlight=True, fields="features, id")
+            print query_results.results
+            return query_results
+
         if features_list:
             query = 'features:'
             for feature in features_list:
@@ -138,7 +150,6 @@ class Hashing():
             query = query[:-4]
             # print query
             query_results = self.s.query(query, rows=200, highlight=True, fields="features, id")
-
         return query_results
 
 
