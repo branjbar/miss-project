@@ -720,6 +720,24 @@ def pretty(d, indent=0):
 
 
 
+def get_block_key(first_name, last_name):
+    """
+       from first_name and last_name generates a blocking key
+    """
+
+    first_name = first_name.split()[0].lower().replace("'", "")
+    last_name = last_name.split()[0].lower().replace("'", "")
+
+    feature_set = {'f3f': first_name[:3], 'l2f': first_name[-2:],
+                   'f3l': last_name[:3], 'l2l': last_name[-2:],
+                   'soundex': jellyfish.soundex(first_name) + '_' + \
+                              jellyfish.soundex(last_name)}
+
+    # TODO: For now we're not considering the gender! Please check it later!
+
+    block_key = feature_set.get('f3f', '') + '_' + feature_set.get('l2f', '') + '_' + feature_set.get('f3l', '') + '_' + feature_set.get('l2l', '') + '_' + feature_set.get('soundex', '')
+
+    return block_key
 
 
 def log(msg):

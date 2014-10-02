@@ -11,6 +11,7 @@ from interface import app
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
 from modules.basic_modules.myOrm import Reference, Document
+from modules.basic_modules.basic import get_block_key
 from modules.record_linkage.hashing import Hashing
 
 new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
@@ -39,42 +40,60 @@ def routing():
 
         # user_query = "Antonie_Biggelaar & Geertruida Bekkers"
         doc_list = []
-        block_key_list = []
+        feature_list = []
+        block_keys = []
         hash_key_dict = {}
         html_year = []
         if search_term:
             if '&' in search_term:
                 search_term = search_term.split('&')[0] + 'en' + search_term.split('&')[1] + ' echtelieden'
-            text_query = Nerd(search_term)
-            text_query.get_relations()
-            ref_list = []
-            for index, rel in enumerate(text_query.relations):
-                ref_list.append(Reference(0, rel['ref1'][1]))
-                ref_list.append(Reference(0, rel['ref2'][1]))
 
-            if ref_list:
-                for index in xrange(len(ref_list) / 2):
-                    ref1 = ref_list[2 * index]
-                    ref2 = ref_list[2 * index + 1]
-                    key_list = [ref1.get_compact_name(), ref2.get_compact_name()]
-                    key_list = sorted(key_list)
-                    block_key_list.append(key_list[0] + '_' + key_list[1])
+            if not '_' in search_term:
+                text_query = Nerd(search_term)
+                text_query.get_relations()
+                ref_list = []
+                for index, rel in enumerate(text_query.relations):
+                    ref_list.append(Reference(0, rel['ref1'][1]))
+                    ref_list.append(Reference(0, rel['ref2'][1]))
 
-            solr_results = my_hash.search(block_key_list)
+                if ref_list:
+                    for index in xrange(len(ref_list) / 2):
+                        ref1 = ref_list[2 * index].get_compact_name()
+                        ref2 = ref_list[2 * index + 1].get_compact_name()
+
+                        feature = sorted([ref1, ref2])
+                        blocks = sorted([get_block_key(ref1.split('_')[0], ref1.split('_')[1]),
+                                         get_block_key(ref2.split('_')[0], ref2.split('_')[1])])
+
+                        block_keys.append('_'.join(blocks).decode('utf-8', 'ignore'))
+                        feature_list.append(feature[0] + '_' + feature[1])
+                        block_keys = []
+            else:
+                block_keys = [search_term]
+                feature_list = []
+            solr_results = my_hash.search(feature_list, block_keys)
             if solr_results:
                 # for result in solr_results:
                 # block_list.append(result['id'])
 
                 hash_key_dict = {}
-                for result in solr_results.highlighting.iteritems():
-                    hash_key_dict[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
+
+                if block_keys:
+                    for result in solr_results.results:
+                        hash_key_dict[result['id']] = ''
+
+                else:
+                    for result in solr_results.highlighting.iteritems():
+                        hash_key_dict[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
+
+
             if hash_key_dict:
                 doc_list = []
                 html_year = []
                 for doc_id in hash_key_dict.keys():
                     doc = Document()
                     doc.set_id(doc_id)
-                    html = doc.get_html(hash_key_dict[doc_id], block_key_list)  # {year:....., html:.....}
+                    html = doc.get_html(hash_key_dict[doc_id], feature_list, block_keys)  # {year:....., html:.....}
                     # TODO: Later we sort the html_year based on the years. For equal years we can think of reordering the card based on their type and roles!
                     html_year.append({'year': html['year'], 'title': html['title'], 'concept': html['concept']})
 
@@ -93,14 +112,14 @@ def routing():
         #                            + ' en '
         #                            + ' '.join(key.split('_')[2:])
         #                            + ' echtelieden').decode('utf-8', "ignore"))
-        for i, block_key in enumerate(block_key_list):
-            block_key_list[i] = block_key.split('_')[0] + ' ' + block_key.split('_')[1] + ' & ' \
+        for i, block_key in enumerate(feature_list):
+            feature_list[i] = block_key.split('_')[0] + ' ' + block_key.split('_')[1] + ' & ' \
                                 + block_key.split('_')[2] + ' ' + block_key.split('_')[3]
 
         return render_template('hash_vis.html',
                                doc_list=doc_list,
                                search_term=search_term,
-                               block_key_list=block_key_list,
+                               block_key_list=feature_list,
                                found_results=len(hash_key_dict),
                                sample_families=sample_families,
                                html_year=html_year)
