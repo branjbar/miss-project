@@ -95,7 +95,7 @@ def routing():
                     doc.set_id(doc_id)
                     html = doc.get_html(hash_key_dict[doc_id], feature_list, block_keys)  # {year:....., html:.....}
                     # TODO: Later we sort the html_year based on the years. For equal years we can think of reordering the card based on their type and roles!
-                    html_year.append({'year': html['year'], 'title': html['title'], 'concept': html['concept']})
+                    html_year.append(html)
 
                     doc_list.append(html)
 
