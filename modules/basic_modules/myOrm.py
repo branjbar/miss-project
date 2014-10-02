@@ -89,6 +89,7 @@ class Document():
         return dict
 
     def get_html(self, hash_key=[], features_ref=[], block_keys=[]):
+
         if self.doc_type == "notarial act":
             html = """ <div class="panel-body col-xs-12">"""
         else:
@@ -116,11 +117,20 @@ class Document():
                     if len(ref_name.split()) > 1:
                         ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
                         ref_block_key = get_block_key(ref_name.split()[0], ref_name.split()[-1])
-                        if ref_block_key in block_keys[0]:
-                            if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
-                                text = text.replace(ref_name, '<span class="highlight_fuzzy"> %s </span>' % ref_name)
-                            else:
-                                text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
+                        if block_keys:
+
+                            if ref_block_key in block_keys[0]:
+                                if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
+                                    text = text.replace(ref_name, '<span class="highlight_fuzzy"> %s </span>' % ref_name)
+                                else:
+                                    text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
+                        else:
+                            if ref_key in hash_key:
+                                if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
+                                    text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
+                                else:
+                                    text = text.replace(ref_name, '<span class="highlight_fuzzy"> %s </span>' % ref_name)
+
 
 
             html += """<small> """ +  text + "</small>"
@@ -148,12 +158,19 @@ class Document():
                 if len(ref_name.split()) > 1:
                     ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
                     ref_block_key = get_block_key(ref_name.split()[0], ref_name.split()[-1])
-                    if ref_block_key in block_keys[0]:
-                    # if ref_key in hash_key:
-                        if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
-                            ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
-                        else:
-                            ref_name = '<span class="highlight"> %s </span>' % ref_name
+                    if block_keys:
+                        if ref_block_key in block_keys[0]:
+                        # if ref_key in hash_key:
+                            if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
+                                ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
+                            else:
+                                ref_name = '<span class="highlight"> %s </span>' % ref_name
+                    else:
+                        if ref_key in hash_key:
+                            if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
+                                ref_name = '<span class="highlight"> %s </span>' % ref_name
+                            else:
+                                ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
 
                 html += "<tr > \n <td style='padding: 1px'><small> <b>%s</b> </small></td> \n <td style='padding: 1px'>" \
                         "<small> %s</small> </td>  \n </tr>\n" % (ref_type, ref_name)
@@ -171,7 +188,8 @@ class Document():
                                           """
 
         year = self.date[-4:]
-        return {'year': year, 'html': html,
+        place = self.place
+        return {'year': year, 'city':place, 'html': html,
                 'title': self.doc_type.title(),
                 'concept': "test"}
 
