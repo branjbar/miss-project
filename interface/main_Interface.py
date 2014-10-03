@@ -16,7 +16,11 @@ from modules.record_linkage.hashing import Hashing
 
 new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
 
-story_file = open('../data/good_stories.txt','r')
+try:
+    story_file = open('../data/good_stories.txt','r')
+except:
+    story_file = open('data/good_stories.txt','r')
+
 lucky_stories = []
 line = story_file.readline()
 while line:

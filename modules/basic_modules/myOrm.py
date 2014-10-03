@@ -88,7 +88,7 @@ class Document():
         dict['ref_list'] = ref_list
         return dict
 
-    def get_html(self, hash_key=[], features_ref=[], block_keys=[], couple_names_fuzzy=[]):
+    def get_html(self, hash_key=[], features_ref=[], block_keys=[]):
 
         if self.doc_type == "notarial act":
             html = """ <div class="panel-body col-xs-12">"""
@@ -129,7 +129,7 @@ class Document():
 
                         else:
                             if ref_key in hash_key:
-                                if ref_key in couple_names:
+                                if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
                                     text = text.replace(ref_name, '<span class="highlight">%s</span>' % ref_name)
                                 else:
                                     text = text.replace(ref_name, '<span class="highlight_fuzzy">%s</span>' % ref_name)
@@ -172,7 +172,7 @@ class Document():
                                 ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
                     else:
                         if ref_key in hash_key:
-                            if ref_key in couple_names:
+                            if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
                                 ref_name = '<span class="highlight"> %s </span>' % ref_name
                             else:
                                 ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
