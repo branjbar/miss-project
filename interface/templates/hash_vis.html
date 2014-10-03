@@ -58,7 +58,7 @@
                      <!--</div>-->
                  <!--</div> &lt;!&ndash; div col2 &ndash;&gt;-->
             {% if found_results %}
-            <p class="text-center">{{found_results}} results found for:  <strong> {{block_key[0]}}</strong> </p>
+            <p class="text-center">{{found_results}} results found for:  <strong> {{couple_name}} </strong> <br> <small>({{block_key[0]}})</small> </p>
             <div class="col-xs-12  center-block">
                     <div class="col-xs-12" id="d3_panel" />
 
@@ -70,8 +70,8 @@
                         padding = 20;
 
                         c_r = 6
-                        w = svg_r.style("width").replace("px", "");
-                        w = 1000;
+                        //w = svg_r.style("width").replace("px", "");
+                        w = 1100;
                         h = 450;
                         svg_r.attr("height", h)
                         .attr("width",w)
@@ -116,7 +116,7 @@
                             .attr("r", 2 * c_r);
 
                             //Get this bar's x/y values, then augment for the tooltip
-                            var xPosition = i%2? 0 : w/2 + 3 * padding ;
+                            var xPosition = i%2? 0 : w/2 + 4 * padding ;
                             var yPosition = 0 ;
 
                             //Update the tooltip position and value
