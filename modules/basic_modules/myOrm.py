@@ -13,24 +13,23 @@ import random
 NOTARY_OFFSET = 30000000
 
 
-
 class Reference():
     """
     a class for using any reference
     """
     REF_TYPE = {'birth': {1: "Born",
-                             5: "Parent",
-                             5: "Parent",
-                             },
+                          5: "Parent",
+                          5: "Parent",
+    },
                 'marriage': {1: "Groom/Bride",
                              2: "Groom's Parent",
                              3: "Bride's Parent",
-                             },
+                },
                 'death': {1: "Deceased",
-                             4: "Parent",
-                             6: "Relative",
-                             },
-                }
+                          4: "Parent",
+                          6: "Relative",
+                },
+    }
 
     def __init__(self, ref_id=None, name=None, ref_type=None):
         self.ref_id = ref_id
@@ -45,6 +44,7 @@ class Reference():
     def get_compact_name(self):
         if len(self.name) > 1:
             import unicodedata
+
             compact_name = (self.name.split()[0] + '_' + self.name.split()[-1])
             # compact_name = unicodedata.normalize('NFKD', compact_name)
             return compact_name
@@ -88,7 +88,7 @@ class Document():
         dict['ref_list'] = ref_list
         return dict
 
-    def get_html(self, hash_key=[], features_ref=[], block_keys=[]):
+    def get_html(self, hash_key=[], features_ref=[], block_keys=[], couple_names_fuzzy=[]):
 
         if self.doc_type == "notarial act":
             html = """ <div class="panel-body col-xs-12">"""
@@ -117,23 +117,24 @@ class Document():
                     if len(ref_name.split()) > 1:
                         ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
                         ref_block_key = get_block_key(ref_name.split()[0], ref_name.split()[-1])
+                        couple_names = ['_'.join(key.split(' ')) for key in features_ref]
+
                         if block_keys:
 
-                            if ref_block_key in block_keys[0]:
-                                if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
-                                    text = text.replace(ref_name, '<span class="highlight_fuzzy"> %s </span>' % ref_name)
+                            if [ref_block_key for s in block_keys if ref_block_key in s]: # show whether the reference is in one of the blocks or not!
+                                if ref_key in couple_names:
+                                    text = text.replace(ref_name, '<span class="highlight">%s</span>' % ref_name)
                                 else:
-                                    text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
+                                    text = text.replace(ref_name, '<span class="highlight_fuzzy">%s</span>' % ref_name)
+
                         else:
                             if ref_key in hash_key:
-                                if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
-                                    text = text.replace(ref_name, '<span class="highlight"> %s </span>' % ref_name)
+                                if ref_key in couple_names:
+                                    text = text.replace(ref_name, '<span class="highlight">%s</span>' % ref_name)
                                 else:
-                                    text = text.replace(ref_name, '<span class="highlight_fuzzy"> %s </span>' % ref_name)
+                                    text = text.replace(ref_name, '<span class="highlight_fuzzy">%s</span>' % ref_name)
 
-
-
-            html += """<small> """ +  text + "</small>"
+            html += """<small> """ + text + "</small>"
             html += "</div>"
             html += """<div class="col-xs-6">"""
 
@@ -141,12 +142,15 @@ class Document():
 
 
             html += """ <table class="table table-condensed" style="margin-bottom: 0px; border: none"> """
-            html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % ('<b>id</b>',
-                                                                                                          self.doc_id)
-            html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % ('<b>place</b>',
-                                                                                                          self.place)
-            html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % ('<b>date</b?',
-                                                                                                          self.date)
+            html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % (
+                '<b>id</b>',
+                self.doc_id)
+            html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % (
+                '<b>place</b>',
+                self.place)
+            html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % (
+                '<b>date</b?',
+                self.date)
             for ref in self.ref_list:
                 try:
                     ref_name = ref['name']
@@ -158,16 +162,17 @@ class Document():
                 if len(ref_name.split()) > 1:
                     ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
                     ref_block_key = get_block_key(ref_name.split()[0], ref_name.split()[-1])
+                    couple_names = ['_'.join(key.split(' ')) for key in features_ref]
                     if block_keys:
-                        if ref_block_key in block_keys[0]:
-                        # if ref_key in hash_key:
-                            if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
-                                ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
-                            else:
+                        if [ref_block_key for s in block_keys if ref_block_key in s]: # show whether the reference is in one of the blocks or not!
+                        # if ref_block_key in block_keys[0]:
+                            if ref_key in couple_names:
                                 ref_name = '<span class="highlight"> %s </span>' % ref_name
+                            else:
+                                ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
                     else:
                         if ref_key in hash_key:
-                            if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
+                            if ref_key in couple_names:
                                 ref_name = '<span class="highlight"> %s </span>' % ref_name
                             else:
                                 ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
@@ -178,8 +183,7 @@ class Document():
             html += "</table>"
 
         if self.doc_type == "notarial act":
-             html += "</div>"
-
+            html += "</div>"
 
         html += """
                                           </div>
@@ -189,7 +193,7 @@ class Document():
 
         year = self.date[-4:]
         place = self.place
-        return {'year': year, 'city':place, 'html': html,
+        return {'year': year, 'city': place, 'html': html,
                 'title': self.doc_type.title(),
                 'concept': "test"}
 
@@ -210,7 +214,7 @@ class Document():
 
             for ref_id in document['reference_ids'].split(','):
                 ref = Reference()
-                ref.set_id(ref_id,self.doc_type)
+                ref.set_id(ref_id, self.doc_type)
                 self.add_ref(ref)
         else:  # extract from notary
             if int(doc_id) >= NOTARY_OFFSET:
@@ -232,9 +236,9 @@ class Document():
 
                 for rel in nerd.get_relations():
                     ref_id += 1
-                    ref1 = Reference(str(doc_id) + '_' + str(ref_id), rel['ref1'][1], 'couple_' + str((ref_id+1)/2))
+                    ref1 = Reference(str(doc_id) + '_' + str(ref_id), rel['ref1'][1], 'couple_' + str((ref_id + 1) / 2))
                     ref_id += 1
-                    ref2 = Reference(str(doc_id) + str(ref_id), rel['ref2'][1], 'couple_' + str((ref_id)/2))
+                    ref2 = Reference(str(doc_id) + str(ref_id), rel['ref2'][1], 'couple_' + str((ref_id) / 2))
                     self.add_ref(ref1)
                     self.add_ref(ref2)
 
@@ -242,7 +246,7 @@ class Document():
 #
 # class Match():
 # """
-#     a class for storing are found matches
+# a class for storing are found matches
 #     """
 #     def __init__(self, match_id=None, doc_id1=None, doc_id2=None, match_type=None):
 #         self.match_id = match_id
