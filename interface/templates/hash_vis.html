@@ -221,7 +221,7 @@
 
                         <!--Here we have the hidden cards that will show up once we move on the key -->
                         {% for doc in doc_list %}
-                            <div class="col-xs-5 hidden "  style="height:400px; overflow:auto" id="a{{loop.index-1}}">{{doc['html']|safe}}</div>
+                            <div class="col-xs-5 hidden "  style="height:500px; overflow:auto" id="a{{loop.index-1}}">{{doc['html']|safe}}</div>
                         {% endfor %}
              </div>
             {% else %}
