@@ -72,7 +72,7 @@
                         c_r = 6
                         w = svg_r.style("width").replace("px", "");
                         w = 1000;
-                        h = 650;
+                        h = 450;
                         svg_r.attr("height", h)
                         .attr("width",w)
 
@@ -177,24 +177,10 @@
                         .attr("class", "year")
                         .attr("x",function(d,i){return w/2 + 40 - (i%2 * 80)})
                         .attr("y",function(d,i){return -5 + year_scale(i)})
-                        .text(function(d,i){return d.year + ' (' + d.city + ')'})
+                        .text(function(d,i){return d.year + ' (' + (d.city.length < 6 ? d.city: d.city.substring(0,5) + '...') + ')'})
                         .attr("font-family", "sans-serif")
                         .attr("font-size", "10px")
                         .attr("text-anchor", "middle")
-                        /*
-                        svg_r.selectAll("text .title")
-                        .data(doc_list)
-                        .enter()
-                        .append("text")
-                        .attr("class","hidden title")
-                        .attr("id", function(d,i) {return ("a" + i)})
-                        .attr("x",function(d,i){return (i%2) ? w/2 - 100 : w/2 + 50})
-                        .attr("y",function(d,i){return  -5 + year_scale(i)})
-                        .text(function(d,i){return "(" + d.title + ")"})
-                        .attr("font-family", "sans-serif")
-                        .attr("font-size", "10px")
-                        .attr("text-anchor", function(d,i) { return i%2 ? "left": "right"})
-                        */
                         rect_width = 120
 
 
@@ -228,34 +214,8 @@
                         .attr("stroke", "black")
                         .attr("fill", "white")
 
-                        /*
-                        svg_r.selectAll("rect")
-                        .data(doc_list)
-                        .enter()
-                        .append("rect")
-                        .attr("class","hidden")
-                        .attr("id", function(d,i) {return ("a" + i)})
-                        .attr("x", function(d,i){return (i%2) ? padding : w - padding - rect_width })
-                        .attr("y", function(d,i){return year_scale(i) - rect_width/2})
-                        .attr("width", rect_width)
-                        .attr("height", 120)
-                        .attr("stroke", "black")
-                        .attr("fill", "white")
 
-                        svg_r.selectAll("text .concept")
-                        .data(doc_list)
-                        .enter()
-                        .append("text")
-                        .attr("class", "hidden concept")
-                        .attr("id", function(d,i) {return ("a" + i)})
-                        .attr("x", function(d,i){return (i%2) ? padding + rect_width / 2 : w - padding  - rect_width  + rect_width / 2})
-                        .attr("y", function(d,i){return year_scale(i) - rect_width / 3})
-                        .attr("font-family", "sans-serif")
-                        .attr("fill", "red")
-                        .attr("font-size", "13px")
-                        .attr("text-anchor", "middle")
-                        .text(function(d){return d.title})
-                        */
+
 
                      </script>
 
