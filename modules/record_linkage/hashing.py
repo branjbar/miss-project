@@ -116,7 +116,6 @@ class Hashing():
                         feature_list.append('_'.join(sorted_keys).decode('utf-8', 'ignore'))
                         block_keys.append('_'.join(blocks).decode('utf-8', 'ignore'))
 
-
                 if feature_list and block_keys:
                     self.s.add(features=feature_list, blockKeys=block_keys, id=notary_id)
 
@@ -134,13 +133,11 @@ class Hashing():
         if block_keys:
             query = 'blockKeys:'
             for block in block_keys:
-                # query += block + '~.01 OR '
-                query += block + ' OR '
+                query += block + '~.01 OR '
+                # query += block + ' OR '
 
             query = query[:-4]
-            # print query
-            query_results = self.s.query(query, rows=200, highlight=True, fields="features, id")
-            # print query_results.results
+            query_results = self.s.query(query, rows=50, highlight=True, fields="blockKeys, features, id")
             return query_results
 
         if features_list:
@@ -149,9 +146,29 @@ class Hashing():
                 query += feature + '~.01 OR '
 
             query = query[:-4]
-            # print query
-            query_results = self.s.query(query, rows=200, highlight=True, fields="features, id")
+
+            query_results = self.s.query(query, rows=200, highlight=True, fields="blockKeys, features, id")
         return query_results
+
+    def block_to_name(self, blocking_key):
+        """
+        Here we have a blocking_key and we want to find the feature name for it!!
+        """
+        query = "blockKeys:%s" % blocking_key
+        results = self.s.query(query, rows=1, fields="features").results
+        names = "ERROR"
+        for feature in results[0]['features']:
+            # Here, I want to see which feature of this document corresponds to this blocking key!
+
+            a = get_block_key('_'.join(feature.split('_')[:2]), '_'.join(feature.split('_')[-2:]),
+                              "DOCUMENT")
+
+            b = blocking_key
+
+            if a == b:
+                names = feature.split('_')
+
+        return [' '.join(names[:2]), ' '.join(names[-2:])]
 
 
 if __name__ == '__main__':
