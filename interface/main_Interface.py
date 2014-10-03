@@ -48,11 +48,16 @@ def routing():
         block_keys = []
         hash_key_dict = {}
         html_year = []
+        couple_names = []
+        # ant_on_ebb_en_A535_E150_hen_na_mel_en_H536_M425
         if search_term:
-            if '&' in search_term:
-                search_term = search_term.split('&')[0] + 'en' + search_term.split('&')[1] + ' echtelieden'
+            if ' & ' in search_term:
+                # search_term = search_term.split('&')[0] + 'en' + search_term.split('&')[1] + ' echtelieden'
+                search_term = get_block_key(search_term.split(' & ')[0], search_term.split(' & ')[1], "DOCUMENT")
 
             if not '_' in search_term:
+                # we have a normal text containing names as the input!
+
                 text_query = Nerd(search_term)
                 text_query.get_relations()
                 ref_list = []
@@ -73,14 +78,23 @@ def routing():
                         feature_list.append(feature[0] + '_' + feature[1])
                         block_keys = []
             else:
+                # we have a blocking key as the input
                 block_keys = [search_term]
                 feature_list = []
+
             solr_results = my_hash.search(feature_list, block_keys)
             if solr_results:
                 # for result in solr_results:
                 # block_list.append(result['id'])
 
                 hash_key_dict = {}
+                couple_names = my_hash.block_to_name(block_keys[0])
+
+                # getting the highlighted blocking keys
+                highlighted_block_keys = []
+                for result in solr_results.highlighting.iteritems():
+                    highlighted_block_keys.append(result[1]['blockKeys'][0].replace('<em>', '').replace('</em>', ''))
+
 
                 if block_keys:
                     for result in solr_results.results:
@@ -90,14 +104,13 @@ def routing():
                     for result in solr_results.highlighting.iteritems():
                         hash_key_dict[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
 
-
             if hash_key_dict:
                 doc_list = []
                 html_year = []
                 for doc_id in hash_key_dict.keys():
                     doc = Document()
                     doc.set_id(doc_id)
-                    html = doc.get_html(hash_key_dict[doc_id], feature_list, block_keys)  # {year:....., html:.....}
+                    html = doc.get_html(hash_key_dict[doc_id], couple_names, highlighted_block_keys)  # {year:....., html:.....}
                     # TODO: Later we sort the html_year based on the years. For equal years we can think of reordering the card based on their type and roles!
                     html_year.append(html)
 
@@ -120,10 +133,14 @@ def routing():
             feature_list[i] = block_key.split('_')[0] + ' ' + block_key.split('_')[1] + ' & ' \
                                 + block_key.split('_')[2] + ' ' + block_key.split('_')[3]
 
+        # just to make sure something nice will be in the search field.
+        search_term = ' & '.join(couple_names)
+
         return render_template('hash_vis.html',
                                doc_list=doc_list,
                                search_term=search_term,
                                block_key=block_keys,
+                               couple_name= ' & '.join(couple_names),
                                block_key_list=feature_list,
                                found_results=len(hash_key_dict),
                                sample_families=sample_families,
