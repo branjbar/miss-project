@@ -40,9 +40,9 @@ while 1:
         moeder_terminate = """<field name="Moeder" label="Moeder" formtype="ChildEntity"/>"""
         relatie_terminate = """<field name="Relatie" label="Relatie" formtype="ChildEntity"/>"""
 
-        if ("/record" in new_line) or (deceased_terminate in new_line) or (vader_terminate in new_line) \
-                or (moeder_terminate in new_line) or (relatie_terminate in new_line):
-            flag += 1
+        if ("        </record>" in new_line) and not ("          </record>" in new_line):
+            flag = 10
+
     register = {'uuid': '', 'date': '', 'municipality': ''}
 
     deceased = {'uuid': '', 'gender': '', 'death_date': '', 'first_name': '', 'prefix': '', 'last_name': ''}
@@ -177,7 +177,6 @@ while 1:
             INSERT INTO `all_documents_2014` (id, uuid,  `type_text`, date, `municipality`, reference_ids)
             VALUES (%d,"%s","%s","%s","%s","%s");
             """ % (doc_id, register['uuid'], 'death', register['date'], register['municipality'], ','.join([str(person_id-3), str(person_id-2), str(person_id-1), str(person_id)]))
-
 
 
     if not doc_id % 1000:

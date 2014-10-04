@@ -1,5 +1,6 @@
-from modules.basic_modules import basic
-
+"""
+Overall: 595000
+"""
 __author__ = 'bijan'
 
 import untangle
