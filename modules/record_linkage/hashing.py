@@ -36,6 +36,8 @@ class Hashing():
             for i1, key1 in enumerate(ref_list):
                 for i2, key2 in enumerate(ref_list):
                     if i1 < i2:
+                        # TODO: Don't add pairs for child and father, child and mother, bride and father of groom, etc.
+
                         feature = sorted(['_'.join(key1), '_'.join(key2)])
                         blocks = sorted([get_block_key(key1[0], key1[1]), get_block_key(key2[0], key2[1])])
                         feature_list.append(feature[0] + '_' + feature[1])

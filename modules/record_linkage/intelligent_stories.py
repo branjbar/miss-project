@@ -30,7 +30,6 @@ class Story():
             start += 100
         print "%d unique keys collected. Last key: %s" % (len(self.unique_blocks) , self.unique_blocks[-1])
 
-
     def find_interesting_stories(self):
         count = 0
         for block_key in self.unique_blocks:
