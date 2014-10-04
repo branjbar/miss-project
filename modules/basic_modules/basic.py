@@ -189,7 +189,7 @@ def row_to_reference(row, table="all_persons"):
 
         return ref
 
-    if table == 'all_documents':
+    if table == 'all_documents_2014':
         ref = {}
         ref['id'] = row[0]
         ref['type_number'] = row[1]
@@ -243,10 +243,10 @@ def get_document(document_id=None):
 
     # if no id then find a random person
     if document_id:
-        cur = run_query('SELECT * FROM all_documents where id =' + str(document_id))
+        cur = run_query('SELECT * FROM all_documents_2014 where id =' + str(document_id))
         row = cur.fetchone()
         if row:
-            reference = row_to_reference(row, "all_documents")
+            reference = row_to_reference(row, "all_documents_2014")
         else:
             reference = {}
 
@@ -261,12 +261,12 @@ def get_document(document_id=None):
 
             document_id = randrange(2846095, 23729952)
 
-            cur = run_query('SELECT * FROM all_documents where id =' + str(document_id))
+            cur = run_query('SELECT * FROM all_documents_2014 where id =' + str(document_id))
             row = cur.fetchone()
             if row:
                 flag = True  # if the person has name, then flag is toggled
 
-        reference = row_to_reference(row, "all_documents")
+        reference = row_to_reference(row, "all_documents_2014")
         return reference
 
 
@@ -413,7 +413,7 @@ def count_islands(level):
     level 3: network context
     '''
     if level == 0:
-        query = 'Select count(*) from all_documents'
+        query = 'Select count(*) from all_documents_2014'
         cur = run_query(query)  # fetch the person with the the random id
         return cur.fetchone()[0]
 

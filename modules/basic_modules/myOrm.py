@@ -6,7 +6,7 @@ __author__ = 'Bijan'
 from modules.basic_modules import basic, loadData
 
 STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, role, register_id, register_type \
-          FROM all_persons WHERE "
+          FROM all_persons_2014 WHERE "
 
 import random
 
@@ -259,7 +259,7 @@ class Document():
 #         return str(self.match_id) + '_' + str(self.doc_id1) + '_' + str(self.doc_id2) + '_' + str(self.match_type)
 #
 
-def row_to_reference(row, table="all_persons"):
+def row_to_reference(row, table="all_persons_2014"):
     ''' (list, table) -> (dict)
     adds labels to different elements of the list, according to the table type,
     and makes a reference

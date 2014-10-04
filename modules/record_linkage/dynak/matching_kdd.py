@@ -30,7 +30,7 @@ def import_block_and_reference_dicts(from_file=True):
         log("import blocks started")
 
         block_query = " SELECT id, first_name, last_name, block_key, block_id, role, register_id, register_type" \
-                      " FROM links_based.all_persons_new"
+                      " FROM links_based.all_persons_2014"
 
         cur = basic.run_query(block_query)
         count = 0

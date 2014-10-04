@@ -34,7 +34,7 @@ def update_persons_table(db_useless, limit):
     logging.debug('Loading table all_persons.')
 
     the_query = "select id, first_name, prefix, last_name, block_key, block_id, date_1 as date, place_1 as place," \
-                " gender, role, register_id, register_type from all_persons_new"
+                " gender, role, register_id, register_type from all_persons_2014"
     if type:
         q_type = None
         for t in type:
@@ -146,7 +146,7 @@ def update_documents_table(limit):
     logging.debug(" Loading table all_documents.")
 
     the_query = "select id, type_text, date, `index`, municipality, concat(latitude,',', longitude) geocode," \
-                " reference_ids from all_documents"
+                " reference_ids from all_documents_2014"
     if type:
         q_type = None
         for t in type:
@@ -177,7 +177,7 @@ def update_documents_table(limit):
                 row_dict[desc[index][0]] = value
         table_all_documents[row_dict['id']] = row_dict
 
-    logging.debug("table all_documents imported in %s" % str( time.time() - __now__))
+    logging.debug("table all_documents_2014 imported in %s" % str( time.time() - __now__))
 
     if not addendum:
         get_matching_pairs()
@@ -262,13 +262,13 @@ def load_table(table_name, limit = None):
     if table_name == 'all_persons':
         # query = "select * from %s " % table_name
         the_query = "select id, first_name, prefix, last_name, block_key, block_id, date_1 as date, place_1 as place," \
-                    " gender, role, register_id, register_type from all_persons_new"
+                    " gender, role, register_id, register_type from all_persons_2014"
         if limit:
             the_query += " limit %d" % limit
-    if table_name == 'all_documents':
+    if table_name == 'all_documents_2014':
         # query = "select * from %s" % table_name
         the_query = "select id, type_text, date, `index`, municipality, concat(latitude,',', longitude) geocode," \
-                    " reference_ids from all_documents"
+                    " reference_ids from all_documents_2014"
         if limit:
             the_query += " limit %d" % int(limit/3)
 
