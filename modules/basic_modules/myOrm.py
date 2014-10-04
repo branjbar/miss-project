@@ -310,6 +310,7 @@ def get_document(document_id=None):
         loadData.update_documents_table(['', '', 'where id = %s' % str(document_id)])
         document = loadData.table_all_documents.get(int(document_id))
 
+
     if document:
         return document
     else:

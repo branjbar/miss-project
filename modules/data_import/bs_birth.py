@@ -18,7 +18,7 @@ while not flag :
         flag = 1
 
 doc_id = 1
-xml_2_sql = open('xml_to_sql_birth_2014.sql', 'a')
+xml_2_sql = open('sql_bs_birth.sql', 'a')
 while 1:
     document = ''
     flag = 0
@@ -33,7 +33,7 @@ while 1:
             moeder_terminate in new_line) and not (kind_terminate in new_line)):
             flag += 1
     register = {'uuid': '', 'date': ''}
-    kid = {'uuid': '', 'birth_date': '', 'first_name': '', 'prefix': '', 'last_name': ''}
+    kid = {'uuid': '', 'gender': '', 'birth_date': '', 'first_name': '', 'prefix': '', 'last_name': ''}
     father = {'uuid': '', 'first_name': '', 'prefix': '', 'last_name': ''}
     mother = {'uuid': '', 'first_name': '', 'prefix': '', 'last_name': ''}
 
@@ -45,6 +45,9 @@ while 1:
         except: pass
         
         try: kid['uuid'] = obj.record.field[5].entity['uuid']
+        except: pass
+
+        try: kid['gender'] =  obj.record.field[5].entity.record.field[3].children[0].cdata
         except: pass
         try: kid['birth_date'] =  obj.record.field[5].entity.record.field[5].children[0].cdata
         except: pass
@@ -82,19 +85,19 @@ while 1:
 
     person_id += 1
     query += """
-            INSERT INTO `all_persons_2014` (`id`, `uuid`, `first_name`, `prefix`, `last_name`, `date_1`, `role`, `register_id`, `register_type`)
-            VALUES (%d,"%s","%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, kid['uuid'], kid['first_name'], kid['prefix'], kid['last_name'], kid['birth_date'], 1, doc_id, 'birth')
+            INSERT INTO `all_persons_2014` (`id`, `uuid`, gender, `first_name`, `prefix`, `last_name`, `date_1`, `role`, `register_id`, `register_type`)
+            VALUES (%d,"%s","%s", "%s","%s","%s","%s", %d, %d, "%s");
+            """ % (person_id, kid['uuid'], kid['gender'], kid['first_name'], kid['prefix'], kid['last_name'], kid['birth_date'], 1, doc_id, 'birth')
     person_id += 1
     query += """
-            INSERT INTO `all_persons_2014` (id, uuid, `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
-            VALUES (%d,"%s","%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, father['uuid'], father['first_name'], father['prefix'], father['last_name'], kid['birth_date'], 5, doc_id, 'birth')
+            INSERT INTO `all_persons_2014` (id, uuid, gender, `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
+            VALUES (%d,"%s","%s", "%s","%s","%s","%s", %d, %d, "%s");
+            """ % (person_id, father['uuid'], "male", father['first_name'], father['prefix'], father['last_name'], kid['birth_date'], 5, doc_id, 'birth')
     person_id += 1
     query += """
-            INSERT INTO `all_persons_2014` (id, uuid, `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
-            VALUES (%d,"%s","%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, mother['uuid'], mother['first_name'], mother['prefix'], mother['last_name'], kid['birth_date'], 5, doc_id, 'birth')
+            INSERT INTO `all_persons_2014` (id, uuid, gender, `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
+            VALUES (%d,"%s","%s", "%s","%s","%s","%s", %d, %d, "%s");
+            """ % (person_id, mother['uuid'], "female", mother['first_name'], mother['prefix'], mother['last_name'], kid['birth_date'], 5, doc_id, 'birth')
 
     query += """
             INSERT INTO `all_documents_2014` (id, uuid, `type_text`, date, `municipality`, reference_ids)

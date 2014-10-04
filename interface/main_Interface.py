@@ -258,7 +258,7 @@ def routing():
             for ref in document.get('reference_ids').split(','):
                 ref_person = myOrm.get_person(ref)
                 if ref_person:
-                    ref_dict['Role' + str(ref_person['role']) + '_' + ref_person['gender']] = ref_person
+                    ref_dict['Role' + str(ref_person['role'])] = ref_person
 
             json_dict = generatePedigree.pedigree(document)
             return render_template('index.html', p=document, p2=ref_dict, json_dict_h=json_dict, name='bijan')
