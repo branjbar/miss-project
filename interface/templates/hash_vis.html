@@ -166,8 +166,23 @@
                             }
 
                         })
-                                                .append("title")
+                        .append("title")
                         .text("click here to freeze the card!")
+
+
+                        svg_r.selectAll("text .title")
+                        .data(doc_list)
+                        .enter()
+                        .append("text")
+                        .attr("class", "year")
+                        .attr("x",function(d,i){return w/2 })
+                        .attr("y",function(d,i){return year_scale(i)+c_r/2})
+                        .text(function(d,i){return d.title[0]})
+                        .attr("font-family", "sans-serif")
+                        .attr("font-size", "8px")
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "white")
+                        .attr('pointer-events', "none")
 
 
                         svg_r.selectAll("text .year")
