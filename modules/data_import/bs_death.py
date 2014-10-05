@@ -186,7 +186,7 @@ while 1:
     if not doc_id % 1000:
         print doc_id
 
-        xml_2_sql.write(query.encode('utf-8'))
+        xml_2_sql.write(query.encode('utf-8').replace('\\',''))
         query = ""
 
     doc_id += 1
