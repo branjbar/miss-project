@@ -56,7 +56,7 @@ class Hashing():
 
     def update_all_persons(self):
         print "wait for 350"
-        query = "select first_name, last_name, register_id from all_persons_2014"
+        query = "select first_name, last_name, register_id from all_persons_2014"  # where register_type='death'"
 
         cur = run_query(query)
         self.commit_number = 0
