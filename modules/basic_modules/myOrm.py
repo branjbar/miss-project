@@ -191,7 +191,11 @@ class Document():
                                           </div>
                                           """
 
-        year = self.date[-4:]
+        if self.doc_type == "notarial act":
+            year = self.date[-4:]
+        else:
+            year = self.date[:4]
+
         place = self.place
         return {'year': year, 'city': place, 'html': html,
                 'title': self.doc_type.title(),
@@ -216,6 +220,7 @@ class Document():
                 ref = Reference()
                 ref.set_id(ref_id, self.doc_type)
                 self.add_ref(ref)
+
         else:  # extract from notary
             if int(doc_id) >= NOTARY_OFFSET:
                 text_id = int(doc_id)
