@@ -735,8 +735,8 @@ def get_block_key(name1, name2, input_type='REFERENCE'):
     """
 
     if input_type == 'REFERENCE':
-        name1 = name1.split()[0].lower().replace("'", "")
-        name2 = name2.split()[0].lower().replace("'", "")
+        name1 = name1.split()[0].lower().replace("'", "").encode('ascii', 'ignore').decode('ascii')
+        name2 = name2.split()[0].lower().replace("'", "").encode('ascii', 'ignore').decode('ascii')
 
         feature_set = {'f3f': name1[:3], 'l2f': name1[-2:],
                        'f3l': name2[:3], 'l2l': name2[-2:],
