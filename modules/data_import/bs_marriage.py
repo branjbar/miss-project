@@ -4,6 +4,8 @@ Here we convert the BS-marraige file into a SQL command!
 
 To import the sql file use:
 >> mysql links_based -uroot< sql_bs_marriage.sql
+
+Overall: 371,000
 """
 __author__ = 'bijan'
 
@@ -204,39 +206,39 @@ while 1:
             INSERT INTO `all_persons_2014` (`id`, `uuid`, gender, `first_name`, `prefix`, `last_name`, `date_1`, `place_1`,
             `date_2`, `place_2`, `role`, `register_id`, `register_type`)
             VALUES (%d,"%s","%s","%s","%s","%s","%s","%s", "%s", "%s", %d, %d, "%s");
-            """ % (person_id, groom['uuid'], "male", groom['first_name'], groom['prefix'], groom['last_name'], register['date'],
+            """ % (person_id, groom['uuid'], "male", groom['first_name'].replace('"',"'"), groom['prefix'].replace('"',"'"), groom['last_name'].replace('"',"'"), register['date'],
                    register['municipality'], groom['birth_date'],  groom['birth_place'], 1, doc_id, 'marriage')
     person_id += 1
     query += """
             INSERT INTO `all_persons_2014` (`id`, `uuid`, gender, `first_name`, `prefix`, `last_name`, `date_1`, `place_1`,
             `date_2`, `place_2`, `role`, `register_id`, `register_type`)
             VALUES (%d,"%s","%s","%s","%s","%s","%s","%s", "%s", "%s", %d, %d, "%s");
-            """ % (person_id, bride['uuid'], "female", bride['first_name'], bride['prefix'], bride['last_name'], register['date'],
+            """ % (person_id, bride['uuid'], "female", bride['first_name'].replace('"',"'"), bride['prefix'].replace('"',"'"), bride['last_name'].replace('"',"'"), register['date'],
                    register['municipality'], bride['birth_date'],  bride['birth_place'], 1, doc_id, 'marriage')
 
     person_id += 1
     query += """
             INSERT INTO `all_persons_2014` (id, uuid, gender,  `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
             VALUES (%d,"%s","%s","%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, father_groom['uuid'], "male", father_groom['first_name'], father_groom['prefix'], father_groom['last_name'], register['date'], 2, doc_id, 'marriage')
+            """ % (person_id, father_groom['uuid'], "male", father_groom['first_name'].replace('"',"'"), father_groom['prefix'].replace('"',"'"), father_groom['last_name'].replace('"',"'"), register['date'], 2, doc_id, 'marriage')
 
     person_id += 1
     query += """
             INSERT INTO `all_persons_2014` (id, uuid, gender,  `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
             VALUES (%d,"%s","%s","%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, mother_groom['uuid'], "female", mother_groom['first_name'], mother_groom['prefix'], mother_groom['last_name'], register['date'], 2, doc_id, 'marriage')
+            """ % (person_id, mother_groom['uuid'], "female", mother_groom['first_name'].replace('"',"'"), mother_groom['prefix'].replace('"',"'"), mother_groom['last_name'].replace('"',"'"), register['date'], 2, doc_id, 'marriage')
 
     person_id += 1
     query += """
             INSERT INTO `all_persons_2014` (id, uuid, gender,  `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
             VALUES (%d,"%s","%s","%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, father_bride['uuid'], "male", father_bride['first_name'], father_bride['prefix'], father_bride['last_name'], register['date'], 3, doc_id, 'marriage')
+            """ % (person_id, father_bride['uuid'], "male", father_bride['first_name'].replace('"',"'"), father_bride['prefix'].replace('"',"'"), father_bride['last_name'].replace('"',"'"), register['date'], 3, doc_id, 'marriage')
 
     person_id += 1
     query += """
             INSERT INTO `all_persons_2014` (id, uuid, gender,  `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
             VALUES (%d,"%s","%s","%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, mother_bride['uuid'], "female", mother_bride['first_name'], mother_bride['prefix'], mother_bride['last_name'], register['date'], 3, doc_id, 'marriage')
+            """ % (person_id, mother_bride['uuid'], "female", mother_bride['first_name'].replace('"',"'"), mother_bride['prefix'].replace('"',"'"), mother_bride['last_name'].replace('"',"'"), register['date'], 3, doc_id, 'marriage')
 
     query += """
             INSERT INTO `all_documents_2014` (id, uuid,  `type_text`, date, `municipality`, reference_ids)

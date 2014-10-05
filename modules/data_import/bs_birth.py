@@ -88,22 +88,22 @@ while 1:
     query += """
             INSERT INTO `all_persons_2014` (`id`, `uuid`, gender, `first_name`, `prefix`, `last_name`, `date_1`, `role`, `register_id`, `register_type`)
             VALUES (%d,"%s","%s", "%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, kid['uuid'], kid['gender'], kid['first_name'], kid['prefix'], kid['last_name'], kid['birth_date'], 1, doc_id, 'birth')
+            """ % (person_id, kid['uuid'], kid['gender'], kid['first_name'].replace('"',"'"), kid['prefix'].replace('"',"'"), kid['last_name'].replace('"',"'"), kid['birth_date'], 1, doc_id, 'birth')
     person_id += 1
     query += """
             INSERT INTO `all_persons_2014` (id, uuid, gender, `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
             VALUES (%d,"%s","%s", "%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, father['uuid'], "male", father['first_name'], father['prefix'], father['last_name'], kid['birth_date'], 5, doc_id, 'birth')
+            """ % (person_id, father['uuid'], "male", father['first_name'].replace('"',"'"), father['prefix'].replace('"',"'"), father['last_name'].replace('"',"'"), kid['birth_date'], 5, doc_id, 'birth')
     person_id += 1
     query += """
             INSERT INTO `all_persons_2014` (id, uuid, gender, `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
             VALUES (%d,"%s","%s", "%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, mother['uuid'], "female", mother['first_name'], mother['prefix'], mother['last_name'], kid['birth_date'], 5, doc_id, 'birth')
+            """ % (person_id, mother['uuid'], "female", mother['first_name'].replace('"',"'"), mother['prefix'].replace('"',"'"), mother['last_name'].replace('"',"'"), kid['birth_date'], 5, doc_id, 'birth')
 
     query += """
             INSERT INTO `all_documents_2014` (id, uuid, `type_text`, date, `municipality`, reference_ids)
             VALUES (%d,"%s","%s","%s","%s","%s");
-            """ % (doc_id, register['uuid'], 'birth', register['date'], 'ERR', ','.join([str(person_id-2), str(person_id-1), str(person_id)]))
+            """ % (doc_id, register['uuid'], 'birth', kid['birth_date'], 'ERR', ','.join([str(person_id-2), str(person_id-1), str(person_id)]))
 
     if not doc_id % 1000:
         print doc_id

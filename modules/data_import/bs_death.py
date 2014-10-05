@@ -3,7 +3,11 @@ Here we convert the BS-marraige file into a SQL command!
 
 
 To import the sql file use:
->> mysql links_based -uroot< sql_bs_marriage.sql
+>> mysql links_based -uroot< sql_bs_death.sql
+>> head -n 4070168 sql_bs_death.sql | tail -n 10
+>> emacs sql_bs_death.sql
+
+overall: 5072000
 """
 __author__ = 'bijan'
 
@@ -153,25 +157,25 @@ while 1:
             INSERT INTO `all_persons_2014` (`id`, `uuid`, gender, `first_name`, `prefix`, `last_name`, `date_1`, `place_1`,
              `role`, `register_id`, `register_type`)
             VALUES (%d,"%s","%s","%s","%s","%s", "%s", "%s", %d, %d, "%s");
-            """ % (person_id, deceased['uuid'], deceased['gender'], deceased['first_name'], deceased['prefix'], deceased['last_name'], deceased['death_date'],
+            """ % (person_id, deceased['uuid'], deceased['gender'], deceased['first_name'].replace('"',"'"), deceased['prefix'].replace('"',"'"), deceased['last_name'].replace('"',"'"), deceased['death_date'],
                    register['municipality'], 1, doc_id, 'death')
     person_id += 1
     query += """
             INSERT INTO `all_persons_2014` (id, uuid, gender,  `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
             VALUES (%d,"%s","%s","%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, father['uuid'], "male", father['first_name'], father['prefix'], father['last_name'], deceased['death_date'], 4, doc_id, 'death')
+            """ % (person_id, father['uuid'], "male", father['first_name'].replace('"',"'"), father['prefix'].replace('"',"'"), father['last_name'].replace('"',"'"), deceased['death_date'], 4, doc_id, 'death')
 
     person_id += 1
     query += """
             INSERT INTO `all_persons_2014` (id, uuid, gender,  `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
             VALUES (%d,"%s","%s","%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, mother['uuid'], "female", mother['first_name'], mother['prefix'], mother['last_name'], deceased['death_date'], 4, doc_id, 'death')
+            """ % (person_id, mother['uuid'], "female", mother['first_name'].replace('"',"'"), mother['prefix'].replace('"',"'").replace('"',"'"), mother['last_name'].replace('"',"'"), deceased['death_date'], 4, doc_id, 'death')
 
     person_id += 1
     query += """
             INSERT INTO `all_persons_2014` (id, uuid, gender,  `first_name`, prefix, `last_name`, date_1, role, `register_id`, `register_type`)
             VALUES (%d,"%s","%s","%s","%s","%s","%s", %d, %d, "%s");
-            """ % (person_id, relative['uuid'], "", relative['first_name'], relative['prefix'], relative['last_name'], deceased['death_date'], 6, doc_id, 'death')
+            """ % (person_id, relative['uuid'], "", relative['first_name'].replace('"',"'"), relative['prefix'].replace('"',"'"), relative['last_name'].replace('"',"'"), deceased['death_date'], 6, doc_id, 'death')
 
     query += """
             INSERT INTO `all_documents_2014` (id, uuid,  `type_text`, date, `municipality`, reference_ids)
