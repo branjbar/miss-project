@@ -41,7 +41,7 @@ class Hashing():
                         feature = sorted(['_'.join(key1), '_'.join(key2)])
                         blocks = sorted([get_block_key(key1[0], key1[1]), get_block_key(key2[0], key2[1])])
                         feature_list.append(feature[0] + '_' + feature[1])
-                        block_keys.append('_'.join(blocks).decode('utf-8', 'ignore'))
+                        block_keys.append('_'.join(blocks))
 
             if feature_list:
                 self.s.add(features=feature_list, blockKeys=block_keys, id=document_id)
@@ -175,6 +175,6 @@ class Hashing():
 
 if __name__ == '__main__':
     my_hash = Hashing()
-    # my_hash.update_all_persons()
+    my_hash.update_all_persons()
     my_hash.update_notaries()
     my_hash.s.commit()
