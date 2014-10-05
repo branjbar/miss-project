@@ -140,7 +140,6 @@ class Document():
 
         else:
 
-
             html += """ <table class="table table-condensed" style="margin-bottom: 0px; border: none"> """
             html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % (
                 '<b>id</b>',
@@ -169,6 +168,7 @@ class Document():
                             if ref_key in couple_names:
                                 ref_name = '<span class="highlight"> %s </span>' % ref_name
                             else:
+                                # TODO: Doesn't work for "Antonia Visser & Lambertus Berg"
                                 ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
                     else:
                         if ref_key in hash_key:
