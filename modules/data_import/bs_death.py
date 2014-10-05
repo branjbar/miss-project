@@ -180,7 +180,7 @@ while 1:
     query += """
             INSERT INTO `all_documents_2014` (id, uuid,  `type_text`, date, `municipality`, reference_ids)
             VALUES (%d,"%s","%s","%s","%s","%s");
-            """ % (doc_id, register['uuid'], 'death', register['date'], register['municipality'], ','.join([str(person_id-3), str(person_id-2), str(person_id-1), str(person_id)]))
+            """ % (doc_id, register['uuid'], 'death', deceased['death_date'], register['municipality'], ','.join([str(person_id-3), str(person_id-2), str(person_id-1), str(person_id)]))
 
 
     if not doc_id % 1000:
