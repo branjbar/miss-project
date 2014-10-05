@@ -41,7 +41,7 @@ def routing():
         search_term = request.args.get('search_term')
         lucky = request.args.get('lucky')
         if lucky:
-            search_term = random.choice(lucky_stories)
+            search_term = [random.choice(lucky_stories)]
             # search_term = (
             #     ' '.join(the_key.split('_')[:2]) + ' en ' + ' '.join(the_key.split('_')[2:]) + ' echtelieden').decode(
             #     'utf-8', "ignore")
@@ -52,39 +52,22 @@ def routing():
         block_keys = []
         hash_key_dict = {}
         html_year = []
-        couple_names = []
+        couple_names = [[]]
         # ant_on_ebb_en_A535_E150_hen_na_mel_en_H536_M425
         if search_term:
             if ' & ' in search_term:
-                # search_term = search_term.split('&')[0] + 'en' + search_term.split('&')[1] + ' echtelieden'
-                search_term = get_block_key(search_term.split(' & ')[0], search_term.split(' & ')[1], "DOCUMENT")
 
-            if not '_' in search_term:
-                # we have a normal text containing names as the input!
+                if search_term.count('&') == 1:
+                    search_term = [get_block_key(search_term.split(' & ')[0], search_term.split(' & ')[1], "DOCUMENT")]
 
-                text_query = Nerd(search_term)
-                text_query.get_relations()
-                ref_list = []
-                for index, rel in enumerate(text_query.relations):
-                    ref_list.append(Reference(0, rel['ref1'][1]))
-                    ref_list.append(Reference(0, rel['ref2'][1]))
+                if search_term.count('&') == 2:
+                    search_term = [get_block_key(search_term.split(' & ')[0], search_term.split(' & ')[1], "DOCUMENT"),
+                                   get_block_key(search_term.split(' & ')[1], search_term.split(' & ')[2], "DOCUMENT"),
+                                   get_block_key(search_term.split(' & ')[0], search_term.split(' & ')[2], "DOCUMENT")]
 
-                if ref_list:
-                    for index in xrange(len(ref_list) / 2):
-                        ref1 = ref_list[2 * index].get_compact_name()
-                        ref2 = ref_list[2 * index + 1].get_compact_name()
-
-                        feature = sorted([ref1, ref2])
-                        blocks = sorted([get_block_key(ref1.split('_')[0], ref1.split('_')[1]),
-                                         get_block_key(ref2.split('_')[0], ref2.split('_')[1])])
-
-                        block_keys.append('_'.join(blocks).decode('utf-8', 'ignore'))
-                        feature_list.append(feature[0] + '_' + feature[1])
-                        block_keys = []
-            else:
-                # we have a blocking key as the input
-                block_keys = [search_term]
-                feature_list = []
+            # we have a blocking key as the input
+            block_keys = search_term
+            feature_list = []
 
             solr_results = my_hash.search(feature_list, block_keys)
             if solr_results:
@@ -92,7 +75,9 @@ def routing():
                 # block_list.append(result['id'])
 
                 hash_key_dict = {}
-                couple_names = my_hash.block_to_name(block_keys[0])
+                couple_names = []
+                for block in block_keys:
+                    couple_names.append(my_hash.block_to_name(block))
 
                 # getting the highlighted blocking keys
                 highlighted_block_keys = []
@@ -114,7 +99,8 @@ def routing():
                 for doc_id in hash_key_dict.keys():
                     doc = Document()
                     doc.set_id(doc_id)
-                    html = doc.get_html(hash_key_dict[doc_id], couple_names, highlighted_block_keys)  # {year:....., html:.....}
+                    html = doc.get_html(hash_key_dict[doc_id], couple_names[0], highlighted_block_keys)  # {year:....., html:.....}
+
                     # TODO: Later we sort the html_year based on the years. For equal years we can think of reordering the card based on their type and roles!
                     html_year.append(html)
 
@@ -138,13 +124,13 @@ def routing():
                                 + block_key.split('_')[2] + ' ' + block_key.split('_')[3]
 
         # just to make sure something nice will be in the search field.
-        search_term = ' & '.join(couple_names)
+        search_term = ' & '.join(couple_names[0])
 
         return render_template('hash_vis.html',
                                doc_list=doc_list,
                                search_term=search_term,
                                block_key=block_keys,
-                               couple_name= ' & '.join(couple_names),
+                               couple_name= ' & '.join(couple_names[0]),
                                block_key_list=feature_list,
                                found_results=len(hash_key_dict),
                                sample_families=sample_families,
