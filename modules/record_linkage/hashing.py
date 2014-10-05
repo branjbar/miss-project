@@ -77,8 +77,8 @@ class Hashing():
 
                 if d_id == self.current_document_id:
                     # if we're still selecting references from current_document_id
-
                     ref_list.append([first_name, last_name])
+
                 else:
                     # if we have moved to references of a new document_id let's first commit the previous Solr
                     # features and then we make a new reference list
@@ -176,5 +176,5 @@ class Hashing():
 if __name__ == '__main__':
     my_hash = Hashing()
     my_hash.update_all_persons()
-    my_hash.update_notaries()
+    # my_hash.update_notaries()
     my_hash.s.commit()
