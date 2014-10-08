@@ -191,4 +191,6 @@ if __name__ == "__main__":
     # block_set = {}
     # get_block_ids(db)
     # do_blocking(gender_names)
-    print get_block_key('Bijan', 'Ranjbar Sahraei')
+    # print get_block_key('Bijan', 'Ranjbar Sahraei')
+
+    pass

@@ -140,7 +140,6 @@ class Hashing():
 
 
             query = query[:-5] + ')'
-            print query
             query_results = self.s.query(query, rows=50, highlight=True, fields="blockKeys, features, id")
             return query_results
 
