@@ -7,7 +7,7 @@ To import the sql file use:
 >> head -n 4070168 sql_bs_death.sql | tail -n 10
 >> emacs sql_bs_death.sql
 
-overall: 5072000
+overall: 1,072,000
 """
 __author__ = 'bijan'
 
