@@ -11,6 +11,7 @@ import jellyfish
 import time
 import MySQLdb
 import heapq
+from math import radians, cos, sin, asin, sqrt
 
 STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, role, register_id, register_type \
           FROM all_persons WHERE "
@@ -504,7 +505,7 @@ def do_matching(db):
 
     # while True: # for parallel work, we pick a random metaphone, and do blocking that
     # from random import choice
-    #         metaphone = choice(metaphone_list)
+    # metaphone = choice(metaphone_list)
 
     count = 0  # to count number of matches in 3 levels
 
@@ -558,8 +559,8 @@ def generate_relations(doc_type):
     # # Birth
     N = 106245
     # birth_list = []
-    #     for c in range(1,N):
-    #         f = c + N
+    # for c in range(1,N):
+    # f = c + N
     #         m = c + 2 * N
     #         birth_list.append([c,f,'f'])
     #         birth_list.append([c,m,'m'])
@@ -735,8 +736,8 @@ def get_block_key(name1, name2, input_type='REFERENCE'):
     """
 
     if input_type == 'REFERENCE':
-        name1 = name1.split()[0].lower().replace("'", "").encode('ascii', 'ignore').decode('ascii')
-        name2 = name2.split()[0].lower().replace("'", "").encode('ascii', 'ignore').decode('ascii')
+        name1 = name1.split()[0].lower().replace("'", "").decode("ISO-8859-1").encode('utf8', 'ignore')
+        name2 = name2.split()[0].lower().replace("'", "").decode("ISO-8859-1").encode('utf8', 'ignore')
 
         feature_set = {'f3f': name1[:3], 'l2f': name1[-2:],
                        'f3l': name2[:3], 'l2l': name2[-2:],
@@ -750,8 +751,8 @@ def get_block_key(name1, name2, input_type='REFERENCE'):
             'l2l', '') + '_' + feature_set.get('soundex', '')
 
     if input_type == 'DOCUMENT':
-        name1 = name1.strip().replace(' ','_')
-        name2 = name2.strip().replace(' ','_')
+        name1 = name1.strip().replace(' ', '_')
+        name2 = name2.strip().replace(' ', '_')
         blocks = sorted([get_block_key(name1.split('_')[0], name1.split('_')[-1]),
                          get_block_key(name2.split('_')[0], name2.split('_')[-1])])
 
@@ -760,12 +761,28 @@ def get_block_key(name1, name2, input_type='REFERENCE'):
     return block_key
 
 
-
 def log(msg):
     """
     prints the msg by adding time before it.
     """
     print str(time.ctime()) + ' - ' + str(msg)
+
+
+
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * asin(sqrt(a))
+    km = 6367 * c
+    return km
 
 
 def main():

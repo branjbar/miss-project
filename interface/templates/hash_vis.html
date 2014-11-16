@@ -18,53 +18,63 @@
   <body>
 
     {% include "navbar.html"%}
-
-    <div class="container">
-        <div class="row">
+        <div class="row-fluid">
             <!--<div class="col-xs-12 text-center">-->
              <h4 align="center"> NEW STORIES, NEVER HEARD BEFORE!  </h4>
             <hr>
 
-                 <!--<div class="panel-body col-xs-6" >-->
-                     <!--<div class="panel panel-default">-->
-                          <!--&lt;!&ndash;<div class="panel-heading">&ndash;&gt;-->
-                            <!--&lt;!&ndash;<h3 class="panel-title">Search for a family</h3>&ndash;&gt;-->
-                          <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                          <!--&lt;!&ndash;<div class="panel-body" >&ndash;&gt;-->
-                             <!--&lt;!&ndash;<form role="form" class="col-xs-12">&ndash;&gt;-->
-                                 <!--&lt;!&ndash;<div class="form-group">&ndash;&gt;-->
-                                     <!--&lt;!&ndash;<label>Search Here:</label><br>&ndash;&gt;-->
-                                     <!--&lt;!&ndash;<textarea class="form-control col-xs-2" rows="4"  name="user_query" placeholder="... en .... echtelieden"&ndash;&gt;-->
-                                                 <!--&lt;!&ndash;required>{{user_query}}</textarea>&ndash;&gt;-->
-                                      <!--&lt;!&ndash;<button type="submit" class="btn btn-primary">Enter Your Query and Click Here</button>&ndash;&gt;-->
-                                 <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</form>&lt;!&ndash;/.span6&ndash;&gt;&ndash;&gt;-->
-                          <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                     <!--</div>-->
 
-                 <!--</div> &lt;!&ndash; div co6 &ndash;&gt;-->
-                 <!--<div class="panel-body col-xs-6" >-->
-                     <!--<div class="panel panel-default">-->
-                          <!--<div class="panel-heading">-->
-                            <!--<h3 class="panel-title">Explore one of the following randomly chosen families</h3>-->
-                          <!--</div>-->
-                          <!--<div class="panel-body text-left">-->
-                              <!--{% for family in sample_families %}-->
-                                <!--<a href="./?search_term={{family}}">{{family}}</a>-->
-                                    <!--<br>-->
-                              <!--{% endfor %}-->
+            <div class="col-xs-3" style="padding-right:20px; border-right: 1px solid #ccc;">
+                  <ul class="nav nav-sidebar">
 
-                          <!--</div>-->
-                     <!--</div>-->
-                 <!--</div> &lt;!&ndash; div col2 &ndash;&gt;-->
+
+                        <form class="navbar-form navbar-right" role="search" method="get">
+                            <div class="input-group">
+
+                                <input type="text" class="form-control" placeholder="search" value="{{couple_name}}" name="search_term">
+                                <div class="input-group-btn" >
+                                    <button type="submit" class="btn btn-default">
+                                        <i class="glyphicon glyphicon-search"></i>
+                                    </button>
+                                </div>
+                            </div><!-- /.nav-collapse -->
+                        </form>
+                    <p class="text-center">{{found_results}} results found for: <br> <strong> {{couple_name}} </strong>  </p> <br>
+                      {{field_query}}
+
+                        {%for key, value in facets.iteritems() %}
+                            <hr>
+                        <li> <b>{{key}} </b></li>
+                            {% for v in value %}
+                                {% if v.1 > 0%}
+                                    <small>
+                                        <a href="?mq={{key}}:{{v.0}}">
+                                        <i class="glyphicon glyphicon-new-window"></i> </a>
+                                        <a href="?search_term={{couple_name}}&field_query={{field_query}}&fq={{key}}:{{v.0}}">{{v.0}}</a>
+                                    </small> ({{v.1}})
+                                 <br>
+                                {% endif %}
+                            {% endfor %}
+                      {% endfor %}
+
+                            <ul>
+                            </ul>
+                        <!--<li> <p class="small" align="center"> <b>Matching Score</b><p></li>-->
+
+
+                  </ul>
+
+              </div>
+
+
             {% if found_results %}
-            <p class="text-center">{{found_results}} results found for:  <strong> {{couple_name}} </strong> <br> <small>({{block_key[0]}})</small> </p>
-            <div class="col-xs-12  center-block">
-                    <div class="col-xs-12" />
-                    <br><br><br><br><br><br><br><br><br><br><br><br><br>
-                    </div>
-                    <div class="col-xs-12" id="d3_panel" />
 
+
+
+            <div class="col-xs-9" id="d3_panel" style="overflow: scroll; height: 1000px;"/>
+            {% for doc in doc_list %}
+                <div class="col-xs-5"  style="height:350px; overflow:auto" id="a{{loop.index-1}}">{{doc['html']|safe}}</div>
+            {% endfor %}
                     <script>
                         svg_r = d3.select("body")
                                        .select("#d3_panel")
@@ -75,9 +85,9 @@
                         padding = 20;
 
                         c_r = 6
-                        div_size=300
-                        //w = svg_r.style("width").replace("px", "");
-                        w = 1100;
+                        div_size=150
+                        w = svg_r.style("width").replace("px", "");
+                        //w = 1100;
                         h = div_size * doc_list.length  ;
                         svg_r.attr("height", h)
                         .attr("width",w)
@@ -112,105 +122,8 @@
                         .attr("r",c_r)
                         .attr("fill","gray")
                         .attr("stroke","black")
-                        .on("mouseover", function(d,i) {
-
-                            d3.select(this)
-                            .transition()
-                            .duration(500)
-                            .attr("fill", "orange")
-                            .attr("r", 2 * c_r);
-
-                            //Get this bar's x/y values, then augment for the tooltip
-                            var xPosition = i%2? 0 : w/2 + 4 * padding ;
-                            var yPosition = 0 ;
-
-                            //Update the tooltip position and value
-                            d3.selectAll("#a" + i)
-                              .style("left", xPosition + "px")
-                              .style("top", yPosition + "px")
-                              .style("position", "absolute")
-
-
-
-                            //Show the tooltip
-                            d3.selectAll("#a" + i ).classed("hidden", false);
-
-
-                            for (i=0; i<=doc_list.length;i++){
-
-                                var xPosition = i%2? 0 : w/2 + 4 * padding ;
-                                var yPosition = year_scale(i) - div_size/2;
-
-                                //Update the tooltip position and value
-                                d3.selectAll("#a" + i)
-                                  .style("left", xPosition + "px")
-                                  .style("top", yPosition + "px")
-                                  .style("position", "absolute")
-
-
-                        svg_r.selectAll("circle")
-                        .data(doc_list)
-                            .transition()
-                            .duration(500)
-                            .attr("fill", "orange")
-                            .attr("r", 2 * c_r);
-                                                          // horizontal line
-                                svg_r.selectAll("line .c2r")
-                                .data(doc_list)
-                                .enter()
-                                .append("line")
-                                .attr("class", "c2r")
-                                .attr("id", function(d,i) {return ("a" + i)})
-                                .attr("x1", function(d,i){return w/2 + 2 * c_r -  i%2 * 4 * c_r })
-                                .attr("y1", function(d,i){return year_scale(i)})
-                                .attr("x2", function(d,i){return (i%2) ? 5 * padding : w - 5 * padding})
-                                .attr("y2", function(d,i){return year_scale(i)})
-                                .attr("stroke", "black")
-                                .attr("fill", "white")
-
-
-                            }
-
-
-                            })
-
-                         .on("mouseout", function(d,i) {
-
-                            if (! d.show) {
-                                d3.select(this)
-                                .transition()
-                                .duration(500)
-                                .attr("fill", "gray")
-                                .attr("r", c_r);
-
-                                //Hide the tooltip
-                                d3.selectAll("#a" + i).classed("hidden", true);
-                                }
-
-                        })
-                         .on("mousedown", function(d, i) {
-
-                            if (d.show == true) {
-
-                                d3.select(this)
-                                .transition()
-                                .duration(500)
-                                .attr("fill", "gray")
-                                .attr("r", c_r);
-
-
-                                //Hide the tooltip
-                                d3.selectAll("#a" + i).classed("hidden", true);
-                                d.show = false
-                            }
-                            else {
-                                d.show = true
-
-                            }
-
-                        })
                         .append("title")
-                        .text("click here to freeze the card!")
+                        .text(function(d){return d.title})
 
 
 
@@ -234,7 +147,7 @@
                         .enter()
                         .append("text")
                         .attr("class", "year")
-                        .attr("x",function(d,i){return w/2 + 40 - (i%2 * 80)})
+                        .attr("x",function(d,i){return w/2 + 50 - (i%2 * 100)})
                         .attr("y",function(d,i){return -5 + year_scale(i)})
                         .text(function(d,i){return d.year + ' (' + (d.city.length < 6 ? d.city: d.city.substring(0,5) + '...') + ')'})
                         .attr("font-family", "sans-serif")
@@ -274,36 +187,68 @@
                         .attr("fill", "white")
 
 
+                        for (i=0; i<=doc_list.length;i++){
 
+                                var xPosition = i%2? 0 : w/2 + 4 * padding ;
+                                var yPosition = year_scale(i) - div_size/2;
+
+                                //Update the tooltip position and value
+                                d3.selectAll("#a" + i)
+                                  .style("left", xPosition + "px")
+                                  .style("top", yPosition + "px")
+                                  .style("position", "absolute")
+
+
+                            svg_r.selectAll("circle")
+                            .data(doc_list)
+                                .transition()
+                                .duration(500)
+                                .attr("fill", "orange")
+                                .attr("r", 2 * c_r);
+
+                            // horizontal line
+                            svg_r.selectAll("line .c2r")
+                            .data(doc_list)
+                            .enter()
+                            .append("line")
+                            .attr("class", "c2r")
+                            .attr("id", function(d,i) {return ("a" + i)})
+                            .attr("x1", function(d,i){return w/2 + 2 * c_r -  i%2 * 4 * c_r })
+                            .attr("y1", function(d,i){return year_scale(i)})
+                            .attr("x2", function(d,i){return (i%2) ? 5 * padding : w - 5 * padding})
+                            .attr("y2", function(d,i){return year_scale(i)})
+                            .attr("stroke", "black")
+                            .attr("fill", "white")
+
+
+                            }
 
 
                      </script>
 
                         <!--Here we have the hidden cards that will show up once we move on the key -->
-                        {% for doc in doc_list %}
-                            <div class="col-xs-5 "  style="height:350px; overflow:auto" id="a{{loop.index-1}}">{{doc['html']|safe}}</div>
-                        {% endfor %}
              </div>
                     <div class="col-xs-12" />
                     <br><br><br><br><br><br><br><br><br><br><br><br><br>
                     </div>
             {% else %}
+
                 <p class="text-warning" align="center">No results found!  </p> <p class="text-info">Either search for a couple (e.g., Anna Hout & Johannes Timmers) using the top right search bar,
                     or click on the <i class="glyphicon glyphicon-question-sign"></i> icon at the top-right corner to
                 look at a random couple. You can also start with one of the following interesting stories. </p>
             {% endif %}
         </div>
-     Interesting Stories:
-        <small>
-        <a href="/hash_matches/?search_term=Johanna+Pas+%26+Lucas+Dobbelsteen"> Johanna Pas & Lucas Dobbelsteen</a>,
-        <a href="/hash_matches/?search_term=Johannes+Genugten+%26+Petronella+Rovers"> Johannes Genugten & Petronella Rovers</a>,
-        <a href="/hash_matches/?search_term=Catharina+Clabbers+%26+Jan+Linders"> Elisabeth Dungen & Francis Dijk</a>,
-        <a href="/hash_matches/?search_term=Hendrika+Velden+%26+Theodorus+Berg"> Hendrika Velden & Theodorus Berg</a>,
-        <a href="/hash_matches/?search_term=Hermanus+Hofmans+%26+Maria+Pluk"> Maria Teulings & Theodorus Houtum</a>,
-        <a href="/hash_matches/?search_term=Johanna+Tielemans+%26+Petrus+Kerkhof"> Johanna Tielemans & Petrus Kerkhof</a>,
-        <a href="/hash_matches/?search_term=Hendrina+Elft+%26+Matijs+Thijssen"> Anthonetta Erp & Willebrordus Donkers</a>,
-        <a href="/hash_matches/?search_term=Hendrikus+Linden+%26+Mechelina+Verbruggen"> Hendrikus Linden & Mechelina Verbruggen</a>,
-        <a href="/hash_matches/?search_term=Helena+Verstraaten+%26+Hendricus+Abel"> Gerardus Kemenade & Petronella Wijdeven</a>,
+     <!--Interesting Stories:-->
+        <!--<small>-->
+        <!--<a href="/hash_matches/?search_term=Johanna+Pas+%26+Lucas+Dobbelsteen"> Johanna Pas & Lucas Dobbelsteen</a>,-->
+        <!--<a href="/hash_matches/?search_term=Johannes+Genugten+%26+Petronella+Rovers"> Johannes Genugten & Petronella Rovers</a>,-->
+        <!--<a href="/hash_matches/?search_term=Elisabeth+Dungen+%26+Francis+Dijk"> Elisabeth Dungen & Francis Dijk</a>,-->
+        <!--<a href="/hash_matches/?search_term=Hendrika+Velden+%26+Theodorus+Berg"> Hendrika Velden & Theodorus Berg</a>,-->
+        <!--<a href="/hash_matches/?search_term=Maria+Teulings+%26+Theodorus+Houtum"> Maria Teulings & Theodorus Houtum</a>,-->
+        <!--<a href="/hash_matches/?search_term=Johanna+Tielemans+%26+Petrus+Kerkhof"> Johanna Tielemans & Petrus Kerkhof</a>,-->
+        <!--<a href="/hash_matches/?search_term=Anthonetta+Erp+%26+Willebrordus+Donkers"> Anthonetta Erp & Willebrordus Donkers</a>,-->
+        <!--<a href="/hash_matches/?search_term=Hendrikus+Linden+%26+Mechelina+Verbruggen"> Hendrikus Linden & Mechelina Verbruggen</a>,-->
+        <!--<a href="/hash_matches/?search_term=Gerardus+Kemenade+%26+Petronella+Wijdeven"> Gerardus Kemenade & Petronella Wijdeven</a>,-->
 
 
 

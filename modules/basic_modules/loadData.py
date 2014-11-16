@@ -33,8 +33,8 @@ def update_persons_table(db_useless, limit):
     addendum = limit[2]
     logging.debug('Loading table all_persons.')
 
-    the_query = "select id, first_name, prefix, last_name, date_1 as date, place_1 as place," \
-                " gender, role, register_id, register_type from all_persons_2014"
+    the_query = "select id, first_name, prefix, last_name, block_key, block_id, date_1 as date, place_1 as place," \
+                " gender, role, register_id, register_type from all_persons_new"
     if type:
         q_type = None
         for t in type:
@@ -145,8 +145,8 @@ def update_documents_table(limit):
 
     logging.debug(" Loading table all_documents.")
 
-    the_query = "select id, type_text, date, municipality, " \
-                " reference_ids from all_documents_2014"
+    the_query = "select id, type_text, date, `index`, municipality, concat(latitude,',', longitude) geocode," \
+                " reference_ids from all_documents"
     if type:
         q_type = None
         for t in type:
@@ -165,7 +165,6 @@ def update_documents_table(limit):
 
     cur = basic.run_query(the_query)
     desc = cur.description
-
     tmp_index = 0
     for row in cur.fetchall():
         row_dict = {}
@@ -176,7 +175,6 @@ def update_documents_table(limit):
             except:
                 row_dict[desc[index][0]] = value
         table_all_documents[row_dict['id']] = row_dict
-
     logging.debug("table all_documents imported in %s" % str( time.time() - __now__))
 
     if not addendum:
@@ -262,7 +260,7 @@ def load_table(table_name, limit = None):
     if table_name == 'all_persons':
         # query = "select * from %s " % table_name
         the_query = "select id, first_name, prefix, last_name, block_key, block_id, date_1 as date, place_1 as place," \
-                    " gender, role, register_id, register_type from all_persons_2014"
+                    " gender, role, register_id, register_type from all_persons_new"
         if limit:
             the_query += " limit %d" % limit
     if table_name == 'all_documents':

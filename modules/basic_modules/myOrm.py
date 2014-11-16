@@ -88,7 +88,7 @@ class Document():
         dict['ref_list'] = ref_list
         return dict
 
-    def get_html(self, hash_key=[], features_ref=[], block_keys=[]):
+    def get_html(self, hash_key=[], features_ref=[]):
 
         if self.doc_type == "notarial act":
             html = """ <div class="panel-body col-xs-12">"""
@@ -116,30 +116,17 @@ class Document():
                 for ref_name in [rel['ref1'][1], rel['ref2'][1]]:
                     if len(ref_name.split()) > 1:
                         ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
-                        ref_block_key = get_block_key(ref_name.split()[0], ref_name.split()[-1])
-                        couple_names = ['_'.join(key.split(' ')) for key in features_ref]
-
-                        if block_keys:
-
-                            if [ref_block_key for s in block_keys if ref_block_key in s]: # show whether the reference is in one of the blocks or not!
-                                if ref_key in couple_names:
-                                    text = text.replace(ref_name, '<span class="highlight">%s</span>' % ref_name)
-                                else:
-                                    text = text.replace(ref_name, '<span class="highlight_fuzzy">%s</span>' % ref_name)
-
-                        else:
-                            if ref_key in hash_key:
-                                if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
-                                    text = text.replace(ref_name, '<span class="highlight">%s</span>' % ref_name)
-                                else:
-                                    text = text.replace(ref_name, '<span class="highlight_fuzzy">%s</span>' % ref_name)
+                        if ref_key in hash_key:
+                            if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
+                                text = text.replace(ref_name, '<span class="highlight">%s</span>' % ref_name)
+                            else:
+                                text = text.replace(ref_name, '<span class="highlight_fuzzy">%s</span>' % ref_name)
 
             html += """<small> """ + text + "</small>"
             html += "</div>"
             html += """<div class="col-xs-6">"""
 
         else:
-
             html += """ <table class="table table-condensed" style="margin-bottom: 0px; border: none"> """
             html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % (
                 '<b>id</b>',
@@ -160,22 +147,11 @@ class Document():
 
                 if len(ref_name.split()) > 1:
                     ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
-                    ref_block_key = get_block_key(ref_name.split()[0], ref_name.split()[-1])
-                    couple_names = ['_'.join(key.split(' ')) for key in features_ref]
-                    if block_keys:
-                        if [ref_block_key for s in block_keys if ref_block_key in s]: # show whether the reference is in one of the blocks or not!
-                        # if ref_block_key in block_keys[0]:
-                            if ref_key in couple_names:
-                                ref_name = '<span class="highlight"> %s </span>' % ref_name
-                            else:
-                                # TODO: Doesn't work for "Antonia Visser & Lambertus Berg"
-                                ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
-                    else:
-                        if ref_key in hash_key:
-                            if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
-                                ref_name = '<span class="highlight"> %s </span>' % ref_name
-                            else:
-                                ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
+                    if ref_key in hash_key:
+                        if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
+                            ref_name = '<span class="highlight"> %s </span>' % ref_name
+                        else:
+                            ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
 
                 html += "<tr > \n <td style='padding: 1px'><small> <b>%s</b> </small></td> \n <td style='padding: 1px'>" \
                         "<small> %s</small> </td>  \n </tr>\n" % (ref_type, ref_name)
@@ -194,7 +170,7 @@ class Document():
         if self.doc_type == "notarial act":
             year = self.date[-4:]
         else:
-            year = self.date[:4]
+            year = self.date[-4:]
 
         place = self.place
         return {'year': year, 'city': place, 'html': html,
@@ -314,7 +290,6 @@ def get_document(document_id=None):
     if not document and document_id:
         loadData.update_documents_table(['', '', 'where id = %s' % str(document_id)])
         document = loadData.table_all_documents.get(int(document_id))
-
 
     if document:
         return document

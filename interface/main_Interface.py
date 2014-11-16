@@ -1,3 +1,4 @@
+import copy
 import pickle
 import random
 from flask import request
@@ -11,15 +12,14 @@ from interface import app
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
 from modules.basic_modules.myOrm import Reference, Document
-from modules.basic_modules.basic import get_block_key
 from modules.record_linkage.hashing import Hashing
 
 new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
 
 try:
-    story_file = open('../data/good_stories.txt','r')
+    story_file = open('../data/good_stories.txt', 'r')
 except:
-    story_file = open('data/good_stories.txt','r')
+    story_file = open('data/good_stories.txt', 'r')
 
 lucky_stories = []
 line = story_file.readline()
@@ -38,103 +38,109 @@ def routing():
     @app.route('/hash_matches/', methods=['GET', 'POST'])
     @app.route('/hash_matches/<p_id>', methods=['GET', 'POST'])
     def hash_matches(p_id=None):
-        search_term = request.args.get('search_term')
+        search_term = request.args.get('search_term')  # the main searching term
+        field_query = request.args.get('field_query')  # the field query from previous sessions
+        facet_query = request.args.get('fq')  # the new facet query coming from this session
+        m_query = request.args.get('mq')  # the main query which likes to replace the search query
+
         lucky = request.args.get('lucky')
         if lucky:
-            search_term = [random.choice(lucky_stories)]
-            # search_term = (
-            #     ' '.join(the_key.split('_')[:2]) + ' en ' + ' '.join(the_key.split('_')[2:]) + ' echtelieden').decode(
-            #     'utf-8', "ignore")
+            search_term = random.choice(lucky_stories)
 
         # user_query = "Antonie_Biggelaar & Geertruida Bekkers"
         doc_list = []
-        feature_list = []
-        block_keys = []
-        hash_key_dict = {}
+        search_results = {}
         html_year = []
-        couple_names = [[]]
-        # ant_on_ebb_en_A535_E150_hen_na_mel_en_H536_M425
-        if search_term:
-            if ' & ' in search_term:
+        couple_names = []
+        facets = {}
 
-                if search_term.count('&') == 1:
-                    search_term = [get_block_key(search_term.split(' & ')[0], search_term.split(' & ')[1], "DOCUMENT")]
+        if m_query:
+            search_term = ''
+            field_query = m_query
 
-                if search_term.count('&') == 2:
-                    search_term = [get_block_key(search_term.split(' & ')[0], search_term.split(' & ')[1], "DOCUMENT"),
-                                   get_block_key(search_term.split(' & ')[1], search_term.split(' & ')[2], "DOCUMENT"),
-                                   get_block_key(search_term.split(' & ')[0], search_term.split(' & ')[2], "DOCUMENT")]
+        if not search_term:
+            search_term = '*'
 
-            # we have a blocking key as the input
-            block_keys = search_term
-            feature_list = []
-
-            solr_results = my_hash.search(feature_list, block_keys)
-            if solr_results:
-                # for result in solr_results:
-                # block_list.append(result['id'])
-
-                hash_key_dict = {}
-                couple_names = []
-                for block in block_keys:
-                    couple_names.append(my_hash.block_to_name(block))
-
-                # getting the highlighted blocking keys
-                highlighted_block_keys = []
-                for result in solr_results.highlighting.iteritems():
-                    highlighted_block_keys.append(result[1]['blockKeys'][0].replace('<em>', '').replace('</em>', ''))
+        if not field_query:
+            field_query = ''
+        else:
+            field_query += ' -'
+            field_query.replace(' - -', ' -')
 
 
-                if block_keys:
-                    for result in solr_results.results:
-                        hash_key_dict[result['id']] = ''
+        # here we manage the features_ss facet
+        if facet_query and facet_query.split(':')[0] == 'features_ss':
+            if not search_term or search_term == '*':
+                search_term = facet_query.split(':')[1].replace(' - ', '_').replace(' ', '_').replace('__', '_')
+            else:
+                field_query += 'features_ss: ' + facet_query.split(':')[1].replace(' - ', '_').replace(' ','_').replace('__', '_')
 
-                else:
-                    for result in solr_results.highlighting.iteritems():
-                        hash_key_dict[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
+        # here we manage the location facet
+        if facet_query and facet_query.split(':')[0] == 'location_s':
+            field_query += 'location_s: ' + '"' + facet_query.split(':')[1].replace('+', ' ') + '"'
 
-            if hash_key_dict:
-                doc_list = []
-                html_year = []
-                for doc_id in hash_key_dict.keys():
-                    doc = Document()
-                    doc.set_id(doc_id)
-                    html = doc.get_html(hash_key_dict[doc_id], couple_names[0], highlighted_block_keys)  # {year:....., html:.....}
+        if facet_query and facet_query.split(':')[0] == 'date':
+            field_query += 'date_dt: ' + '[' + facet_query.split(':')[1].split('-')[0] + '-00-00T00:00:00Z TO ' + \
+                           str(int(facet_query.split(':')[1].split('-')[1]) + 1) + '-00-00T00:00:00Z ]'
 
-                    # TODO: Later we sort the html_year based on the years. For equal years we can think of reordering the card based on their type and roles!
-                    html_year.append(html)
+        if facet_query and facet_query.split(':')[0] == 'cat':
+            field_query += 'cat: ' + '"' + facet_query.split(':')[1].replace('+', ' ') + '"'
 
-                    doc_list.append(html)
+        search_term = ' '.join(search_term.split())
+        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace(' ', '_')
+        solr_results = my_hash.search(search_term, field_query, m_query)
+
+        if solr_results:
+            # first let's get the facets from results
+            facet_fields = solr_results.facet_counts['facet_fields']
+            for key in facet_fields:
+                facets[key] = sorted(facet_fields[key].iteritems(), key=lambda x: x[1], reverse=True)[:20]
+
+            # polishing the feature_ss with removing the underline and adding &
+            for index, value in enumerate(facets['features_ss']):
+                facets['features_ss'][index] = [
+                    value[0].replace('_', ' ', 1).replace('_', ' - ', 1).replace('_', ' '), value[1]]
+
+            # adding the date range to the facets
+            facets['date'] = []
+            facet_ranges = solr_results.facet_counts['facet_ranges']['date_dt']['counts']
+            for x in sorted(facet_ranges.items(), key=lambda s: s[0]):
+                facets['date'].append([x[0][:4] + '-' + str(int(x[0][:4]) + 10), x[1]])
+
+            # now we get the main results and highlights
+            search_results = {}
+
+            if len(search_term.split('_')) == 4:
+                couple_names = ['_'.join(search_term.split('_')[:2]), '_'.join(search_term.split('_')[-2:])]
+
+            # here we simultaneously get the search results and highlights
+            for result in solr_results.highlighting.iteritems():
+                search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
+
+        if search_results:
+            doc_list = []
+            html_year = []
+            for doc_id in search_results.keys():
+                doc = Document()
+                doc.set_id(doc_id)
+                html = doc.get_html(search_results[doc_id], couple_names)  # {year:....., html:.....}
+
+                # TODO: Later we sort the html_year based on the years. For equal years we can think of reordering the card based on their type and roles!
+                html_year.append(html)
+
+                doc_list.append(html)
 
         html_year.sort(key=lambda x: x['year'])
         doc_list.sort(key=lambda x: x['year'])
 
-        if not search_term:
-            search_term = ''
-
-        sample_families = []
-        # for i in xrange(6):
-        # key = random.choice(new_blocks)[0]
-        # sample_families.append((' '.join(key.split('_')[:2])
-        #                            + ' en '
-        #                            + ' '.join(key.split('_')[2:])
-        #                            + ' echtelieden').decode('utf-8', "ignore"))
-        for i, block_key in enumerate(feature_list):
-            feature_list[i] = block_key.split('_')[0] + ' ' + block_key.split('_')[1] + ' & ' \
-                                + block_key.split('_')[2] + ' ' + block_key.split('_')[3]
-
-        # just to make sure something nice will be in the search field.
-        search_term = ' & '.join(couple_names[0])
-
         return render_template('hash_vis.html',
                                doc_list=doc_list,
                                search_term=search_term,
-                               block_key=block_keys,
-                               couple_name= ' & '.join(couple_names[0]),
-                               block_key_list=feature_list,
-                               found_results=len(hash_key_dict),
-                               sample_families=sample_families,
-                               html_year=html_year)
+                               field_query=field_query,
+                               couple_name=' - '.join(couple_names).replace('_', ' '),
+                               found_results=len(search_results),
+                               html_year=html_year,
+                               facets=facets)
 
 
     @app.route('/complex_matches/', methods=['GET', 'POST'])
@@ -376,6 +382,8 @@ def routing():
             json_dict_1 = generatePedigree.pedigree(doc1, ref1, '')
             json_dict_2 = generatePedigree.pedigree(doc2, ref2, '')
 
+            expert_hints = generatePedigree.examine_match_similarity(doc1, ref1, doc2, ref2)
+
             navbar_choices = []
             for a_match_id in range(int(match['index']), int(match['index']) + 11):
                 a_match = myOrm.get_miss_matches(a_match_id)
@@ -383,7 +391,8 @@ def routing():
                     navbar_choices.append({'score': a_match['score'], 'index': a_match['index']})
             return render_template('index.html', doc1=doc1, doc2=doc2, match_details=match, json_dict_h=json_dict_1,
                                    json_dict_h2=json_dict_2, name='bijan', page_name='miss_matches',
-                                   navbar_choices=navbar_choices)
+                                   navbar_choices=navbar_choices,
+                                   expert_hints=expert_hints)
         else:
             return render_template('index.html', message='No results found!', name='bijan', page_name='miss_matches')
 
