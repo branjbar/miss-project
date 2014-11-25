@@ -6,6 +6,7 @@ __author__ = 'Bijan'
 import time
 import threading
 import logging
+
 MATCH_TABLE = "miss_matches_random_walk"
 
 table_all_documents = {}
@@ -26,7 +27,6 @@ def update_persons_table(db_useless, limit):
 
     global table_all_persons, block_dict, db
     __now__ = time.time()
-
 
     lim = limit[0]
     type = limit[1]
@@ -58,19 +58,19 @@ def update_persons_table(db_useless, limit):
         t2.daemon = True
         t2.start()
 
-
     tmp_index = 0
     for row in cur.fetchall():
         row_dict = {}
         tmp_index += 1
         for index, value in enumerate(row):
             try:
-                row_dict[desc[index][0]] = value.decode('ascii','ignore')
+                row_dict[desc[index][0]] = value.decode('ascii', 'ignore')
             except:
                 row_dict[desc[index][0]] = value
         table_all_persons[row_dict['id']] = row_dict
 
     logging.debug("table all_persons imported in %s" % str(time.time() - __now__))
+
 
 def update_notarial_acts(limit):
     """
@@ -80,7 +80,6 @@ def update_notarial_acts(limit):
 
     global table_notarial_acts
     __now__ = time.time()
-
 
     lim = limit[0]
     type = limit[1]
@@ -111,7 +110,6 @@ def update_notarial_acts(limit):
         t2.daemon = True
         t2.start()
 
-
     tmp_index = 0
     for row in cur.fetchall():
         row_dict = {}
@@ -123,10 +121,8 @@ def update_notarial_acts(limit):
                 row_dict[desc[index][0]] = value
         table_notarial_acts[row_dict['row_id']] = row_dict
     logging.debug("table notarial_acts imported in %s" % str(time.time() - __now__))
+
     return row_dict['row_id']
-
-
-
 
 
 def update_documents_table(limit):
@@ -135,7 +131,6 @@ def update_documents_table(limit):
     (i.e., where addendum is provided)
     """
     global table_all_documents, block_dict
-
 
     __now__ = time.time()
 
@@ -162,7 +157,6 @@ def update_documents_table(limit):
     if addendum:
         the_query += " " + addendum
 
-
     cur = basic.run_query(the_query)
     desc = cur.description
     tmp_index = 0
@@ -171,11 +165,11 @@ def update_documents_table(limit):
         tmp_index += 1
         for index, value in enumerate(row):
             try:
-                row_dict[desc[index][0]] = value.decode('ascii','ignore')
+                row_dict[desc[index][0]] = value.decode('ascii', 'ignore')
             except:
                 row_dict[desc[index][0]] = value
         table_all_documents[row_dict['id']] = row_dict
-    logging.debug("table all_documents imported in %s" % str( time.time() - __now__))
+    logging.debug("table all_documents imported in %s" % str(time.time() - __now__))
 
     if not addendum:
         get_matching_pairs()
@@ -188,7 +182,6 @@ def get_matching_pairs(limit=1000000):
 
     global match_pairs, MATCH_TABLE
     __now__ = time.time()
-
 
     logging.debug('Loading table miss_matches.')
 
@@ -207,7 +200,7 @@ def get_matching_pairs(limit=1000000):
                 """
 
     # the_query = """
-    #             SELECT id, ref1, ref2, score, eval, comment
+    # SELECT id, ref1, ref2, score, eval, comment
     #             FROM (
     #                 SELECT
     #                     @row := @row +1 AS rownum, id, ref1, ref2, score, eval, comment
@@ -235,8 +228,7 @@ def get_matching_pairs(limit=1000000):
     logging.debug("table miss_matches imported in %s" % str(time.time() - __now__))
 
 
-
-def load_data(limit = None):
+def load_data(limit=None):
     """ (database) --> (list of lists)
     this file imports all important tables to memory in order to increase the process speed.
 
@@ -250,9 +242,7 @@ def load_data(limit = None):
     t1.start()
 
 
-
-
-def load_table(table_name, limit = None):
+def load_table(table_name, limit=None):
     """ (string, integer) --> (list of lists)
     returns the a sql table as a python list of lists
     """
@@ -268,7 +258,7 @@ def load_table(table_name, limit = None):
         the_query = "select id, type_text, date, `index`, municipality, concat(latitude,',', longitude) geocode," \
                     " reference_ids from all_documents"
         if limit:
-            the_query += " limit %d" % int(limit/3)
+            the_query += " limit %d" % int(limit / 3)
 
     cur = basic.run_query(the_query)
     desc = cur.description
@@ -277,16 +267,18 @@ def load_table(table_name, limit = None):
         row_dict = {}
         for index, value in enumerate(row):
             try:
-                row_dict[desc[index][0]] = value.decode('ascii','ignore')
+                row_dict[desc[index][0]] = value.decode('ascii', 'ignore')
             except:
                 row_dict[desc[index][0]] = value
         rows_dict[index] = row_dict
 
     return rows_dict
+
+
 #
 #
 # def get_blocks_of_document(docuemnt_id):
-#     """
+# """
 #         returns the bag of blocks for a specific docuemnt
 #     """
 #     doc = myOrm.get_document(docuemnt_id)
@@ -305,6 +297,7 @@ def load_table(table_name, limit = None):
 
 def main(limit=None):
     pass
+
 
 if __name__ == "__main__":
     pass

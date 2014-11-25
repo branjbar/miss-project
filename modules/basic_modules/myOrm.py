@@ -356,18 +356,14 @@ def get_links(link_id=None):
 
 
 def get_notarial_act(text_id=None):
-    ''' (integer) -> (dict)
+    """ (integer) -> (dict)
     return a person with the id
-    '''
+    """
 
-    text = None
-    # if loadData.table_notarial_acts:
-    #     if not text_id and loadData.table_notarial_acts:
-    #         text_id = random.choice(loadData.table_notarial_acts.keys())
-    #
-    #     text = loadData.table_notarial_acts.get(int(text_id))
+    if int(text_id) < 1:
+        text_id = 1
 
-    if not text and text_id:
+    if text_id:
         index = loadData.update_notarial_acts(['', '', 'where row_id = %s' % str(text_id)])
         # index = loadData.update_notarial_acts(['', '', 'where date like %s limit %s, 1' % ("'%-18%'", str(text_id))])
         text = loadData.table_notarial_acts.get(index)

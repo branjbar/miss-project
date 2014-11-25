@@ -14,42 +14,41 @@ meertens_names = {}
 PUNCTUATION_LIST = [',', ';', '.', ':', '[', ']', '(', ')', '"', "'"]
 PREFIXES = ['van', 'de', 'van der', 'van den', 'van de']
 # FREQ_NAMES = ['te', 'een', 'eende', 'voor', 'als', 'zijn', 'die', 'gulden', 'heeft',
-#               'gelegen', 'door', 'huis', 'kinderen', 'schepenen', 'wijlen', 'goederen',
+# 'gelegen', 'door', 'huis', 'kinderen', 'schepenen', 'wijlen', 'goederen',
 #               'haar',  'hij', 'andere', 'groot', 'genaamd', 'dochter', 'verkopen', 'sijn',
 #               'land', 'heer']
 FREQ_NAMES = ['te', 'kinderen', 'dochter']
 
-
 RELATION_INDICATORS_MIDDLE = {"gehuwd met": "married with",
-                       "weduwe van": "widow of",
-                       "weduwe": "widow of",
-                       "en zijn vrouw": "husband of",
-                       ", weduwe van": "widow of",
-                       "weduwnaar van": "widower of",
-                       "vrouw van": "wife of",
-                       ", gehuwd met": "married with",
-                       "man van": "husband of",
-                       "weduwe wijlen": "widow of",
-                       ", weduwnaar van": ", wedower of",
-                       ", de weduwe van": "widow of",
-                       "getrouwt met": "married with",
-                       "huijsvrouw van": "wife of",
-                       "weduwnaar": "widower of",
-                       "weduwe van wijlen": "widow of",
-                       ", de weduwe": "widow of",
-                       ", weduwe": "widow of",
-                       ", vrouw van": "wife of",
-                       ", huisvrouw van": "wife of",
-                       "en haar man": "wife of",
-                       "huisvrouw van": "wife of",
-                       "en zijn huisvrouw": "husband of",
-                       "getrouwd met": "married with",
-                       "zoon van": "son of",
-                       ", dochter van": "daughter of",
-                       ", zoon van": "son of",
-                       "dochter van":"daughter of",
-                       "dochter":"daughter of"
-                       }
+                              "weduwe van": "widow of",
+                              "weduwe": "widow of",
+                              "en zijn vrouw": "husband of",
+                              ", weduwe van": "widow of",
+                              "weduwnaar van": "widower of",
+                              "vrouw van": "wife of",
+                              ", gehuwd met": "married with",
+                              "man van": "husband of",
+                              "weduwe wijlen": "widow of",
+                              ", weduwnaar van": ", wedower of",
+                              ", de weduwe van": "widow of",
+                              "getrouwt met": "married with",
+                              "huijsvrouw van": "wife of",
+                              "weduwnaar": "widower of",
+                              "weduwe van wijlen": "widow of",
+                              ", de weduwe": "widow of",
+                              ", weduwe": "widow of",
+                              ", vrouw van": "wife of",
+                              ", huisvrouw van": "wife of",
+                              "en haar man": "wife of",
+                              "huisvrouw van": "wife of",
+                              "en zijn huisvrouw": "husband of",
+                              "getrouwd met": "married with",
+                              "zoon van": "son of",
+                              ", dochter van": "daughter of",
+                              ", zoon van": "son of",
+                              "dochter van": "daughter of",
+                              "dochter": "daughter of"
+}
 
 
 class Nerd():
@@ -77,7 +76,6 @@ class Nerd():
                 self.extract_names()
 
 
-
     def get_relations(self):
         if not self.relations:
             self.extract_relations()
@@ -99,7 +97,7 @@ class Nerd():
         """
 
         for c in PUNCTUATION_LIST:
-            self.text = self.text.replace(c,' ' + c + ' ')
+            self.text = self.text.replace(c, ' ' + c + ' ')
         text = self.text.replace('  ', ' ')
 
         new_text = ''
@@ -147,16 +145,14 @@ class Nerd():
         # search for last name prefixes
         for index, word in enumerate(self.word_list):
             # one component prefixes
-            if word in PREFIXES and word_spec.get(index - 1) and word_spec.get(index+1):
+            if word in PREFIXES and word_spec.get(index - 1) and word_spec.get(index + 1):
                 word_spec[index] = 2
 
             # two component prefixes
-            if index < len(self.word_list)-1 and word + " " + self.word_list[index+1] in PREFIXES \
-                    and word_spec.get(index - 1) and word_spec.get(index+2):
+            if index < len(self.word_list) - 1 and word + " " + self.word_list[index + 1] in PREFIXES \
+                    and word_spec.get(index - 1) and word_spec.get(index + 2):
                 word_spec[index] = 2
-                word_spec[index+1] = 2
-
-
+                word_spec[index + 1] = 2
 
         for index, word in enumerate(self.word_list):
             if word in FREQ_NAMES:
@@ -208,31 +204,31 @@ class Nerd():
         """
         self.relations = []
         for index1, ref1 in enumerate(self.get_references()):
-                for index2, ref2 in enumerate(self.get_references()):
-                    if index2 == index1 + 1:
-                        term = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
-                        if term in RELATION_INDICATORS_MIDDLE.keys():
-                            self.relations.append({"ref1": ref1, "ref2": ref2, "relation": RELATION_INDICATORS_MIDDLE[term]})
+            for index2, ref2 in enumerate(self.get_references()):
+                if index2 == index1 + 1:
+                    term = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
+                    if term in RELATION_INDICATORS_MIDDLE.keys():
+                        self.relations.append(
+                            {"ref1": ref1, "ref2": ref2, "relation": RELATION_INDICATORS_MIDDLE[term]})
 
-                        # Following is to detect relations in patterns like "Gerrit Hendrix en Hendersken Thijssen echtelieden"
-                        try:
-                            term1 = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
-                            term2 = self.word_list[len(ref2[1].split()) + ref2[0]]
-                            if term1 == "en" and term2 == "echtelieden":
-                                self.relations.append({"ref1": ref1, "ref2": ref2, "relation": "husband of"})
-                        except:
-                            pass
+                    # Following is to detect relations in patterns like "Gerrit Hendrix en Hendersken Thijssen echtelieden"
+                    try:
+                        term1 = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
+                        term2 = self.word_list[len(ref2[1].split()) + ref2[0]]
+                        if term1 == "en" and term2 == "echtelieden":
+                            self.relations.append({"ref1": ref1, "ref2": ref2, "relation": "husband of"})
+                    except:
+                        pass
 
-                        # Following is to detect relations in patterns like "Jorden Thomassen en Catharina Hendriks zijn vrouw"
-                        try:
-                            term1 = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
-                            term2 = ' '.join(self.word_list[len(ref2[1].split()) + ref2[0]: len(ref2[1].split()) + ref2[0] +2])
-                            if term1 == "en" and term2 == "zijn vrouw":
-                                self.relations.append({"ref1": ref1, "ref2": ref2, "relation": "husband of"})
-                        except:
-                            pass
-
-
+                    # Following is to detect relations in patterns like "Jorden Thomassen en Catharina Hendriks zijn vrouw"
+                    try:
+                        term1 = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
+                        term2 = ' '.join(
+                            self.word_list[len(ref2[1].split()) + ref2[0]: len(ref2[1].split()) + ref2[0] + 2])
+                        if term1 == "en" and term2 == "zijn vrouw":
+                            self.relations.append({"ref1": ref1, "ref2": ref2, "relation": "husband of"})
+                    except:
+                        pass
 
 
 def import_dutch_data_set():
