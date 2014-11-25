@@ -4,10 +4,13 @@ Here we export the results of NERD in form of offline html file, sql table, etc.
 """
 import time
 import operator
+from interface.main_Interface import my_hash
 from modules.NERD import html_generate
 from modules.NERD.dict_based_nerd import Nerd
 from modules.basic_modules import basic
 from modules.basic_modules.basic import log
+from modules.basic_modules.myOrm import Document
+from modules.record_linkage.hashing import generate_features
 
 __author__ = 'bijan'
 from modules.NERD.dict_based_nerd import Nerd
@@ -192,6 +195,35 @@ def look_for_pattern():
                         if '( president )' in term :
                             print n[2]
 
+from modules.basic_modules import myOrm
+
+def relation_learning():
+    """
+    The idea is two get any pair of names which show up in a document and look them up in the structured data to see if they already have a relationship or not.
+
+
+    :return:
+    """
+    for t_id in xrange(200000):
+        act = myOrm.get_notarial_act(t_id, century18=True)
+        if act:
+            text = act['text1'] + ' ' + act['text2'] + act['text3']
+            nerd = Nerd(text)
+            for i1, ref1 in enumerate(nerd.get_references()):
+                for i2, ref2 in enumerate(nerd.get_references()):
+                    if i1 < i2:
+
+                        index_key = generate_features(ref1[1].split(), ref2[1].split())
+                        solr_results = my_hash.search(index_key, 'cat:birth OR cat:marriage OR cat:death')
+                        doc_list = []
+                        if solr_results.results:
+                            for result in solr_results.highlighting.iteritems():
+                                doc_list.append(result[0])
+
+        if solr_results.numFound:
+            print t_id, solr_results.numFound, doc_list
+
+
 if __name__ == "__main__":
-    export_names_to_sql_table()
+    relation_learning()
 
