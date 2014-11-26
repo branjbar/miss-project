@@ -90,6 +90,7 @@ class Document():
 
     def get_html(self, hash_key=[], features_ref=[]):
 
+
         if self.doc_type == "notarial act":
             html = """ <div class="panel-body col-xs-12">"""
         else:
@@ -355,7 +356,7 @@ def get_links(link_id=None):
         return {'id1': 0, 'id2': 0}
 
 
-def get_notarial_act(text_id=None):
+def get_notarial_act(text_id=None, century18=False):
     """ (integer) -> (dict)
     return a person with the id
     """
@@ -364,8 +365,10 @@ def get_notarial_act(text_id=None):
         text_id = 1
 
     if text_id:
-        index = loadData.update_notarial_acts(['', '', 'where row_id = %s' % str(text_id)])
-        # index = loadData.update_notarial_acts(['', '', 'where date like %s limit %s, 1' % ("'%-18%'", str(text_id))])
+        if not century18:
+            index = loadData.update_notarial_acts(['', '', 'where row_id = %s' % str(text_id)])
+        else:
+            index = loadData.update_notarial_acts(['', '', 'where date like %s limit %s, 1' % ("'%-18%'", str(text_id))])
         text = loadData.table_notarial_acts.get(index)
 
     if text:

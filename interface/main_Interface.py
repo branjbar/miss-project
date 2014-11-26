@@ -12,20 +12,20 @@ from interface import app
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
 from modules.basic_modules.myOrm import Reference, Document
-from modules.record_linkage.hashing import Hashing
+from modules.record_linkage.hashing import Hashing, generate_features
 
-new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
+# new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
 
-try:
-    story_file = open('../data/good_stories.txt', 'r')
-except:
-    story_file = open('data/good_stories.txt', 'r')
+# try:
+#     story_file = open('../data/good_stories.txt', 'r')
+# except:
+#     story_file = open('data/good_stories.txt', 'r')
 
-lucky_stories = []
-line = story_file.readline()
-while line:
-    lucky_stories.append(line.split()[1])
-    line = story_file.readline()
+# lucky_stories = []
+# line = story_file.readline()
+# while line:
+#     lucky_stories.append(line.split()[1])
+#     line = story_file.readline()
 
 
 # pickle.dump(hash_table, open("hashing_v1.p", 'w'))
@@ -45,7 +45,7 @@ def routing():
 
         lucky = request.args.get('lucky')
         if lucky:
-            search_term = random.choice(lucky_stories)
+            search_term = '*'
 
         # user_query = "Antonie_Biggelaar & Geertruida Bekkers"
         doc_list = []
@@ -73,7 +73,9 @@ def routing():
             if not search_term or search_term == '*':
                 search_term = facet_query.split(':')[1].replace(' - ', '_').replace(' ', '_').replace('__', '_')
             else:
-                field_query += 'features_ss: ' + facet_query.split(':')[1].replace(' - ', '_').replace(' ','_').replace('__', '_')
+                field_query += 'features_ss: ' + facet_query.split(':')[1].replace(' - ', '_').replace(' ',
+                                                                                                       '_').replace(
+                    '__', '_')
 
         # here we manage the location facet
         if facet_query and facet_query.split(':')[0] == 'location_s':
@@ -86,9 +88,13 @@ def routing():
         if facet_query and facet_query.split(':')[0] == 'cat':
             field_query += 'cat: ' + '"' + facet_query.split(':')[1].replace('+', ' ') + '"'
 
-        search_term = ' '.join(search_term.split())
-        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace(' ', '_')
-        solr_results = my_hash.search(search_term, field_query, m_query)
+        search_term = ' '.join(search_term.split('_'))
+        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ')
+        ref1 = ' '.join(search_term.split()[:2])
+        ref2 = ' '.join(search_term.split()[-2:])
+        search_term = generate_features(ref1.split(), ref2.split())
+
+        solr_results = my_hash.search(search_term, field_query)
 
         if solr_results:
             # first let's get the facets from results
@@ -489,7 +495,7 @@ def routing():
 
         refs_list = []
         match_details = {}
-        act = myOrm.get_notarial_act(t_id)
+        act = myOrm.get_notarial_act(t_id, century18=True)
         navbar_choices = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         if act:
             text = act['text1'] + ' ' + act['text2'] + act['text3']
@@ -499,22 +505,52 @@ def routing():
             # nerd.extract_names()
             text = {'text': nerd.word_list,
                     'name_indexes': nerd.word_list_labeled,
-                    'row_id': act['row_id'],
+                    'row_id': t_id,
                     'id': act['id'],
                     'date': act['date'],
                     'place': act['place'],
             }
             match_details['comment'] = act['comment']
-            navbar_choices = [i for i in xrange(int(act['row_id']), int(act['row_id']) + 10)]
+            # navbar_choices = [i for i in xrange(int(act['row_id']), int(act['row_id']) + 10)]
+            navbar_choices = [i for i in xrange(int(t_id), int(t_id) + 10)]
 
         else:
             text = None
+
+        reference_pairs = []
+        # to get rid of redundant references:
+        reference_list = []
+        for ref in nerd.get_references():
+            if ref[1] not in reference_list:
+                reference_list.append(ref[1])
+
+        for i1, ref1 in enumerate(reference_list):
+            for i2, ref2 in enumerate(reference_list):
+                if i1 < i2:
+
+                    index_key = generate_features(ref1.split(), ref2.split())
+                    solr_results = my_hash.search(index_key, 'cat:birth OR cat:marriage OR cat:death')
+                    if solr_results.results:
+                        html_list = []
+                        search_results = {}
+                        for result in solr_results.highlighting.iteritems():
+                            search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
+
+                        for doc_id in search_results.keys():
+                            doc = Document()
+                            doc.set_id(doc_id)
+                            couple_names = ['_'.join(index_key.split('_')[:2]), '_'.join(index_key.split('_')[-2:])]
+                            html = doc.get_html(search_results[doc_id], couple_names)  # {year:....., html:.....}
+                            html_list.append(html) # {year:....., html:.....}
+
+                        reference_pairs.append([ref1, ref2, solr_results.numFound, html_list])
 
         return render_template('nerd_vis.html', text=text,
                                match_details=match_details,
                                refs_list=nerd.get_references(),
                                navbar_choices=navbar_choices,
-                               extracted_relations=nerd.get_relations())
+                               extracted_relations=nerd.get_relations(),
+                               reference_pairs=reference_pairs)
 
 
     app.debug = True

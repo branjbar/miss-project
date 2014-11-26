@@ -13,8 +13,12 @@ NOTARY_OFFSET = 30000000
 
 
 def generate_features(r1, r2):
-    if r1[0] and r1[1] and r2[0] and r2[1]:
+    if r1[0] and r1[-1] and r2[0] and r2[-1]:
+        r1 = [r1[0], r1[-1]]
+        r2 = [r2[0], r2[-1]]
+
         feature = sorted(['_'.join(r1), '_'.join(r2)])
+
         return '_'.join(feature)
     else:
         return 'ERROR'
@@ -253,7 +257,7 @@ class Hashing():
                 print self.commit_number
                 self.commit_number += 1
 
-    def search(self, features_list, filter_query, m_query):
+    def search(self, features_list, filter_query):
 
         if features_list:
             query = 'features: ' + features_list + '~'

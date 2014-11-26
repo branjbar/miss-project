@@ -16,7 +16,7 @@
   <body>
 
     {% include "navbar.html"%}
-    <div class="container">
+    <!--<div class="container">-->
         <div class="row">
             <div class="col-xs-1 text-center">
                   <ul class="nav nav-sidebar">
@@ -38,7 +38,7 @@
 
               </div> <!-- div col2 -->
 
-            <div class="col-xs-10 text-center">
+            <div class="col-xs-11 text-center">
 
                 <div class="row">
                     <div class="col-xs-8 text-center">
@@ -108,14 +108,50 @@
                         <!---->
                     </div> <!-- text_center -->
 
-                    <div class="col-xs-4 text-center">
-                        {% include "evaluate_form.html" %}
-                    </div> <!-- eval form -->
 
+                    <!-- Reference Pairs-->
                     <div class="col-xs-4 text-center">
+
+
+
+                        <div class="panel panel-default">
+                            <div class="panel-body" >
+                                <h5>Matched Reference Pairs (Using Random Walk) </h5>
+                                {% if not reference_pairs %}
+                                <small><p class="text-warning"> No match is found for any of the reference pairs!</p> </small>
+                                {% else %}
+
+                                    {% for ref_pair in reference_pairs %}
+
+                                        <small>{{ref_pair[2]}}
+                                            {% if ref_pair[2] == 1%}
+                                                match
+                                            {%else%}
+                                                matches
+                                            {% endif %}
+                                            found for <code> {{ref_pair[0]}}</code> and <code>{{ref_pair[1]}} </code>. </small>
+                                        <br>
+                                    {% endfor %}
+                                    <hr>
+                                    <b>Evidence:</b> <br>
+                                    {% for ref_pair in reference_pairs %}
+                                        <small>{{ref_pair[0]}} - {{ref_pair[1]}} <br>({{ref_pair[2]}}) </small>
+                                        {% for html in ref_pair[3] %}
+                                            {{html['html']|safe}}
+                                        {% endfor %}
+                                        <hr>
+                                    {% endfor %}
+
+                                {% endif %}
+                                <hr>
+
+                            </div>
+                        </div>
+                    <!--</div>-->
+                    <!--<div class="col-xs-4 text-center">-->
                         <div class="panel panel-default">
                             <div class="panel-body" id="d3_panel" >
-                                <h5>Extracted Relations </h5>
+                                <h5>Extracted Relations (Using Heuristics) </h5>
                                 <hr>
                                 <script>
                                     svg_r = d3.select("body")
@@ -208,6 +244,8 @@
                             </div>
                         </div>
 
+
+                        {% include "evaluate_form.html" %}
                     </div> <!-- eval form -->
 
 
@@ -218,6 +256,16 @@
 
         </div> <!--row -->
     </div> <!--div -->
+
+    <style>
+        .highlight {
+            background-color: #FFFF00;
+        }
+        .highlight_fuzzy {
+            background-color: #00FF00;
+        }
+
+    </style>
 
 
     <script src="/static/jquery-1.11.1.min.js"></script>
