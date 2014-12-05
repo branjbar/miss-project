@@ -297,5 +297,5 @@ class Hashing():
 if __name__ == '__main__':
     my_hash = Hashing()
     my_hash.update_all_persons()
-    # my_hash.update_notaries()
+    my_hash.update_notaries()
     my_hash.s.commit()
