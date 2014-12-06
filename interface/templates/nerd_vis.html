@@ -18,7 +18,7 @@
     {% include "navbar.html"%}
     <!--<div class="container">-->
         <div class="row">
-            <div class="col-xs-1 text-center">
+            <div class="col-xs-1 text-center" >
                   <ul class="nav nav-sidebar">
                     {% if navbar_choices %}
                         <p class="text-success">(Text ID)</p>
@@ -36,6 +36,34 @@
 
                   </ul>
 
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">
+                  <span class="glyphicon glyphicon glyphicon-edit" aria-hidden="true"></span>
+                </button>
+
+
+                <!-- Modal -->
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                      </div>
+                        <form class="navbar-form navbar-center" action="/nerd_vis/"  method="get">
+                            <div class="modal-body">
+                                <textarea name="personalText" class="col-sm-12" placeholder="Your Message" rows="10" required="required"></textarea>
+                            </div>
+                            <br>
+                          <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                      </div>
+                    </form>
+                    </div>
+                  </div>
+                </div>
+
               </div> <!-- div col2 -->
 
             <div class="col-xs-11 text-center">
@@ -52,39 +80,41 @@
                           <div class="panel-body">
                           <span class="glyphicon glyphicon-book"></span>
                               <br>
-                            {% for word in text.text %}
-                              {%if not text['name_indexes'][loop.index-1] %}
-                                {{word}}
-                              {% else %}
-                                    {% if text['name_indexes'][loop.index-1] == 1 %}
-                                        <span style="background-color: #FFFF00">{{word}}</span> <!-- capital start-->
-                                    {% endif %}
-                                    {% if text['name_indexes'][loop.index-1] == 2 %}
-                                        <span style="background-color: #DDFF99">{{word}}</span> <!-- prefix-->
-                                    {% endif %}
-                                    {% if text['name_indexes'][loop.index-1] == 3 %}
-                                        <span style="background-color: #FFDD88">{{word}}</span> <!-- first word in paragraph-->
-                                    {% endif %}
-                                    {% if text['name_indexes'][loop.index-1] == 4 %}
-                                        <span style="background-color: #00DD88">{{word}}</span> <!-- first word in paragraph-->
-                                    {% endif %}
-                                    {% if text['name_indexes'][loop.index-1] == -1 %}
-                                        <span style="background-color: #FFFF00; text-decoration:line-through">{{word}}</span>  <!-- strike out non-existing names-->
-                                    {% endif %}
-                               {% endif %}
-                            {% endfor %}
+                                <div id="inputText">
+                                    {{text.text|join(' ')}}
+                                </div>
                               <br>
-                              <span class="glyphicon glyphicon-book"></span>
+                              <span class="glyphicon glyphicon-book"></span> <small onmouseover="highlight_references()" onmouseout="highlight_all()"><i>highlight references</i></small>
                           </div> <!--panel_body -->
                           {% endif %}
                         </div> <!-- panel -->
 
-                        <div class="text-left">
+                        <div class="text-left col-xs-6">
                            <p class="text-warning">
                             <span class="glyphicon glyphicon-cloud-download"></span>
                             <b> Reference names extracted from text: </b></p>
                             {% for ref in refs_list %}
-                                <p> <b>{{loop.index}})</b> {{ref[1]}} ({{ref[0]}}) </p>
+                                <small><p>
+                                    <b>{{loop.index}})</b>
+                                    <a onmouseover="highlight('{{ref[1]}}','tmp')" onmouseout="de_highlight();highlight_all()">{{ref[1]}} </a>
+                                </p>
+                                    </small>
+                            {% endfor %}
+                        </div> <!-- eval div -->
+
+                        <div class="text-left col-xs-4">
+                           <p class="text-warning">
+                            <span class="glyphicon glyphicon-cloud-download"></span>
+                            <b> Detected Name Alternatives: </b></p>
+                            {% for name_lists in name_alternatives %}
+                                    {% for name in name_lists %}
+                                        <p>
+                                            <small>
+                                            {{name}}
+                                            </small>
+                                        </p>
+                                    {% endfor %}
+                                    <hr>
                             {% endfor %}
                         </div> <!-- eval div -->
 
@@ -112,46 +142,11 @@
                     <!-- Reference Pairs-->
                     <div class="col-xs-4 text-center">
 
-
-
-                        <div class="panel panel-default">
-                            <div class="panel-body" >
-                                <h5>Matched Reference Pairs (Using Random Walk) </h5>
-                                {% if not reference_pairs %}
-                                <small><p class="text-warning"> No match is found for any of the reference pairs!</p> </small>
-                                {% else %}
-
-                                    {% for ref_pair in reference_pairs %}
-
-                                        <small>{{ref_pair[2]}}
-                                            {% if ref_pair[2] == 1%}
-                                                match
-                                            {%else%}
-                                                matches
-                                            {% endif %}
-                                            found for <code> {{ref_pair[0]}}</code> and <code>{{ref_pair[1]}} </code>. </small>
-                                        <br>
-                                    {% endfor %}
-                                    <hr>
-                                    <b>Evidence:</b> <br>
-                                    {% for ref_pair in reference_pairs %}
-                                        <small>{{ref_pair[0]}} - {{ref_pair[1]}} <br>({{ref_pair[2]}}) </small>
-                                        {% for html in ref_pair[3] %}
-                                            {{html['html']|safe}}
-                                        {% endfor %}
-                                        <hr>
-                                    {% endfor %}
-
-                                {% endif %}
-                                <hr>
-
-                            </div>
-                        </div>
-                    <!--</div>-->
                     <!--<div class="col-xs-4 text-center">-->
                         <div class="panel panel-default">
                             <div class="panel-body" id="d3_panel" >
-                                <h5>Extracted Relations (Using Heuristics) </h5>
+                                <h5>Extracted Relations</h5>
+                                <small><p class="text-info"> green: confirmed link, black: nice pattern, red: odd pattern</p></small>
                                 <hr>
                                 <script>
                                     svg_r = d3.select("body")
@@ -168,12 +163,12 @@
                                         data_node.push({
                                                          name:text_data[i].ref1[1],
                                                          x: padding,
-                                                         y: (180 * i + 10)
+                                                         y: (150 * i + 10)
                                                         },
                                                         {
                                                          name:text_data[i].ref2[1],
                                                          x: 4 * padding,
-                                                         y: (180 * i + 110)
+                                                         y: (150 * i + 110)
                                                         }
                                                        )
 
@@ -181,14 +176,15 @@
                                                          name:text_data[i].relation,
                                                          x1: padding,
                                                          x2: 4 * padding,
-                                                         y1: (180 * i + 10),
-                                                         y2: (180 * i + 110)
+                                                         y1: (150 * i + 10),
+                                                         y2: (150 * i + 110),
+                                                         color:text_data[i].color
                                                         }
                                                        )
 
                                     }
 
-                                    svg_r.attr("height",180 * text_data.length);
+                                    svg_r.attr("height",150 * text_data.length);
 
                                     svg_r.selectAll("circle .node")
                                           .data(data_node)
@@ -209,7 +205,11 @@
                                             .attr("y",function(d){return d.y})
                                             .attr("font-family", "sans-serif")
                                             .attr("font-size", "12px")
-                                            .attr("fill", "black");
+                                            .attr("fill", "black")
+                                            .on("mouseenter",function(d){highlight(d.name,"tmp")})
+                                            .on("mouseleave", function(){de_highlight();highlight_all()})
+
+                                    highlight_all()
 
                                     svg_r.selectAll("line .link")
                                           .data(data_link)
@@ -220,8 +220,9 @@
                                             .attr("y1",function(d){return d.y1})
                                             .attr("x2",function(d){return d.x1})
                                             .attr("y2",function(d){return d.y1})
-                                           .attr("stroke-width", 2)
-                                           .attr("stroke", "black")
+                                           .attr("stroke-width", 3)
+                                           .attr("stroke", function(d){return d.color})
+                                           .style("stroke-dasharray", function(d){ return d.color=="green"?  ("10, 0"):("10, 5")})
                                            .transition()
                                            .duration(2000)
                                             .attr("x2",function(d){return d.x2})
@@ -239,10 +240,96 @@
                                             .attr("fill", "red");
 
 
+                                function highlight(text, type)
+                                {
+                                    inputText = document.getElementById("inputText")
+                                    var innerHTML = inputText.innerHTML
+                                    var index = innerHTML.indexOf(text);
+                                    if ( index >= 0 )
+                                    {
+                                        if (type=="tmp")
+                                            innerHTML = replaceAll(text, "<span class='highlight_temp'>" + text + "</span>", innerHTML)
+                                        else if (type=="light")
+                                            innerHTML = replaceAll(text, "<span class='highlight_light'>" + text + "</span>", innerHTML)
+                                        else
+                                            innerHTML = replaceAll(text, "<span class='highlight'>" + text + "</span>", innerHTML)
+                                        inputText.innerHTML = innerHTML
+                                    }
+
+                                }
+                                function de_highlight()
+                                {
+                                    inputText = document.getElementById("inputText");
+                                    var innerHTML = inputText.innerHTML;
+                                    innerHTML = replaceAll('<span class="highlight_temp">', "",innerHTML)
+                                    innerHTML = replaceAll('<span class="highlight_light">', "",innerHTML)
+                                    innerHTML = replaceAll('<span class="highlight">', "",innerHTML)
+                                    innerHTML = replaceAll("</span>","",innerHTML);
+                                    inputText.innerHTML = innerHTML;
+
+                                }
+
+                                function replaceAll(find, replace, str) {
+                                  return str.replace(new RegExp(find, 'g'), replace);
+                                }
+
+                                function highlight_references(){
+                                    refs_list = {{refs_list|tojson|safe}};
+                                    for (i=0; i<refs_list.length; i++) {
+                                        highlight(refs_list[i][1], "light")
+                                    }
+
+                                }
+
+                                function highlight_all(){
+
+                                    de_highlight()
+                                    for (i=0; i<data_node.length; i++) {
+                                        highlight(data_node[i].name, "")
+                                    }
+
+                                }
+
                                 </script>
 
                             </div>
                         </div>
+
+                        <div class="panel panel-default">
+                            <div class="panel-body" >
+                                <h5>Evidences </h5>
+                                {% if not reference_pairs %}
+                                <small><p class="text-warning"> No match is found for any of the reference pairs!</p> </small>
+                                {% else %}
+
+                                    {% for ref_pair in reference_pairs %}
+
+                                        <small>{{ref_pair[2]}}
+                                            {% if ref_pair[2] == 1%}
+                                                match
+                                            {%else%}
+                                                matches
+                                            {% endif %}
+                                            found for <code> {{ref_pair[0]}}</code> and <code>{{ref_pair[1]}}</code>. </small>
+                                        <br>
+                                    {% endfor %}
+                                    <hr>
+                                    <b>Evidence:</b> <br>
+                                    {% for ref_pair in reference_pairs %}
+                                        <small>{{ref_pair[0]}} - {{ref_pair[1]}} <br>({{ref_pair[2]}}) </small>
+                                        {% for html in ref_pair[3] %}
+                                            {{html['html']|safe}}
+                                        {% endfor %}
+                                        <hr>
+                                    {% endfor %}
+
+                                {% endif %}
+                                <hr>
+
+                            </div>
+                        </div>
+                    <!--</div>-->
+
 
 
                         {% include "evaluate_form.html" %}
@@ -260,6 +347,12 @@
     <style>
         .highlight {
             background-color: #FFFF00;
+        }
+        .highlight_temp {
+            background-color: #FFCCAA;
+        }
+        .highlight_light {
+            background-color: #FFCC00;
         }
         .highlight_fuzzy {
             background-color: #00FF00;

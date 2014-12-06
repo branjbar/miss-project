@@ -3,6 +3,7 @@ import pickle
 import random
 from flask import request
 from flask import render_template
+from interface.nerd_visualization import get_nerd_data
 
 from modules.NERD.dict_based_nerd import Nerd
 from modules.basic_modules import basic, loadData, myOrm, generatePedigree
@@ -17,15 +18,15 @@ from modules.record_linkage.hashing import Hashing, generate_features
 # new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
 
 # try:
-#     story_file = open('../data/good_stories.txt', 'r')
+# story_file = open('../data/good_stories.txt', 'r')
 # except:
-#     story_file = open('data/good_stories.txt', 'r')
+# story_file = open('data/good_stories.txt', 'r')
 
 # lucky_stories = []
 # line = story_file.readline()
 # while line:
-#     lucky_stories.append(line.split()[1])
-#     line = story_file.readline()
+# lucky_stories.append(line.split()[1])
+# line = story_file.readline()
 
 
 # pickle.dump(hash_table, open("hashing_v1.p", 'w'))
@@ -67,7 +68,6 @@ def routing():
             field_query += ' -'
             field_query.replace(' - -', ' -')
 
-
         # here we manage the features_ss facet
         if facet_query and facet_query.split(':')[0] == 'features_ss':
             if not search_term or search_term == '*':
@@ -92,6 +92,7 @@ def routing():
         search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ')
         ref1 = ' '.join(search_term.split()[:2])
         ref2 = ' '.join(search_term.split()[-2:])
+
         search_term = generate_features(ref1.split(), ref2.split())
 
         solr_results = my_hash.search(search_term, field_query)
@@ -471,87 +472,14 @@ def routing():
     @app.route('/nerd_vis/', methods=['GET'])
     @app.route('/nerd_vis/<t_id>', methods=['GET'])
     def nerd_vis(t_id=1):
-
-        if request.args.get('confirm'):
-            opinion = request.args.get('confirm')
-            comment = request.args.get('comment').replace("'", "").replace('"', '"')
-            if opinion == "True":
-                query = "update notary_acts set eval=1, comment='%s' where row_id=%s" % (comment, t_id)
-                loadData.table_notarial_acts[int(t_id)]['eval'] = 1
-                loadData.table_notarial_acts[int(t_id)]['comment'] = comment
-            else:
-                query = "update notary_acts set eval=0, comment='%s' where row_id=%s" % (comment, t_id)
-                loadData.table_notarial_acts[int(t_id)]['eval'] = 0
-                loadData.table_notarial_acts[int(t_id)]['comment'] = comment
-            basic.run_query(query)
-            t_id = int(t_id)
-            t_id += 1
-
-        else:
-
-            search_id = request.args.get('search_term')
-            if search_id and search_id.isdigit():
-                t_id = int(search_id)
-
-        refs_list = []
-        match_details = {}
-        act = myOrm.get_notarial_act(t_id, century18=True)
-        navbar_choices = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        if act:
-            text = act['text1'] + ' ' + act['text2'] + act['text3']
-            nerd = Nerd(text)
-            # nerd.set_text(text)
-            # nerd.pre_processing()
-            # nerd.extract_names()
-            text = {'text': nerd.word_list,
-                    'name_indexes': nerd.word_list_labeled,
-                    'row_id': t_id,
-                    'id': act['id'],
-                    'date': act['date'],
-                    'place': act['place'],
-            }
-            match_details['comment'] = act['comment']
-            # navbar_choices = [i for i in xrange(int(act['row_id']), int(act['row_id']) + 10)]
-            navbar_choices = [i for i in xrange(int(t_id), int(t_id) + 10)]
-
-        else:
-            text = None
-
-        reference_pairs = []
-        # to get rid of redundant references:
-        reference_list = []
-        for ref in nerd.get_references():
-            if ref[1] not in reference_list:
-                reference_list.append(ref[1])
-
-        for i1, ref1 in enumerate(reference_list):
-            for i2, ref2 in enumerate(reference_list):
-                if i1 < i2:
-
-                    index_key = generate_features(ref1.split(), ref2.split())
-                    solr_results = my_hash.search(index_key, 'cat:birth OR cat:marriage OR cat:death')
-                    if solr_results.results:
-                        html_list = []
-                        search_results = {}
-                        for result in solr_results.highlighting.iteritems():
-                            search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
-
-                        for doc_id in search_results.keys():
-                            doc = Document()
-                            doc.set_id(doc_id)
-                            couple_names = ['_'.join(index_key.split('_')[:2]), '_'.join(index_key.split('_')[-2:])]
-                            html = doc.get_html(search_results[doc_id], couple_names)  # {year:....., html:.....}
-                            html_list.append(html) # {year:....., html:.....}
-
-                        reference_pairs.append([ref1, ref2, solr_results.numFound, html_list])
-
-        return render_template('nerd_vis.html', text=text,
-                               match_details=match_details,
-                               refs_list=nerd.get_references(),
-                               navbar_choices=navbar_choices,
-                               extracted_relations=nerd.get_relations(),
-                               reference_pairs=reference_pairs)
-
+        output = get_nerd_data(request, t_id)
+        return render_template('nerd_vis.html', text=output['text'],
+                               match_details=output['match_details'],
+                               refs_list=output['nerd_references'],
+                               navbar_choices=output['navbar_choices'],
+                               extracted_relations=output['nerd_relationships'],
+                               reference_pairs=output['reference_pairs'],
+                               name_alternatives=output['name_alternatives'])
 
     app.debug = True
     app.run(host='0.0.0.0', port=20002)
