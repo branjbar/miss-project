@@ -15,9 +15,15 @@ PUNCTUATION_LIST = [',', ';', '.', ':', '[', ']', '(', ')', '"', "'"]
 PREFIXES = ['van', 'de', 'van der', 'van den', 'van de']
 # FREQ_NAMES = ['te', 'een', 'eende', 'voor', 'als', 'zijn', 'die', 'gulden', 'heeft',
 # 'gelegen', 'door', 'huis', 'kinderen', 'schepenen', 'wijlen', 'goederen',
-#               'haar',  'hij', 'andere', 'groot', 'genaamd', 'dochter', 'verkopen', 'sijn',
-#               'land', 'heer']
+# 'haar',  'hij', 'andere', 'groot', 'genaamd', 'dochter', 'verkopen', 'sijn',
+# 'land', 'heer']
+
+# TODO: other patterns for relationship: kinderen van [blah] en [blue]
+# TODO: other patterns for relationship: zoon van [blah] en [blue]
+# TODO: other patterns for relationship: dochter van [blah] en [blue]
 FREQ_NAMES = ['te', 'kinderen', 'dochter']
+
+RELATION_INDICATORS_BEFORE_MIDDLE = [["kinderen van", "en"], ["zoon van", "en"], ["dochter van", "en"]]
 
 RELATION_INDICATORS_MIDDLE = {"gehuwd met": "married with",
                               "weduwe van": "widow of",
@@ -94,7 +100,7 @@ class Nerd():
              replaces multiple spaces by single ones.
              detects the names connected to previous word
         """
-        self.text = self.text.replace('"','')
+        self.text = self.text.replace('"', '')
         for c in PUNCTUATION_LIST:
             self.text = self.text.replace(c, ' ' + c + ' ')
         text = self.text.replace('  ', ' ')
@@ -129,7 +135,7 @@ class Nerd():
         # global meertens_names
         #
         # if not meertens_names:
-        #     import_dutch_data_set()
+        # import_dutch_data_set()
 
         # get a list of words from pre-processed words.
         self.word_list = self.pp_text.split()
@@ -143,9 +149,6 @@ class Nerd():
 
         # TODO Consider a start like this: "Hendrik de Jong, lid der sted.....", here because of "de", it's hard to detect the first name.
 
-        # Consider first word as a name if second word is already chosen to be a name
-        if not self.word_list[0] == 'Testament' and word_spec.get(1) == 1:
-            word_spec[0] = 3
 
         # search for last name prefixes
         for index, word in enumerate(self.word_list):
@@ -163,6 +166,22 @@ class Nerd():
                 word_spec[index] = 2
                 word_spec[index + 1] = 2
 
+        # Consider first word as a name if second word is already chosen to be a name
+        if not self.word_list[0] == 'Testament' and word_spec.get(1) == 1:
+            word_spec[0] = 3
+
+        # Consider first word as a name if second word is already chosen to be a prefix and third name is a name
+        if not self.word_list[0] == 'Testament' and self.word_list[1] in PREFIXES and word_spec.get(2) == 1:
+            word_spec[0] = 3
+            word_spec[1] = 2
+
+        # Consider first word as a name if second and third words are already chosen to be a prefix and forth name is a name
+        if not self.word_list[0] == 'Testament' and self.word_list[1] + " " + self.word_list[
+            2] in PREFIXES and word_spec.get(3) == 1:
+            word_spec[0] = 3
+            word_spec[1] = 2
+            word_spec[2] = 2
+
         for index, word in enumerate(self.word_list):
             if word in FREQ_NAMES:
                 word_spec[index] = 4
@@ -171,8 +190,8 @@ class Nerd():
 
 
         # for index, word in enumerate(self.word_list):
-        #     if word_spec[index] and not meertens_names.get(word.lower()):
-        #         word_spec[index] = -1
+        # if word_spec[index] and not meertens_names.get(word.lower()):
+        # word_spec[index] = -1
 
         self.word_list_labeled = word_spec
 
@@ -196,14 +215,14 @@ class Nerd():
                 if ref_len > 1:
                     refs_list.append([index - ref_len, reference])
                     # if need_last_name_flag:
-                    #     refs_list[-2][1] = refs_list[-2][1] + ' ' + reference.split()[-1]
-                    #     need_last_name_flag = False
+                    # refs_list[-2][1] = refs_list[-2][1] + ' ' + reference.split()[-1]
+                    # need_last_name_flag = False
 
                 # TODO: Improve dochter name extraction!
                 # if none name word after name(s) is 'dochter' we still consider the name as a reference.
                 # if index < len(self.word_list) and self.word_list[index] == 'dochter':
-                #     need_last_name_flag = True  # let the next reference borrow its last name to this reference
-                #     refs_list.append([index - ref_len, reference])
+                # need_last_name_flag = True  # let the next reference borrow its last name to this reference
+                # refs_list.append([index - ref_len, reference])
                 reference = ''
 
         self.references = refs_list
@@ -216,7 +235,7 @@ class Nerd():
         for index1, ref1 in enumerate(self.get_references()):
             for index2, ref2 in enumerate(self.get_references()):
                 if index2 == index1 + 1:
-                    term = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
+                    term = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()): ref2[0]])
                     if term in RELATION_INDICATORS_MIDDLE.keys():
                         self.relations.append(
                             {"ref1": ref1, "ref2": ref2, "relation": RELATION_INDICATORS_MIDDLE[term]})
@@ -240,6 +259,16 @@ class Nerd():
                     except:
                         pass
 
+                    # Following is to detect relations in patterns like "kinderen van Johannes Janse Smits en Antonetta Jan Roeloff Donckers"
+                    try:
+                        term1 = ' '.join(
+                            self.word_list[ref1[0]-2:ref1[0]])
+                        term2 = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
+                        if [term1, term2] in RELATION_INDICATORS_BEFORE_MIDDLE:
+                            self.relations.append({"ref1": ref1, "ref2": ref2, "relation": "married with"})
+                    except:
+                        pass
+
 
     def get_statistics(self):
         """
@@ -251,7 +280,6 @@ class Nerd():
             self.get_relations()
 
         return {'ref_len': len(self.references), 'rel_len': len(self.relations)}
-
 
 
 def import_dutch_data_set():
@@ -272,13 +300,14 @@ def import_dutch_data_set():
 
 def main():
     from modules.basic_modules import myOrm
+
     ref = []
     rel = []
-    for t_id in xrange(4815,20000000):
+    for t_id in xrange(4815, 20000000):
         if not t_id % 100:
             print t_id
         act = myOrm.get_notarial_act(t_id, century18=True)
-        fd = open('stat_nerd.csv','a')
+        fd = open('stat_nerd.csv', 'a')
         if act:
             text = act['text1'] + ' ' + act['text2'] + act['text3']
             nerd = Nerd(text)
@@ -289,7 +318,6 @@ def main():
             # rel.append(nerd.get_statistics()['rel_len'])
     print ref
     print rel
-
 
 
 if __name__ == "__main__":
