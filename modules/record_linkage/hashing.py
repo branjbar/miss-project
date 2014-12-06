@@ -14,10 +14,13 @@ NOTARY_OFFSET = 30000000
 
 def generate_features(r1, r2):
     if r1[0] and r1[-1] and r2[0] and r2[-1]:
-        r1 = [r1[0], r1[-1]]
-        r2 = [r2[0], r2[-1]]
+        if not r1[0] == '*' and not r2[0] == '*':
+            r1 = [r1[0], r1[-1]]
+            r2 = [r2[0], r2[-1]]
+            feature = sorted(['_'.join(r1), '_'.join(r2)])
+        else:
+            feature = ['*']
 
-        feature = sorted(['_'.join(r1), '_'.join(r2)])
 
         return '_'.join(feature)
     else:
