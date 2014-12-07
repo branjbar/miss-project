@@ -290,8 +290,8 @@ class Nerd():
             ref2 = reference_list[i]
             index_key = solr_query.generate_features(ref1.split(), ref2.split())
             solr_results = my_solr.search(index_key, 'cat:birth OR cat:marriage OR cat:death')
-            name_alternative_tmp_1 = [ref1]
-            name_alternative_tmp_2 = [ref2]
+            name_alternative_tmp_1 = [' '.join(index_key.split('_')[:2])]
+            name_alternative_tmp_2 = [' '.join(index_key.split('_')[2:])]
             if solr_results.results:
                 html_list = []
                 search_results = {}
