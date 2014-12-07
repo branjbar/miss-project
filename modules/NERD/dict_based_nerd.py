@@ -2,17 +2,19 @@
 a class to extract names.
 
 """
-import copy
+from modules.solr_search import solr_query
 
 __author__ = 'Bijan'
 
 from modules.basic_modules import basic
 from modules.basic_modules.basic import log
 
+
+my_solr = solr_query.SolrQuery()
 meertens_names = {}
 
 PUNCTUATION_LIST = [',', ';', '.', ':', '[', ']', '(', ')', '"', "'"]
-PREFIXES = ['van', 'de', 'van der', 'van den', 'van de']
+PREFIXES = ['van', 'de', 'van der', 'van den', 'van de', 'den']
 # FREQ_NAMES = ['te', 'een', 'eende', 'voor', 'als', 'zijn', 'die', 'gulden', 'heeft',
 # 'gelegen', 'door', 'huis', 'kinderen', 'schepenen', 'wijlen', 'goederen',
 # 'haar',  'hij', 'andere', 'groot', 'genaamd', 'dochter', 'verkopen', 'sijn',
@@ -75,12 +77,13 @@ class Nerd():
         self.word_list_labeled = {}
         self.references = []
         self.relations = []
+        self.name_alternatives = []
+        self.solr_relations = []
 
         if extract_flag:
             self.pre_processing()
             if len(self.text) > 5:
                 self.extract_names()
-
 
     def get_relations(self):
         if not self.relations:
@@ -88,10 +91,16 @@ class Nerd():
         rel_list = self.relations
         return rel_list
 
+    def get_solr_relations(self):
+        return self.solr_relations
+
     def get_references(self):
         if not self.references:
             self.extract_references()
         return self.references
+
+    def get_name_alternatives(self):
+        return self.name_alternatives
 
     def pre_processing(self):
         """
@@ -147,9 +156,6 @@ class Nerd():
             if word[0].isupper() and index > 0 and len(word) > 1:
                 word_spec[index] = 1
 
-        # TODO Consider a start like this: "Hendrik de Jong, lid der sted.....", here because of "de", it's hard to detect the first name.
-
-
         # search for last name prefixes
         for index, word in enumerate(self.word_list):
             # one component prefixes
@@ -178,9 +184,10 @@ class Nerd():
         except:
             pass
 
-        # Consider first word as a name if second and third words are already chosen to be a prefix and forth name is a name
+        # Consider first word as a name if 2nd and 3rd words are already chosen to be a prefix and forth name is a name
         try:
-            if not self.word_list[0] == 'Testament' and self.word_list[1] + " " + self.word_list[2] in PREFIXES and word_spec.get(3) == 1:
+            if not self.word_list[0] == 'Testament' and self.word_list[1] + " " + self.word_list[
+                2] in PREFIXES and word_spec.get(3) == 1:
                 word_spec[0] = 3
                 word_spec[1] = 2
                 word_spec[2] = 2
@@ -190,13 +197,6 @@ class Nerd():
         for index, word in enumerate(self.word_list):
             if word in FREQ_NAMES:
                 word_spec[index] = 4
-
-
-
-
-        # for index, word in enumerate(self.word_list):
-        # if word_spec[index] and not meertens_names.get(word.lower()):
-        # word_spec[index] = -1
 
         self.word_list_labeled = word_spec
 
@@ -254,7 +254,7 @@ class Nerd():
                     except:
                         pass
 
-                    # Following is to detect relations in patterns like "Jorden Thomassen en Catharina Hendriks zijn vrouw"
+                    # detect relations in patterns like "Jorden Thomassen en Catharina Hendriks zijn vrouw"
                     try:
                         term1 = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
                         term2 = ' '.join(
@@ -264,16 +264,66 @@ class Nerd():
                     except:
                         pass
 
-                    # Following is to detect relations in patterns like "kinderen van Johannes Janse Smits en Antonetta Jan Roeloff Donckers"
+                    # detect relations in like "kinderen van Johannes Janse Smits en Antonetta Jan Roeloff Donckers"
                     try:
                         term1 = ' '.join(
-                            self.word_list[ref1[0]-2:ref1[0]])
+                            self.word_list[ref1[0] - 2:ref1[0]])
                         term2 = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
                         if [term1, term2] in RELATION_INDICATORS_BEFORE_MIDDLE:
                             self.relations.append({"ref1": ref1, "ref2": ref2, "relation": "married with"})
                     except:
                         pass
 
+    def extract_solr_relations(self):
+        """
+        here for every pair of relationships we look at
+        """
+
+        reference_pairs = []
+
+        # to get rid of redundant references:
+        reference_list = []
+        for ref in self.references:
+            reference_list.append(ref[1])
+
+        name_alternatives = []
+        for i in xrange(1, len(reference_list)):
+            ref1 = reference_list[i - 1]
+            ref2 = reference_list[i]
+            index_key = solr_query.generate_features(ref1.split(), ref2.split())
+            solr_results = my_solr.search(index_key, 'cat:birth OR cat:marriage OR cat:death')
+            name_alternative_tmp_1 = []
+            name_alternative_tmp_2 = []
+            if solr_results.results:
+                html_list = []
+                search_results = {}
+                for result in solr_results.highlighting.iteritems():
+                    search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
+
+                    tmp_name = ' '.join(
+                        result[1]['features'][0].replace('<em>', '').replace('</em>', '').split('_')[0:2])
+                    if tmp_name not in name_alternative_tmp_1:
+                        name_alternative_tmp_1.append(tmp_name)
+
+                    tmp_name = ' '.join(
+                        result[1]['features'][0].replace('<em>', '').replace('</em>', '').split('_')[2:])
+                    if tmp_name not in name_alternative_tmp_2:
+                        name_alternative_tmp_2.append(tmp_name)
+
+                for doc_id in search_results.keys():
+                    couple_names = ['_'.join(index_key.split('_')[:2]), '_'.join(index_key.split('_')[-2:])]
+                    html = {"id": doc_id, "couple_names": couple_names, "search_results": search_results[doc_id]}
+                    html_list.append(html)
+
+                reference_pairs.append({"ref1": ref1, "ref2": ref2, "numFound": solr_results.numFound, "html": html_list})
+
+                if len(name_alternative_tmp_1) > 1 and name_alternative_tmp_1 not in name_alternatives:
+                    name_alternatives.append(name_alternative_tmp_1)
+
+                if len(name_alternative_tmp_2) > 1 and name_alternative_tmp_2 not in name_alternatives:
+                    name_alternatives.append(name_alternative_tmp_2)
+        self.name_alternatives = name_alternatives
+        self.solr_relations = reference_pairs
 
     def get_statistics(self):
         """

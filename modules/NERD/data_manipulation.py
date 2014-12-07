@@ -236,6 +236,38 @@ def relation_learning():
             print t_id, num_ref_pairs, len(doc_list), ' '.join(doc_list)
 
 
+def text_statistics():
+
+    for t_id in xrange(100):
+        act = myOrm.get_notarial_act(t_id, century18=True)
+        if not t_id % 1000:
+            print t_id
+        if act:
+            text = act['text1'] + ' ' + act['text2'] + act['text3']
+            nerd = Nerd(text)
+            doc_list = []
+
+            # to get rid of redundant references:
+            reference_list = []
+            num_ref_pairs = 0
+            for ref in nerd.get_references():
+                if ref[1] not in reference_list:
+                    reference_list.append(ref[1])
+
+            for i1, ref1 in enumerate(reference_list):
+                for i2, ref2 in enumerate(reference_list):
+                    if i1 < i2:
+                        index_key = generate_features(ref1.split(), ref2.split())
+                        solr_results = my_hash.search(index_key, 'cat:birth OR cat:marriage OR cat:death')
+
+                        if solr_results.results:
+                            num_ref_pairs += 1
+                            for result in solr_results.highlighting.iteritems():
+                                doc_list.append(result[0])
+
+        if doc_list:
+            print t_id, num_ref_pairs, len(doc_list), ' '.join(doc_list)
+
 if __name__ == "__main__":
     relation_learning()
 
