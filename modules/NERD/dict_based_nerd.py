@@ -310,7 +310,7 @@ class Nerd():
 
                 for doc_id in search_results.keys():
                     couple_names = ['_'.join(index_key.split('_')[:2]), '_'.join(index_key.split('_')[-2:])]
-                    html = {"id": doc_id, "couple_names": couple_names, "search_results": search_results[doc_id]}
+                    html = {"id": str(doc_id), "couple_names": couple_names, "search_results": search_results[doc_id]}
                     html_list.append(html)
 
                 self.solr_relations.append(
@@ -409,7 +409,7 @@ def main():
 
             csv_dict = nerd.get_statistics()
 
-            csv_line = '%d, %d, %d, %d, %d, %s, %s, %s\n' % (
+            csv_line = '%d, %d, %d, %d, %d, %d, %s, %s, %s\n' % (t_id,
                 csv_dict['ref_len'], csv_dict['rel_len'], csv_dict['rel_type_freq'].get('green', 0),
                 csv_dict['rel_type_freq'].get('black', 0), csv_dict['rel_type_freq'].get('red', 0),
                 ', '.join(csv_dict['rel_type']['green']), ', '.join(csv_dict['rel_type']['black']),

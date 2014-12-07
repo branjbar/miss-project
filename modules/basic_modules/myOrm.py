@@ -181,6 +181,7 @@ class Document():
         self.ref_list.append(ref)
 
     def set_id(self, doc_id):
+        doc_id = str(doc_id)
         if 'n' in doc_id:
             doc_id = int(doc_id[1:]) + NOTARY_OFFSET
 

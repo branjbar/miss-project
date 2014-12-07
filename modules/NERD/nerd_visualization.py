@@ -94,7 +94,7 @@ def get_nerd_data(request, t_id):
         for doc_dict in rel["html"]:
             doc = Document()
             doc.set_id(doc_dict["id"])
-            html = doc.get_html(doc_dict["search_results"], doc_dict["couple_names"])
+            html = doc.get_html(doc_dict.get("search_results",[]), doc_dict.get("couple_names"))
             html_list.append(html)
         nerd_relationships[index]["html"] = html_list
 
