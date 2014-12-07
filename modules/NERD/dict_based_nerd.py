@@ -279,7 +279,6 @@ class Nerd():
         here for every pair of relationships we look at
         """
 
-        reference_pairs = []
 
         # to get rid of redundant references:
         reference_list = []
@@ -292,8 +291,8 @@ class Nerd():
             ref2 = reference_list[i]
             index_key = solr_query.generate_features(ref1.split(), ref2.split())
             solr_results = my_solr.search(index_key, 'cat:birth OR cat:marriage OR cat:death')
-            name_alternative_tmp_1 = []
-            name_alternative_tmp_2 = []
+            name_alternative_tmp_1 = [ref1]
+            name_alternative_tmp_2 = [ref2]
             if solr_results.results:
                 html_list = []
                 search_results = {}
@@ -315,26 +314,68 @@ class Nerd():
                     html = {"id": doc_id, "couple_names": couple_names, "search_results": search_results[doc_id]}
                     html_list.append(html)
 
-                reference_pairs.append({"ref1": ref1, "ref2": ref2, "numFound": solr_results.numFound, "html": html_list})
+                self.solr_relations.append(
+                    {"ref1": ref1, "ref2": ref2, "numFound": solr_results.numFound, "html": html_list})
 
                 if len(name_alternative_tmp_1) > 1 and name_alternative_tmp_1 not in name_alternatives:
                     name_alternatives.append(name_alternative_tmp_1)
 
                 if len(name_alternative_tmp_2) > 1 and name_alternative_tmp_2 not in name_alternatives:
                     name_alternatives.append(name_alternative_tmp_2)
+
+        nerd_relationships = []
+        for index, rel1 in enumerate(self.relations):
+            for rel2 in self.solr_relations:
+                if [rel1['ref1'][1], rel1['ref2'][1]] == [rel2['ref1'], rel2['ref2']]:
+                    nerd_relationships.append(rel1)
+                    nerd_relationships[-1]['color'] = 'green'
+                    nerd_relationships[-1]['html'] = rel2['html']
+                    nerd_relationships[-1]['numFound'] = rel2['numFound']
+
+        for index, rel1 in enumerate(self.relations):
+            if not [rel1['ref1'][1], rel1['ref2'][1]] in [[rel2['ref1'], rel2['ref2']] for rel2 in self.solr_relations]:
+                nerd_relationships.append(rel1)
+                nerd_relationships[-1]['color'] = 'black'
+                nerd_relationships[-1]['html'] = []
+                nerd_relationships[-1]['numFound'] = 0
+
+        for rel2 in self.solr_relations:
+            if [rel2['ref1'], rel2['ref2']] not in [[rel1['ref1'][1], rel1['ref2'][1]] for rel1 in self.relations]:
+                nerd_relationships.append({'ref1': [0, rel2['ref1']],
+                                           'ref2': [0, rel2['ref2']],
+                                           'relation': 'married with',
+                                           'color': 'red',
+                                           'html': rel2['html'],
+                                           'numFound': rel2['numFound'],
+                })
+
         self.name_alternatives = name_alternatives
-        self.solr_relations = reference_pairs
+        self.relations = nerd_relationships
 
     def get_statistics(self):
         """
         returns useful statistics like number of entities and references extracted.
+        colors: green: both pattern and evidence, black: just pattern, red: just evidence
         """
         if not self.references:
-            self.get_references()
+            self.extract_references()
         if not self.relations:
-            self.get_relations()
+            self.extract_relations()
+        if not self.solr_relations:
+            self.extract_solr_relations()
 
-        return {'ref_len': len(self.references), 'rel_len': len(self.relations)}
+        # here we get frequency of relation types
+        rel_type = [rel['color'] for rel in self.relations]
+        rel_type_freq = {x: rel_type.count(x) for x in rel_type}
+        rel_type_count = {'green': [], 'black': [], 'red': []}
+        for rel in [[rel['color'], len(rel['html'])] for rel in self.relations]:
+            rel_type_count[rel[0]].append(str(rel[1]))
+
+        return {'ref_len': len(self.references),
+                'rel_len': len(self.relations),
+                'rel_type_freq': rel_type_freq,
+                'rel_type': rel_type_count,
+        }
 
 
 def import_dutch_data_set():
@@ -356,24 +397,32 @@ def import_dutch_data_set():
 def main():
     from modules.basic_modules import myOrm
 
-    ref = []
-    rel = []
-    for t_id in xrange(4815, 20000000):
+    fd = open('stat_nerd.csv', 'a')
+    fd.write('#refs, #rels, #greens, #blacks, #reds, greens, blacks , reds \n')
+    for t_id in xrange(20000000):
         if not t_id % 100:
             print t_id
         act = myOrm.get_notarial_act(t_id, century18=True)
-        fd = open('stat_nerd.csv', 'a')
+
         if act:
             text = act['text1'] + ' ' + act['text2'] + act['text3']
             nerd = Nerd(text)
-            fd.write('%d, %d, %d \n' % (t_id, nerd.get_statistics().values()[0], nerd.get_statistics().values()[1]))
-            # fd.close()
 
-            # ref.append(nerd.get_statistics()['ref_len'])
-            # rel.append(nerd.get_statistics()['rel_len'])
-    print ref
-    print rel
+            csv_dict = nerd.get_statistics()
+
+            csv_line = '%d, %d, %d, %d, %d, %s, %s, %s\n' % (
+                csv_dict['ref_len'], csv_dict['rel_len'], csv_dict['rel_type_freq'].get('green', 0),
+                csv_dict['rel_type_freq'].get('black', 0), csv_dict['rel_type_freq'].get('red', 0),
+                ', '.join(csv_dict['rel_type']['green']), ', '.join(csv_dict['rel_type']['black']),
+                ', '.join(csv_dict['rel_type']['red']))
+
+            fd.write(csv_line)
 
 
 if __name__ == "__main__":
     main()
+    # text = """Peeter Jan Deelissen , Gerardus Josephus Schippers gehuwd met Willemina Jan Deelissen , Adriaantje Adriaan Deelissen , Jan Jan van den Berg gehuwd met Willemijn Adriaan Deelissen , Deelis Jan van den Bergh verwekt bij Johanna Deelissen , Jan Claas van den Bergh gehuwd met Jennemie Jan van den Bergh verwekt bij voornoemde Johanna Deelissen allen inwoners van Erp en Beek en Donk als erfgenamen van Maria Deelissen . Mondeling aanbedeeld en nu in schrift opgesteld de volgende vaste goederen teul en hooilanden aan de Bergen oa genaamd de Roost , in de Middelbosch genaamd de Magerman .
+    #
+    # """
+    # nerd = Nerd(text)
+    #     print nerd.get_statistics()

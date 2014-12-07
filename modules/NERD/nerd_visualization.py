@@ -85,38 +85,19 @@ def get_nerd_data(request, t_id):
     else:
         text = None
 
-    nerd_relationships = []
-    # coloring the links:
-    # green: pattern and civil, red: civil, black: pattern
     nerd.extract_relations()
     nerd.extract_solr_relations()
-    solr_relations = nerd.get_solr_relations()
-    for index, rel in enumerate(solr_relations):
+
+    nerd_relationships = nerd.get_relations()
+    for index, rel in enumerate(nerd_relationships):
         html_list = []
         for doc_dict in rel["html"]:
             doc = Document()
             doc.set_id(doc_dict["id"])
             html = doc.get_html(doc_dict["search_results"], doc_dict["couple_names"])
             html_list.append(html)
-        solr_relations[index]["html"] = html_list
+        nerd_relationships[index]["html"] = html_list
 
-    for index, rel1 in enumerate(nerd.get_relations()):
-        if [rel1['ref1'][1], rel1['ref2'][1]] in [[rel2['ref1'], rel2['ref2']] for rel2 in solr_relations]:
-            nerd_relationships.append(rel1)
-            nerd_relationships[-1]['color'] = 'green'
-
-    for index, rel1 in enumerate(nerd.get_relations()):
-        if not [rel1['ref1'][1], rel1['ref2'][1]] in [[rel2['ref1'], rel2['ref2']] for rel2 in solr_relations]:
-            nerd_relationships.append(rel1)
-            nerd_relationships[-1]['color'] = 'black'
-
-    for rel2 in solr_relations:
-        if [rel2['ref1'], rel2['ref2']] not in [[rel1['ref1'][1], rel1['ref2'][1]] for rel1 in nerd.get_relations()]:
-            nerd_relationships.append({'ref1': [0, rel2['ref1']],
-                                       'ref2': [0, rel2['ref2']],
-                                       'relation': 'married with',
-                                       'color': 'red',
-                                       })
     nerd_references = nerd.get_references()
     name_alternatives = nerd.get_name_alternatives()
     output = {'text': text,
@@ -124,6 +105,5 @@ def get_nerd_data(request, t_id):
               'nerd_references': nerd_references,
               'navbar_choices': navbar_choices,
               'nerd_relationships': nerd_relationships,
-              'reference_pairs': solr_relations,
               'name_alternatives': name_alternatives}
     return output
