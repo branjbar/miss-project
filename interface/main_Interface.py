@@ -1,13 +1,10 @@
-import copy
-import pickle
-import random
 from flask import request
 from flask import render_template
-from interface.nerd_visualization import get_nerd_data
 
-from modules.NERD.dict_based_nerd import Nerd
+from modules.NERD.nerd_visualization import get_nerd_data
 from modules.basic_modules import basic, loadData, myOrm, generatePedigree
 from interface import app
+
 
 
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
