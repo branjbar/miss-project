@@ -1,5 +1,4 @@
 from modules.NERD.dict_based_nerd import Nerd
-from modules.basic_modules.basic import get_block_key
 
 __author__ = 'Bijan'
 
@@ -174,7 +173,7 @@ class Document():
             year = self.date[-4:]
 
         place = self.place
-        return {'year': year, 'city': place, 'html': html,
+        return {'id': self.doc_id, 'year': year, 'city': place, 'html': html,
                 'title': self.doc_type.title(),
                 'concept': "test"}
 
