@@ -279,7 +279,6 @@ class Nerd():
         here for every pair of relationships we look at
         """
 
-
         # to get rid of redundant references:
         reference_list = []
         for ref in self.references:
@@ -421,8 +420,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # text = """Peeter Jan Deelissen , Gerardus Josephus Schippers gehuwd met Willemina Jan Deelissen , Adriaantje Adriaan Deelissen , Jan Jan van den Berg gehuwd met Willemijn Adriaan Deelissen , Deelis Jan van den Bergh verwekt bij Johanna Deelissen , Jan Claas van den Bergh gehuwd met Jennemie Jan van den Bergh verwekt bij voornoemde Johanna Deelissen allen inwoners van Erp en Beek en Donk als erfgenamen van Maria Deelissen . Mondeling aanbedeeld en nu in schrift opgesteld de volgende vaste goederen teul en hooilanden aan de Bergen oa genaamd de Roost , in de Middelbosch genaamd de Magerman .
-    #
-    # """
-    # nerd = Nerd(text)
-    #     print nerd.get_statistics()
