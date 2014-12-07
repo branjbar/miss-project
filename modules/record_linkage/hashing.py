@@ -1,6 +1,6 @@
 """
 Here we do the hashing and update, search the """
-from modules.NERD.dict_based_nerd import Nerd
+from modules.NERD import dict_based_nerd
 
 from modules.basic_modules.basic import run_query
 import solr
@@ -223,7 +223,7 @@ class Hashing():
             doc_id = 'n' + str(c[0])
             text = c[1] + ' ' + c[2] + ' ' + c[3]
 
-            nerd = Nerd(text)
+            nerd = dict_based_nerd.Nerd(text)
             relations = nerd.get_relations()
             ref_list = []
             for index, rel in enumerate(relations):
