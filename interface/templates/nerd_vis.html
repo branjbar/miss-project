@@ -304,20 +304,20 @@
 
                                     {% for ref_pair in reference_pairs %}
 
-                                        <small>{{ref_pair[2]}}
-                                            {% if ref_pair[2] == 1%}
+                                        <small>{{ref_pair.numFound}}
+                                            {% if ref_pair.numFound == 1%}
                                                 match
                                             {%else%}
                                                 matches
                                             {% endif %}
-                                            found for <code> {{ref_pair[0]}}</code> and <code>{{ref_pair[1]}}</code>. </small>
+                                            found for <code> {{ref_pair.ref1}}</code> and <code>{{ref_pair.ref2}}</code>. </small>
                                         <br>
                                     {% endfor %}
                                     <hr>
                                     <b>Evidence:</b> <br>
                                     {% for ref_pair in reference_pairs %}
-                                        <small>{{ref_pair[0]}} - {{ref_pair[1]}} <br>({{ref_pair[2]}}) </small>
-                                        {% for html in ref_pair[3] %}
+                                        <small>{{ref_pair.ref1}} - {{ref_pair.ref2}} <br>({{ref_pair.numFound}}) </small>
+                                        {% for html in ref_pair.html %}
                                             {{html['html']|safe}}
                                         {% endfor %}
                                         <hr>
