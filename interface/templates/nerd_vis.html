@@ -46,20 +46,19 @@
                 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                   <div class="modal-dialog">
                     <div class="modal-content">
-                      <div class="modal-header">
+                      <!--<div class="modal-header">-->
+                        <div class="modal-body">
                         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-                      </div>
-                        <form class="navbar-form navbar-center" action="/nerd_vis/"  method="get">
-                            <div class="modal-body">
-                                <textarea name="personalText" class="col-sm-12" placeholder="Your Message" rows="10" required="required"></textarea>
-                            </div>
-                            <br>
-                          <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                      </div>
-                    </form>
+                        <h4 class="modal-title" id="myModalLabel">Intelligent Text analysis</h4>
+                        <p>Paste your historical text here and use the MiSS intelligent information extraction engine, to extract references and relations from your text.</p>
+                      <!--</div>-->
+                            <form class="navbar-form navbar-center" action="/nerd_vis/"  method="get">
+                                <textarea name="personalText" class="col-sm-12" placeholder="Your Text" rows="10" required="required"></textarea>
+                                <hr>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                        </div>
                     </div>
                   </div>
                 </div>
