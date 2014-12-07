@@ -475,7 +475,6 @@ def routing():
                                refs_list=output['nerd_references'],
                                navbar_choices=output['navbar_choices'],
                                extracted_relations=output['nerd_relationships'],
-                               reference_pairs=output['reference_pairs'],
                                name_alternatives=output['name_alternatives'])
 
     app.debug = True
