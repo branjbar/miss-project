@@ -298,30 +298,35 @@
                         <div class="panel panel-default">
                             <div class="panel-body" >
                                 <h5>Evidences </h5>
-                                {% if not reference_pairs %}
+                                {% if not extracted_relations %}
                                 <small><p class="text-warning"> No match is found for any of the reference pairs!</p> </small>
                                 {% else %}
 
-                                    {% for ref_pair in reference_pairs %}
+                                    {% for ref_pair in extracted_relations %}
 
-                                        <small>{{ref_pair.numFound}}
-                                            {% if ref_pair.numFound == 1%}
-                                                match
+                                        <small>
+                                            {% if ref_pair.numFound == 0%}
+                                                No matches
+                                            {% elif ref_pair.numFound == 1%}
+                                                1 match
                                             {%else%}
-                                                matches
+                                                {{ref_pair.numFound}} matches
                                             {% endif %}
-                                            found for <code> {{ref_pair.ref1}}</code> and <code>{{ref_pair.ref2}}</code>. </small>
+                                            found for <code> {{ref_pair.ref1[1]}}</code> and <code>{{ref_pair.ref2[1]}}</code>. </small>
                                         <br>
                                     {% endfor %}
                                     <hr>
-                                    <b>Evidence:</b> <br>
-                                    {% for ref_pair in reference_pairs %}
-                                        <small>{{ref_pair.ref1}} - {{ref_pair.ref2}} <br>({{ref_pair.numFound}}) </small>
-                                        {% for html in ref_pair.html %}
-                                            {{html['html']|safe}}
-                                        {% endfor %}
-                                        <hr>
-                                    {% endfor %}
+                                    {% for ref_pair in extracted_relations %}
+                                        {% if ref_pair.numFound %}
+                                             <small>For <code>{{ref_pair.ref1[1]}}</code> <br>&<br> <code>{{ref_pair.ref2[1]}}</code>
+                                                <br>see following {{ref_pair.numFound}} civil register(s). </small>
+                                                {% for html in ref_pair.html %}
+                                                    {{html['html']|safe}}
+                                                {% endfor %}
+                                             <hr>
+                                        {% endif %}
+
+                                {% endfor %}
 
                                 {% endif %}
                                 <hr>
