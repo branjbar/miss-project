@@ -244,7 +244,7 @@ class Nerd():
                     try:
                         term1 = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
                         term2 = self.word_list[len(ref2[1].split()) + ref2[0]]
-                        if term1 == "en" and term2 == "echtelieden":
+                        if term1 == "en" and (term2 == "echtelieden" or term2 == "e"):
                             self.relations.append({"ref1": ref1, "ref2": ref2, "relation": "husband of"})
                     except:
                         pass
