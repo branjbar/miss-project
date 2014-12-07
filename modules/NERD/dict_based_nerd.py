@@ -171,16 +171,21 @@ class Nerd():
             word_spec[0] = 3
 
         # Consider first word as a name if second word is already chosen to be a prefix and third name is a name
-        if not self.word_list[0] == 'Testament' and self.word_list[1] in PREFIXES and word_spec.get(2) == 1:
-            word_spec[0] = 3
-            word_spec[1] = 2
+        try:
+            if not self.word_list[0] == 'Testament' and self.word_list[1] in PREFIXES and word_spec.get(2) == 1:
+                word_spec[0] = 3
+                word_spec[1] = 2
+        except:
+            pass
 
         # Consider first word as a name if second and third words are already chosen to be a prefix and forth name is a name
-        if not self.word_list[0] == 'Testament' and self.word_list[1] + " " + self.word_list[
-            2] in PREFIXES and word_spec.get(3) == 1:
-            word_spec[0] = 3
-            word_spec[1] = 2
-            word_spec[2] = 2
+        try:
+            if not self.word_list[0] == 'Testament' and self.word_list[1] + " " + self.word_list[2] in PREFIXES and word_spec.get(3) == 1:
+                word_spec[0] = 3
+                word_spec[1] = 2
+                word_spec[2] = 2
+        except:
+            pass
 
         for index, word in enumerate(self.word_list):
             if word in FREQ_NAMES:
