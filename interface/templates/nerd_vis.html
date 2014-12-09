@@ -181,7 +181,6 @@
                                           .attr("id", function(d,i){return "feedback_text" + i})
                                           .attr("x",function(d,i){return i%2?(d.x+6*padding):(d.x+9*padding) })
                                           .attr("y",function(d,i){return i%2?(d.y-30):(d.y+30) })
-                                          .attr("fill","teal")
                                           .attr("font-size", "10px")
                                           .text(function(d,i){return i%2?"\uD83D\uDC4E":"\uD83D\uDC4D"})
                                           .on("click", function(d,i){post_feedback(d,i)})
