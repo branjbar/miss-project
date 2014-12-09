@@ -245,7 +245,7 @@ class Nerd():
                         self.relations.append(
                             {"ref1": ref1, "ref2": ref2, "relation": RELATION_INDICATORS_MIDDLE[term]})
 
-                    # Following is to detect relations in patterns like "Gerrit Hendrix en Hendersken Thijssen echtelieden"
+                    # to detect relations in patterns like "Gerrit Hendrix en Hendersken Thijssen echtelieden"
                     try:
                         term1 = ' '.join(self.word_list[ref1[0] + len(ref1[1].split()):ref2[0]])
                         term2 = self.word_list[len(ref2[1].split()) + ref2[0]]
@@ -274,6 +274,8 @@ class Nerd():
                     except:
                         pass
 
+                        # TODO: use "te" to extract locations. Or use the Lexicon of location names for this!
+
     def extract_solr_relations(self):
         """
         here for every pair of relationships we look at
@@ -288,6 +290,7 @@ class Nerd():
         for i in xrange(1, len(reference_list)):
             ref1 = reference_list[i - 1]
             ref2 = reference_list[i]
+            support_list = my_solr.get_support(ref1, ref2, cats='cat:birth OR cat:marriage OR cat:death')
             index_key = solr_query.generate_features(ref1.split(), ref2.split())
             solr_results = my_solr.search(index_key, 'cat:birth OR cat:marriage OR cat:death')
             name_alternative_tmp_1 = [' '.join(index_key.split('_')[:2])]
@@ -298,6 +301,7 @@ class Nerd():
                 for result in solr_results.highlighting.iteritems():
                     search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
 
+                    # get name alternatives
                     tmp_name = ' '.join(
                         result[1]['features'][0].replace('<em>', '').replace('</em>', '').split('_')[0:2])
                     if tmp_name not in name_alternative_tmp_1:
@@ -314,7 +318,8 @@ class Nerd():
                     html_list.append(html)
 
                 self.solr_relations.append(
-                    {"ref1": ref1, "ref2": ref2, "numFound": solr_results.numFound, "html": html_list})
+                    {"ref1": ref1, "ref2": ref2, "numFound": solr_results.numFound, "html": html_list,
+                     "support": support_list["support"]})
 
                 if len(name_alternative_tmp_1) > 1 and name_alternative_tmp_1 not in name_alternatives:
                     name_alternatives.append(name_alternative_tmp_1)
@@ -330,6 +335,7 @@ class Nerd():
                     nerd_relationships[-1]['color'] = 'green'
                     nerd_relationships[-1]['html'] = rel2['html']
                     nerd_relationships[-1]['numFound'] = rel2['numFound']
+                    nerd_relationships[-1]['support'] = rel2['support']
 
         for index, rel1 in enumerate(self.relations):
             if not [rel1['ref1'][1], rel1['ref2'][1]] in [[rel2['ref1'], rel2['ref2']] for rel2 in self.solr_relations]:
@@ -337,6 +343,7 @@ class Nerd():
                 nerd_relationships[-1]['color'] = 'black'
                 nerd_relationships[-1]['html'] = []
                 nerd_relationships[-1]['numFound'] = 0
+                nerd_relationships[-1]['support'] = [0, 0, 0]
 
         for rel2 in self.solr_relations:
             if [rel2['ref1'], rel2['ref2']] not in [[rel1['ref1'][1], rel1['ref2'][1]] for rel1 in self.relations]:
@@ -346,6 +353,7 @@ class Nerd():
                                            'color': 'red',
                                            'html': rel2['html'],
                                            'numFound': rel2['numFound'],
+                                           'support': rel2['support']
                 })
 
         self.name_alternatives = name_alternatives
@@ -410,10 +418,13 @@ def main():
             csv_dict = nerd.get_statistics()
 
             csv_line = '%d, %d, %d, %d, %d, %d, %s, %s, %s\n' % (t_id,
-                csv_dict['ref_len'], csv_dict['rel_len'], csv_dict['rel_type_freq'].get('green', 0),
-                csv_dict['rel_type_freq'].get('black', 0), csv_dict['rel_type_freq'].get('red', 0),
-                ', '.join(csv_dict['rel_type']['green']), ', '.join(csv_dict['rel_type']['black']),
-                ', '.join(csv_dict['rel_type']['red']))
+                                                                 csv_dict['ref_len'], csv_dict['rel_len'],
+                                                                 csv_dict['rel_type_freq'].get('green', 0),
+                                                                 csv_dict['rel_type_freq'].get('black', 0),
+                                                                 csv_dict['rel_type_freq'].get('red', 0),
+                                                                 ', '.join(csv_dict['rel_type']['green']),
+                                                                 ', '.join(csv_dict['rel_type']['black']),
+                                                                 ', '.join(csv_dict['rel_type']['red']))
 
             fd.write(csv_line)
 

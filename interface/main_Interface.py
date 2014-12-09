@@ -466,9 +466,21 @@ def routing():
         # return render_template('visualization.html', message='No results found!', name='bijan')
 
 
-    @app.route('/nerd_vis/', methods=['GET'])
-    @app.route('/nerd_vis/<t_id>', methods=['GET'])
+    @app.route('/nerd_vis/', methods=['GET', 'POST'])
+    @app.route('/nerd_vis/<t_id>', methods=['GET', 'POST'])
     def nerd_vis(t_id=1):
+        if request.method == "POST":
+
+            post_dict = {}
+            for f in request.form:
+                post_dict[f] = request.form[f]
+            import datetime
+            post_dict['date'] = datetime.datetime.now()
+            csv_text = ';'.join([str(value) for value in post_dict.values()]) + '\n'
+            with open("feedback.csv", "a") as my_file:
+                                my_file.write(csv_text)
+
+
         output = get_nerd_data(request, t_id)
         return render_template('nerd_vis.html', text=output['text'],
                                match_details=output['match_details'],
