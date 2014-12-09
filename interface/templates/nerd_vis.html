@@ -42,7 +42,7 @@
                   <!--<span class="glyphicon glyphicon glyphicon-edit" aria-hidden="true"></span>-->
                 <!--</button>-->
 
-                <button type="button" class="btn btn-default" onclick="window.location='/nerd_vis/?lucky=1';">
+                <button type="button" class="btn btn-warning" onclick="window.location='/nerd_vis/?lucky=1';">
                     NEXT
                 </button>
 
@@ -95,14 +95,14 @@
                         <div class="text-left col-xs-4">
                            <p class="text-warning">
                             <span class="glyphicon glyphicon-cloud-download"></span>
-                            <b> Extracted References: </b></p>
-                            {% for ref in refs_list %}
-                                <small><p>
-                                    <b>{{loop.index}})</b>
-                                    <a onmouseover="highlight('{{ref[1]}}','tmp')" onmouseout="de_highlight();highlight_all()">{{ref[1]}} </a>
-                                </p>
-                                    </small>
-                            {% endfor %}
+                            <!--<b> Extracted References: </b></p>-->
+                            <!--{% for ref in refs_list %}-->
+                                <!--<small><p>-->
+                                    <!--<b>{{loop.index}})</b>-->
+                                    <!--<a onmouseover="highlight('{{ref[1]}}','tmp')" onmouseout="de_highlight();highlight_all()">{{ref[1]}} </a>-->
+                                <!--</p>-->
+                                    <!--</small>-->
+                            <!--{% endfor %}-->
                         </div> <!-- eval div -->
 
 
@@ -181,9 +181,9 @@
                                           .attr("id", function(d,i){return "feedback_text" + i})
                                           .attr("x",function(d,i){return i%2?(d.x+6*padding):(d.x+9*padding) })
                                           .attr("y",function(d,i){return i%2?(d.y-30):(d.y+30) })
-                                          .attr("fill","white")
+                                          .attr("fill","gray")
                                           .attr("font-size", "13px")
-                                          .text(function(d,i){return i%2?"\uD83D\uDC4E":"\uD83D\uDC4D"})
+                                          .text(function(d,i){return i%2?"\uD83D\uDC4E" + "    reject":"\uD83D\uDC4D"+ "    accept"})
                                           .on("click", function(d,i){post_feedback(d,i)})
                                             .transition()
                                             .duration(1000)
@@ -325,23 +325,26 @@
 
                                 </script>
 
+                <button type="button" class="btn btn-warning" onclick="window.location='/nerd_vis/?lucky=1';">
+                    NEXT
+                </button>
                             </div>
                     </div>
 
                     <div class="text-left col-xs-3">
                            <p class="text-warning">
                             <span class="glyphicon glyphicon-cloud-download"></span>
-                            <b> Name Alternatives: </b></p>
-                            {% for name_lists in name_alternatives %}
-                                    {% for name in name_lists %}
-                                        <p>
-                                            <small>
-                                            {{name}}
-                                            </small>
-                                        </p>
-                                    {% endfor %}
-                                    <hr>
-                            {% endfor %}
+                            <!--<b> Name Alternatives: </b></p>-->
+                            <!--{% for name_lists in name_alternatives %}-->
+                                    <!--{% for name in name_lists %}-->
+                                        <!--<p>-->
+                                            <!--<small>-->
+                                            <!--{{name}}-->
+                                            <!--</small>-->
+                                        <!--</p>-->
+                                    <!--{% endfor %}-->
+                                    <!--<hr>-->
+                            <!--{% endfor %}-->
                     </div> <!-- eval div -->
 
 
