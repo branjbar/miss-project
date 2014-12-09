@@ -1,3 +1,5 @@
+import math
+import random
 from modules.NERD import dict_based_nerd
 from modules.basic_modules import loadData
 from modules.basic_modules.basic import run_query
@@ -27,7 +29,11 @@ def get_nerd_data(request, t_id):
     else:
 
         personal_text = request.args.get('personalText')
-        search_id = request.args.get('search_term')
+        if request.args.get('lucky'):
+            search_id = str(random.randint(0, 20000))
+        else:
+            search_id = request.args.get('search_term')
+
         if search_id and search_id.isdigit():
             t_id = int(search_id)
 

@@ -20,28 +20,31 @@
     <!--<div class="container">-->
         <div class="row">
             <div class="col-xs-1 text-center" >
-                  <ul class="nav nav-sidebar">
-                    {% if navbar_choices %}
-                        <p class="text-success">(Text ID)</p>
-                        <li> <a href="/nerd_vis/{{navbar_choices[0]-1}}">
-                            <span class="glyphicon glyphicon-chevron-up"/> </a></li>
-                        <li class="current" style="background: #F0F0F0;"><a class="small"> #{{navbar_choices[0]}} </a> </li>
+                  <!--<ul class="nav nav-sidebar">-->
+                    <!--{% if navbar_choices %}-->
+                        <!--<p class="text-success">(Text ID)</p>-->
+                        <!--<li> <a href="/nerd_vis/{{navbar_choices[0]-1}}">-->
+                            <!--<span class="glyphicon glyphicon-chevron-up"/> </a></li>-->
+                        <!--<li class="current" style="background: #F0F0F0;"><a class="small"> #{{navbar_choices[0]}} </a> </li>-->
 
-                    {% for item in navbar_choices[1:] %}
-                        <li><a href="/nerd_vis/{{item}}" class="small">#{{item}}</a>
-                            </li>
-                    {% endfor %}
-                        <li> <a href="/nerd_vis/{{navbar_choices[0] + 1}}">
-                            <span class="glyphicon glyphicon-chevron-down"/></a></li>
-                    {% endif %}
+                    <!--{% for item in navbar_choices[1:] %}-->
+                        <!--<li><a href="/nerd_vis/{{item}}" class="small">#{{item}}</a>-->
+                            <!--</li>-->
+                    <!--{% endfor %}-->
+                        <!--<li> <a href="/nerd_vis/{{navbar_choices[0] + 1}}">-->
+                            <!--<span class="glyphicon glyphicon-chevron-down"/></a></li>-->
+                    <!--{% endif %}-->
 
-                  </ul>
+                  <!--</ul>-->
 
-                <!-- Button trigger modal -->
-                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">
-                  <span class="glyphicon glyphicon glyphicon-edit" aria-hidden="true"></span>
+                <!--&lt;!&ndash; Button trigger modal &ndash;&gt;-->
+                <!--<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">-->
+                  <!--<span class="glyphicon glyphicon glyphicon-edit" aria-hidden="true"></span>-->
+                <!--</button>-->
+
+                <button type="button" class="btn btn-default" onclick="window.location='/nerd_vis/?lucky=1';">
+                    NEXT
                 </button>
-
 
                 <!-- Modal -->
                 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -209,12 +212,15 @@
                                         document.getElementById("feedback_circle" + (i + 1 - i%2)).setAttribute("opacity",0);
                                         document.getElementById("feedback_text" + (i - i%2)).setAttribute("opacity",0);
                                         document.getElementById("feedback_text" + (i + 1 - i%2)).setAttribute("opacity",0);
+                                        document.getElementById("link_line" + (Math.floor(i/2))).style.stroke = i%2?"white":"black";
+
                                         svg_r.append("text")
                                           .attr("class","feedback")
                                           .attr("x", i%2?(d.x+6*padding):(d.x+9*padding))
                                           .attr("y",i%2?(d.y-50):(d.y+50))
                                           .attr("font-size", "20px")
                                           .text(function(){return i%2?'\u274C':'\u2713'})
+
 
                                     }
                                     svg_r.selectAll("text .node")
@@ -238,15 +244,19 @@
                                           .enter()
                                           .append("line")
                                           .attr("class","link")
+                                          .attr("id", function(d,i){return "link_line" + i})
                                             .attr("x1",function(d){return d.x1})
                                             .attr("y1",function(d){return d.y1})
                                             .attr("x2",function(d){return d.x1})
                                             .attr("y2",function(d){return d.y1})
                                            .attr("stroke-width", 3)
-                                           .attr("stroke", function(d){return d.color})
-                                           .style("stroke-dasharray", function(d){ return d.color=="green"?  ("10, 0"):("10, 5")})
+                                           .attr("stroke", "teal")
+                                           //.attr("stroke", function(d){return d.color})
+                                           .style("stroke-dasharray", ("4, 4"))
+                                           //.style("stroke-dasharray", function(d){ return d.color=="green"?  ("10, 0"):("10, 5")})
                                            .transition()
-                                           .duration(2000)
+                                           .duration(100)
+                                           //.duration(2000)
                                             .attr("x2",function(d){return d.x2})
                                             .attr("y2",function(d){return d.y2})
 
