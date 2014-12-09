@@ -51,12 +51,13 @@ RELATION_INDICATORS_MIDDLE = {"gehuwd met": "married with",
                               "huisvrouw van": "wife of",
                               "en zijn huisvrouw": "husband of",
                               "getrouwd met": "married with",
-                              "zoon van": "son of",
-                              ", dochter van": "daughter of",
-                              ", zoon van": "son of",
-                              "dochter van": "daughter of",
-                              "dochter": "daughter of"
-}
+                              }
+#                               "zoon van": "son of",
+#                               ", dochter van": "daughter of",
+#                               ", zoon van": "son of",
+#                               "dochter van": "daughter of",
+#                               "dochter": "daughter of"
+# }
 
 
 class Nerd():
