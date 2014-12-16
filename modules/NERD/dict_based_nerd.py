@@ -405,29 +405,46 @@ def import_dutch_data_set():
 def main():
     from modules.basic_modules import myOrm
 
-    fd = open('stat_nerd.csv', 'a')
-    fd.write('#refs, #rels, #greens, #blacks, #reds, greens, blacks , reds \n')
+    fd = open('hossein_text.csv', 'a')
+    fd.write('text_id;text_middle;score;text_before;text_middle;text_after;uuid;rel_index;type\n')
     for t_id in xrange(20000000):
-        if not t_id % 100:
-            print t_id
+        # if not t_id % 100:
+        print t_id
         act = myOrm.get_notarial_act(t_id, century18=True)
 
         if act:
+            import re
             text = act['text1'] + ' ' + act['text2'] + act['text3']
             nerd = Nerd(text)
+            nerd.extract_relations()
+            nerd.extract_solr_relations()
+            for index, rel in enumerate(nerd.get_relations()):
+                if rel['color'] != 'black':
+                    sup = rel['support']
+                    ref1 = rel['ref1'][1]
+                    ref2 = rel['ref2'][1]
+                    before_text = ' '.join(text.split(ref1)[0].split()[-5:]).replace(',','').replace('.','').replace(';','')
+                    middle_text = text.split(ref1)[-1].split(ref2)[0].replace(',','').replace(';','')
+                    after_text = ' '.join(text.split(ref2)[-1].split()[:5]).replace(',','').replace(';','')
+                    if len(middle_text.split()) < 10:
+                        csv_line = "%d;%s;%f;%s;%s;%s;%d;%s\n" %\
+                                   (t_id, middle_text, (1.0 * sup[0]) / (sup[1] + sup[2]), before_text, after_text, act['id'], index, rel['color'])
+                        fd.write(csv_line)
 
-            csv_dict = nerd.get_statistics()
 
-            csv_line = '%d, %d, %d, %d, %d, %d, %s, %s, %s\n' % (t_id,
-                                                                 csv_dict['ref_len'], csv_dict['rel_len'],
-                                                                 csv_dict['rel_type_freq'].get('green', 0),
-                                                                 csv_dict['rel_type_freq'].get('black', 0),
-                                                                 csv_dict['rel_type_freq'].get('red', 0),
-                                                                 ', '.join(csv_dict['rel_type']['green']),
-                                                                 ', '.join(csv_dict['rel_type']['black']),
-                                                                 ', '.join(csv_dict['rel_type']['red']))
+            #
+            #
+            # csv_dict = nerd.get_statistics()
+            #
+            # csv_line = '%d, %d, %d, %d, %d, %d, %s, %s, %s\n' % (t_id,
+            #                                                      csv_dict['ref_len'], csv_dict['rel_len'],
+            #                                                      csv_dict['rel_type_freq'].get('green', 0),
+            #                                                      csv_dict['rel_type_freq'].get('black', 0),
+            #                                                      csv_dict['rel_type_freq'].get('red', 0),
+            #                                                      ', '.join(csv_dict['rel_type']['green']),
+            #                                                      ', '.join(csv_dict['rel_type']['black']),
+            #                                                      ', '.join(csv_dict['rel_type']['red']))
 
-            fd.write(csv_line)
 
 
 if __name__ == "__main__":
