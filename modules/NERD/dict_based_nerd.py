@@ -406,7 +406,7 @@ def main():
     from modules.basic_modules import myOrm
 
     fd = open('hossein_text.csv', 'a')
-    fd.write('text_id;text_middle;score;text_before;text_middle;text_after;uuid;rel_index;type\n')
+    fd.write('text_id;text_middle;score;text_before;text_after;uuid;rel_index;type\n')
     for t_id in xrange(20000000):
         # if not t_id % 100:
         print t_id
