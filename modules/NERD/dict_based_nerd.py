@@ -424,8 +424,8 @@ def main():
                     ref1 = rel['ref1'][1]
                     ref2 = rel['ref2'][1]
                     before_text = ' '.join(text.split(ref1)[0].split()[-5:]).replace(',','').replace('.','').replace(';','')
-                    middle_text = text.split(ref1)[-1].split(ref2)[0].replace(',','').replace(';','')
-                    after_text = ' '.join(text.split(ref2)[-1].split()[:5]).replace(',','').replace(';','')
+                    middle_text = text.split(ref1)[-1].split(ref2)[0].replace(',','').replace(';','').replace('.','')
+                    after_text = ' '.join(text.split(ref2)[-1].split()[:5]).replace(',','').replace(';','').replace('.','')
                     if len(middle_text.split()) < 10:
                         csv_line = "%d;%s;%f;%s;%s;%s;%d;%s\n" %\
                                    (t_id, middle_text, (1.0 * sup[0]) / (sup[1] + sup[2]), before_text, after_text, act['id'], index, rel['color'])
