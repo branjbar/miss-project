@@ -2,6 +2,8 @@
 a class to extract names.
 
 """
+import datetime
+import random
 from modules.solr_search import solr_query
 
 __author__ = 'Bijan'
@@ -277,7 +279,7 @@ class Nerd():
 
                         # TODO: use "te" to extract locations. Or use the Lexicon of location names for this!
 
-    def extract_solr_relations(self):
+    def extract_solr_relations(self, negative_samples=True):
         """
         here for every pair of relationships we look at
         """
@@ -285,14 +287,14 @@ class Nerd():
         # to get rid of redundant references:
         reference_list = []
         for ref in self.references:
-            reference_list.append(ref[1])
+            reference_list.append(ref)
 
         name_alternatives = []
         for i in xrange(1, len(reference_list)):
             ref1 = reference_list[i - 1]
             ref2 = reference_list[i]
-            support_list = my_solr.get_support(ref1, ref2, cats='cat:birth OR cat:marriage OR cat:death')
-            index_key = solr_query.generate_features(ref1.split(), ref2.split())
+            support_list = my_solr.get_support(ref1[1], ref2[1], cats='cat:birth OR cat:marriage OR cat:death')
+            index_key = solr_query.generate_features(ref1[1].split(), ref2[1].split())
             solr_results = my_solr.search(index_key, 'cat:birth OR cat:marriage OR cat:death')
             name_alternative_tmp_1 = [' '.join(index_key.split('_')[:2])]
             name_alternative_tmp_2 = [' '.join(index_key.split('_')[2:])]
@@ -331,31 +333,57 @@ class Nerd():
         nerd_relationships = []
         for index, rel1 in enumerate(self.relations):
             for rel2 in self.solr_relations:
-                if [rel1['ref1'][1], rel1['ref2'][1]] == [rel2['ref1'], rel2['ref2']]:
+                if [rel1['ref1'][1], rel1['ref2'][1]] == [rel2['ref1'][1], rel2['ref2'][1]]:
                     nerd_relationships.append(rel1)
                     nerd_relationships[-1]['color'] = 'green'
                     nerd_relationships[-1]['html'] = rel2['html']
                     nerd_relationships[-1]['numFound'] = rel2['numFound']
                     nerd_relationships[-1]['support'] = rel2['support']
+                    nerd_relationships[-1]['class'] = 'positive'
 
         for index, rel1 in enumerate(self.relations):
-            if not [rel1['ref1'][1], rel1['ref2'][1]] in [[rel2['ref1'], rel2['ref2']] for rel2 in self.solr_relations]:
+            if not [rel1['ref1'][1], rel1['ref2'][1]] in [[rel2['ref1'][1], rel2['ref2'][1]] for rel2 in self.solr_relations]:
                 nerd_relationships.append(rel1)
                 nerd_relationships[-1]['color'] = 'black'
                 nerd_relationships[-1]['html'] = []
                 nerd_relationships[-1]['numFound'] = 0
                 nerd_relationships[-1]['support'] = [0, 0, 0]
+                nerd_relationships[-1]['class'] = 'negative'
 
         for rel2 in self.solr_relations:
             if [rel2['ref1'], rel2['ref2']] not in [[rel1['ref1'][1], rel1['ref2'][1]] for rel1 in self.relations]:
-                nerd_relationships.append({'ref1': [0, rel2['ref1']],
-                                           'ref2': [0, rel2['ref2']],
+                nerd_relationships.append({'ref1': rel2['ref1'],
+                                           'ref2': rel2['ref2'],
                                            'relation': 'married with',
                                            'color': 'red',
                                            'html': rel2['html'],
                                            'numFound': rel2['numFound'],
-                                           'support': rel2['support']
+                                           'support': rel2['support'],
+                                           'class': 'positive'
                 })
+        if negative_samples:
+            for index in xrange(len(self.references)-1):
+                if [self.references[index][1], self.references[index+1][1]] not in [[rel['ref1'][1],rel['ref2'][1]] for rel in self.relations]:
+                    # print [self.references[index][1], self.references[index+1][1]]
+                    nerd_relationships.append({'ref1': self.references[index],
+                                               'ref2': self.references[index+1],
+                                               'relation': 'no relation',
+                                               'color': 'white',
+                                               'html': {},
+                                               'numFound': 0,
+                                               'support': [0,0,0],
+                                               'class': 'negative'
+                    })
+
+            # if [rel2['ref1'], rel2['ref2']] not in [[rel1['ref1'][1], rel1['ref2'][1]] for rel1 in self.relations]:
+            #     nerd_relationships.append({'ref1': [0, rel2['ref1']],
+            #                                'ref2': [0, rel2['ref2']],
+            #                                'relation': 'married with',
+            #                                'color': 'red',
+            #                                'html': rel2['html'],
+            #                                'numFound': rel2['numFound'],
+            #                                'support': rel2['support']
+            #     })
 
         self.name_alternatives = name_alternatives
         self.relations = nerd_relationships
@@ -404,32 +432,49 @@ def import_dutch_data_set():
 
 def main():
     from modules.basic_modules import myOrm
-
-    fd = open('hossein_text.csv', 'a')
-    fd.write('text_id;text_middle;score;text_before;text_after;uuid;rel_index;type\n')
+    fd = open('hossein_text_%.0f.csv' % (100.0*random.random()), 'a')
+    fd.write('sep=;\n')
+    fd.write('id;T1;T2;T3;doc_type;|T1|;|T2|;|T3|;sup(e1);sup(e2);sup(e1,e2);class;row_id;uuid;rel_index;type\n')
+    count = 0;
     for t_id in xrange(20000000):
         # if not t_id % 100:
-        print t_id
+        print t_id, count
         act = myOrm.get_notarial_act(t_id, century18=True)
 
         if act:
-            import re
             text = act['text1'] + ' ' + act['text2'] + act['text3']
             nerd = Nerd(text)
             nerd.extract_relations()
-            nerd.extract_solr_relations()
+            nerd.extract_solr_relations(negative_samples=True)
             for index, rel in enumerate(nerd.get_relations()):
-                if rel['color'] != 'black':
-                    sup = rel['support']
-                    ref1 = rel['ref1'][1]
-                    ref2 = rel['ref2'][1]
-                    before_text = ' '.join(text.split(ref1)[0].split()[-5:]).replace(',','').replace('.','').replace(';','')
-                    middle_text = text.split(ref1)[-1].split(ref2)[0].replace(',','').replace(';','').replace('.','')
-                    after_text = ' '.join(text.split(ref2)[-1].split()[:5]).replace(',','').replace(';','').replace('.','')
-                    if len(middle_text.split()) < 10:
-                        csv_line = "%d;%s;%f;%s;%s;%s;%d;%s\n" %\
-                                   (t_id, middle_text, (1.0 * sup[0]) / (sup[1] + sup[2]), before_text, after_text, act['id'], index, rel['color'])
-                        fd.write(csv_line)
+                sup = rel['support']
+                before_text = ' '.join(nerd.pp_text.split()[max(0,rel['ref1'][0]-10):rel['ref1'][0]])
+                middle_text = ' '.join(nerd.pp_text.split()[rel['ref1'][0] + len(rel['ref1'][1].split()):rel['ref2'][0]])
+                after_text = ' '.join(nerd.pp_text.split()[rel['ref2'][0] + len(rel['ref2'][1].split()):rel['ref2'][0] + len(rel['ref2'][1].split())+10])
+
+                before_text = ' '.join(before_text.replace(',','').replace('.','').replace(';','').replace(' ',' ').strip().split()[-5:])
+                middle_text = middle_text.replace(',','').replace('.','').replace(';','').replace(' ',' ').strip()
+                after_text = ' '.join(after_text.replace(',','').replace('.','').replace(';','').replace(' ',' ').strip().split()[:5])
+
+                csv_line = "%d;%s;%s;%s;%s;%d;%d;%d;%d;%d;%d;%s;%d;%s;%d;%s\n" %\
+                           (count,
+                            before_text,
+                            middle_text,
+                            after_text,
+                            act['AKTETYPE'],
+                            len(before_text.split()),
+                            len(middle_text.split()),
+                            len(after_text.split()),
+                            sup[1],
+                            sup[2],
+                            sup[0],
+                            rel['class'],
+                            t_id,
+                            act['id'],
+                            index,
+                            rel['color'])
+                count += 1
+                fd.write(csv_line)
 
 
             #
