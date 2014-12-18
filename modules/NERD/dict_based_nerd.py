@@ -351,7 +351,7 @@ class Nerd():
                 nerd_relationships[-1]['class'] = 'negative'
 
         for rel2 in self.solr_relations:
-            if [rel2['ref1'], rel2['ref2']] not in [[rel1['ref1'][1], rel1['ref2'][1]] for rel1 in self.relations]:
+            if [rel2['ref1'][1], rel2['ref2'][1]] not in [[rel1['ref1'][1], rel1['ref2'][1]] for rel1 in self.relations]:
                 nerd_relationships.append({'ref1': rel2['ref1'],
                                            'ref2': rel2['ref2'],
                                            'relation': 'married with',
