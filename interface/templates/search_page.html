@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>MiSS Intelligent Timeline</title>
+
+    <!-- Bootstrap core CSS -->
+    <script src="../static/d3/d3.js"></script>
+
+
+
+  </head>
+
+  <body>
+        <div id="tree"></div>
+
+  </body>
+
+        <script type="text/javascript">
+
+            var dataset = [
+            {x:0,y:0,s:1, name1: "Bijan Ranjbar", name2: "Hoda Sharei"},
+            {x:1,y:0,s:1, name1: "Afsar Vosoughi", name2: "Shokrollah Ranjbar"},
+            {x:2,y:0,s:1, name1: "Mahmood Karimi", name2: "Bahareh Sherafati"},
+            {x:3,y:0,s:1, name1: "Fateme Asadi", name2: "Masoud Tavakoli"}];
+            WIDTH = 800
+            HEIGHT = 400
+            BLOCK_WIDTH = WIDTH/4.3
+            BLOCK_HEIGHT = HEIGHT / 10
+            var x_scale = d3.scale.linear().domain([0,d3.max(dataset, function(d){return d.x})]).range([0,WIDTH-BLOCK_WIDTH])
+            svg = d3.select("body")
+            .select("#tree")
+            .append("svg")
+            .attr("width", WIDTH)
+            .attr("height", HEIGHT)
+
+            svg.selectAll("rect")
+            .data(dataset)
+            .enter()
+            .append("rect")
+            .attr("width", function(d){ return BLOCK_WIDTH/ d.s})
+            .attr("height", function(d){ return BLOCK_HEIGHT/ d.s})
+            .attr("x",function(d){return x_scale(d.x) / d.s})
+            .attr("y",function(d){return (20/d.s)})
+            .attr("fill","beige")
+
+             svg.selectAll("line")
+            .data(dataset)
+            .enter()
+            .append("rect")
+            .attr("width",1)
+            .attr("height",function(d){return (20/d.s)})
+            .attr("x",function(d){return (x_scale(d.x) + BLOCK_WIDTH/2)/d.s})
+            .attr("y",0)
+            .attr("stroke-width",2)
+
+            svg.selectAll("text")
+            .data(dataset)
+            .enter()
+            .append("text")
+            .attr("x",function(d){return (x_scale(d.x) + BLOCK_WIDTH/2) / d.s})
+            .attr("y", function(d){ return (20 + BLOCK_HEIGHT / 2) / d.s})
+            .attr("text-anchor","middle")
+            .attr("font-size", function(d){ return 12 / d.s})
+            .text(function(d){return d.name1 + ' - ' + d.name2})
+
+
+
+
+
+        </script>
+  </html>
