@@ -22,15 +22,47 @@
         <script type="text/javascript">
 
             var dataset = [
-            {x:0,y:0,s:1, name1: "Bijan Ranjbar", name2: "Hoda Sharei"},
-            {x:1,y:0,s:1, name1: "Afsar Vosoughi", name2: "Shokrollah Ranjbar"},
-            {x:2,y:0,s:1, name1: "Mahmood Karimi", name2: "Bahareh Sherafati"},
-            {x:3,y:0,s:1, name1: "Fateme Asadi", name2: "Masoud Tavakoli"}];
-            WIDTH = 800
+            {x0:0, y0:2, x:0,y:0,s:1, name1: "Bijan Ranjbar", name2: "Hoda Sharei"},
+            {x0:0, y0:2, x:1,y:0,s:1, name1: "Afsar Vosoughi", name2: "Shokrollah Ranjbar"},
+            {x0:0, y0:2, x:2,y:0,s:1, name1: "Mahmood Karimi", name2: "Bahareh Sherafati"},
+            {x0:0, y0:2, x:3,y:0,s:1, name1: "Fateme Asadi", name2: "Masoud Tavakoli"}];
+
+            var dataset = []
+            //dataset.push({x0:0, y0:2, x:0,y:0,s:1, name1: "Bijan Ranjbar", name2: "Hoda Sharei"})
+            family = {
+            name1:"Bijan", name2:"Maryam",
+            children:[
+            {name1:"Jafar", name2:"Zahra"},
+            {name1:"Taghi", name2:"Aghdas"},
+            {name1:"Farid", name2:"Narsis",
+            children:[
+            {name1:"Morteza", name2: "Nastaran",
+            children:[
+            {name1:"Reza", name2:"Irme"},
+            {name1:"Robert", name2:"Natali"},
+            {name1:"Gerhard", name2:"Fatemeh"}]}
+            ,{name1:"Ali", name2:"Kiana"}]},
+            {name1:"Ghili", name2:"Fatima"},
+            {name1:"Ahmad", name2:"Mahsa"
+            ,children:[
+            {name1:"Dariush", name2:"Dena"}
+            ]}]}
+
+            for (var i = 0; i < family.children.length; i++) {
+                add_node(i,1,1,family.children[i])
+                }
+            function add_node(x,y,scale,person) {
+                dataset.push({x0:0, y0:0, x:x,y:1,s:scale, name1: person.name1, name2: person.name2})
+
+            }
+
+            WIDTH = 1000
             HEIGHT = 400
-            BLOCK_WIDTH = WIDTH/4.3
+            BLOCK_WIDTH = WIDTH/7
             BLOCK_HEIGHT = HEIGHT / 10
-            var x_scale = d3.scale.linear().domain([0,d3.max(dataset, function(d){return d.x})]).range([0,WIDTH-BLOCK_WIDTH])
+            var x_scale = d3.scale.linear().domain([0,5]).range([0,WIDTH-BLOCK_WIDTH])
+            var y_scale = d3.scale.linear().domain([0,10]).range([0,HEIGHT-BLOCK_HEIGHT])
+
             svg = d3.select("body")
             .select("#tree")
             .append("svg")
@@ -42,27 +74,29 @@
             .enter()
             .append("rect")
             .attr("width", function(d){ return BLOCK_WIDTH/ d.s})
-            .attr("height", function(d){ return BLOCK_HEIGHT/ d.s})
-            .attr("x",function(d){return x_scale(d.x) / d.s})
-            .attr("y",function(d){return (20/d.s)})
+            .attr("height", function(d){ return  BLOCK_HEIGHT/ d.s})
+            .attr("x",function(d){return x_scale(d.x0 + d.x) / d.s})
+            .attr("y",function(d){return (y_scale(d.y0) + BLOCK_HEIGHT/2)/d.s})
             .attr("fill","beige")
+            .attr("stroke-width",1)
+            .attr("stroke","black")
 
              svg.selectAll("line")
             .data(dataset)
             .enter()
             .append("rect")
             .attr("width",1)
-            .attr("height",function(d){return (20/d.s)})
-            .attr("x",function(d){return (x_scale(d.x) + BLOCK_WIDTH/2)/d.s})
-            .attr("y",0)
+            .attr("height",function(d){return (BLOCK_HEIGHT/2/d.s)})
+            .attr("x",function(d){return ( x_scale(d.x0 + d.x) + BLOCK_WIDTH/2)/d.s})
+            .attr("y",function(d){return y_scale(d.y0) / d.s})
             .attr("stroke-width",2)
 
             svg.selectAll("text")
             .data(dataset)
             .enter()
             .append("text")
-            .attr("x",function(d){return (x_scale(d.x) + BLOCK_WIDTH/2) / d.s})
-            .attr("y", function(d){ return (20 + BLOCK_HEIGHT / 2) / d.s})
+            .attr("x",function(d){return (x_scale(d.x0 + d.x) + BLOCK_WIDTH/2) / d.s})
+            .attr("y", function(d){ return (y_scale(d.y0) + BLOCK_HEIGHT) / d.s })
             .attr("text-anchor","middle")
             .attr("font-size", function(d){ return 12 / d.s})
             .text(function(d){return d.name1 + ' - ' + d.name2})
