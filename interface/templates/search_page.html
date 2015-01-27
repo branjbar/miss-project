@@ -28,7 +28,6 @@
             {x0:0, y0:2, x:3,y:0,s:1, name1: "Fateme Asadi", name2: "Masoud Tavakoli"}];
 
             var dataset = []
-            //dataset.push({x0:0, y0:2, x:0,y:0,s:1, name1: "Bijan Ranjbar", name2: "Hoda Sharei"})
             family = {
             name1:"Bijan", name2:"Maryam",
             children:[
@@ -48,11 +47,18 @@
             {name1:"Dariush", name2:"Dena"}
             ]}]}
 
-            for (var i = 0; i < family.children.length; i++) {
-                add_node(i,1,1,family.children[i])
+            add_node(0,0,0,0,1,family)
+
+            function add_node(x0,y0, x, y, level, person) {
+                if (level > 10) {
+                    return 0
                 }
-            function add_node(x,y,scale,person) {
-                dataset.push({x0:0, y0:0, x:x,y:1,s:scale, name1: person.name1, name2: person.name2})
+                dataset.push({x0:x0, y0:y0, x:x, y:y, s:level, name1: person.name1, name2: person.name2})
+                if (person.children) {
+                    for (var i = 0; i < person.children.length; i++) {
+                        add_node(x0 + i/level,level, 0,0,level+1,person.children[i])
+                    }
+                }
 
             }
 
@@ -61,7 +67,7 @@
             BLOCK_WIDTH = WIDTH/7
             BLOCK_HEIGHT = HEIGHT / 10
             var x_scale = d3.scale.linear().domain([0,5]).range([0,WIDTH-BLOCK_WIDTH])
-            var y_scale = d3.scale.linear().domain([0,10]).range([0,HEIGHT-BLOCK_HEIGHT])
+            var y_scale = d3.scale.linear().domain([0,5]).range([0,HEIGHT-BLOCK_HEIGHT])
 
             svg = d3.select("body")
             .select("#tree")
@@ -76,7 +82,7 @@
             .attr("width", function(d){ return BLOCK_WIDTH/ d.s})
             .attr("height", function(d){ return  BLOCK_HEIGHT/ d.s})
             .attr("x",function(d){return x_scale(d.x0 + d.x) / d.s})
-            .attr("y",function(d){return (y_scale(d.y0) + BLOCK_HEIGHT/2)/d.s})
+            .attr("y",function(d){return y_scale(d.y0) + (BLOCK_HEIGHT/2)/d.s})
             .attr("fill","beige")
             .attr("stroke-width",1)
             .attr("stroke","black")
@@ -86,9 +92,9 @@
             .enter()
             .append("rect")
             .attr("width",1)
-            .attr("height",function(d){return (BLOCK_HEIGHT/2/d.s)})
+            .attr("height",function(d){return (BLOCK_HEIGHT - BLOCK_HEIGHT/d.s)})
             .attr("x",function(d){return ( x_scale(d.x0 + d.x) + BLOCK_WIDTH/2)/d.s})
-            .attr("y",function(d){return y_scale(d.y0) / d.s})
+            .attr("y",function(d){return y_scale(d.y0-1)  + BLOCK_HEIGHT/2})
             .attr("stroke-width",2)
 
             svg.selectAll("text")
@@ -96,7 +102,7 @@
             .enter()
             .append("text")
             .attr("x",function(d){return (x_scale(d.x0 + d.x) + BLOCK_WIDTH/2) / d.s})
-            .attr("y", function(d){ return (y_scale(d.y0) + BLOCK_HEIGHT) / d.s })
+            .attr("y", function(d){ return y_scale(d.y0) + (BLOCK_HEIGHT) / d.s })
             .attr("text-anchor","middle")
             .attr("font-size", function(d){ return 12 / d.s})
             .text(function(d){return d.name1 + ' - ' + d.name2})
