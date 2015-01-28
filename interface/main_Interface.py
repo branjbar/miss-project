@@ -33,6 +33,95 @@ my_hash = Hashing()
 
 
 def routing():
+    @app.route('/search/', methods=['GET', 'POST'])
+    def searching_intel():
+
+        # search_term = "Adriaan_Made_Lijntje_Timmers"
+        search_term = "Jacobus_Sneep_Stijntje_Made"
+        solr_results = my_hash.search(search_term, '')
+
+        doc_list = []
+        search_results = {}
+        html_year = []
+        couple_names = []
+        facets = {}
+
+        if solr_results:
+        #     # first let's get the facets from results
+        #     facet_fields = solr_results.facet_counts['facet_fields']
+        #     for key in facet_fields:
+        #         facets[key] = sorted(facet_fields[key].iteritems(), key=lambda x: x[1], reverse=True)[:20]
+        #
+        #     # polishing the feature_ss with removing the underline and adding &
+        #     for index, value in enumerate(facets['features_ss']):
+        #         facets['features_ss'][index] = [
+        #             value[0].replace('_', ' ', 1).replace('_', ' - ', 1).replace('_', ' '), value[1]]
+        #
+        #     # adding the date range to the facets
+        #     facets['date'] = []
+        #     facet_ranges = solr_results.facet_counts['facet_ranges']['date_dt']['counts']
+        #     for x in sorted(facet_ranges.items(), key=lambda s: s[0]):
+        #         facets['date'].append([x[0][:4] + '-' + str(int(x[0][:4]) + 10), x[1]])
+        #
+        #     # now we get the main results and highlights
+        #     search_results = {}
+        #
+        #     if len(search_term.split('_')) == 4:
+        #         couple_names = ['_'.join(search_term.split('_')[:2]), '_'.join(search_term.split('_')[-2:])]
+        #
+            # here we simultaneously get the search results and highlights
+            for result in solr_results.highlighting.iteritems():
+                search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
+        family = {'name1': 0, 'name2': 0, 'children': []}
+
+        if search_results:
+            doc_list = []
+            html_year = []
+            dataset = []
+            dataset_last_index = 0
+
+            for doc_id in search_results.keys():
+                tmp_max_index = 0
+                doc = Document()
+                doc.set_id(doc_id)
+                new_data = doc.get_relatives(search_results[doc_id], couple_names)
+                for d in new_data:
+                    if d['index_new'] > tmp_max_index:
+                        tmp_max_index = d['index_new']
+                    if d['index_old'] > tmp_max_index:
+                        tmp_max_index = d['index_old']
+
+                    d['index_new'] += dataset_last_index
+                    d['index_old'] += dataset_last_index
+
+
+                dataset += new_data
+                dataset_last_index += tmp_max_index + 1
+
+                # tmp_flag = True
+                # print '-->', new_family
+                #
+                # if new_family.get('name1'):
+                #     for parents in family['children']:
+                #         if new_family.get('name1') and parents.get('name1'):
+                #             if parents['name1'] == new_family['name1'] and parents['name2'] == new_family['name2']:
+                #                 tmp_flag = False
+                #                 if new_family['children'][0] not in parents['children']:
+                #                     parents['children'].append(new_family['children'][0])
+                #     if tmp_flag:
+                #         family['children'].append(new_family)
+                    # if not family:
+                    #     family = new_family
+                    # else:
+                    #     family_child = family
+                    #     while family_child.get('children'):
+                    #         family_child = family_child['children'][0]
+                    #         print family_child
+                    #     family_child['children'] = [new_family]
+
+        return render_template('search_page.html', dataset=dataset)
+
+
     @app.route('/hash_matches/', methods=['GET', 'POST'])
     @app.route('/hash_matches/<p_id>', methods=['GET', 'POST'])
     def hash_matches(p_id=None):
@@ -91,7 +180,6 @@ def routing():
         ref2 = ' '.join(search_term.split()[-2:])
 
         search_term = generate_features(ref1.split(), ref2.split())
-
         solr_results = my_hash.search(search_term, field_query)
 
         if solr_results:
@@ -475,11 +563,11 @@ def routing():
             for f in request.form:
                 post_dict[f] = request.form[f]
             import datetime
+
             post_dict['date'] = datetime.datetime.now()
             csv_text = ';'.join([str(value) for value in post_dict.values()]) + '\n'
             with open("feedback.csv", "a") as my_file:
-                                my_file.write(csv_text)
-
+                my_file.write(csv_text)
 
         output = get_nerd_data(request, t_id)
         return render_template('nerd_vis.html', text=output['text'],

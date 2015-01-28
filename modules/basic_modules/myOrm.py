@@ -87,6 +87,116 @@ class Document():
         dict['ref_list'] = ref_list
         return dict
 
+    def get_relatives(self, hash_key=[], features_ref=[]):
+        family = {}
+        data = []
+
+
+        if self.doc_type == 'birth':
+            data.append({
+                'name1': self.ref_list[1].get_compact_name().replace('_', ' '),
+                'name2': self.ref_list[2].get_compact_name().replace('_', ' '),
+                'level_old': 0,
+                'index_old': 0,
+                'level_new': 1,
+                'index_new': 0
+            })
+            data.append({
+                'name1': self.ref_list[0].get_compact_name().replace('_', ' '),
+                'name2': '',
+                'level_old': 1,
+                'index_old': 0,
+                'level_new': 2,
+                'index_new': 0
+            })
+
+        if self.doc_type == 'death':
+            data.append({
+                'name1': self.ref_list[1].get_compact_name().replace('_', ' '),
+                'name2': self.ref_list[2].get_compact_name().replace('_', ' '),
+                'level_old': 0,
+                'index_old': 0,
+                'level_new': 1,
+                'index_new': 0
+            })
+            data.append({
+                'name1': self.ref_list[0].get_compact_name().replace('_', ' '),
+                'name2': self.ref_list[3].get_compact_name().replace('_', ' '),
+                'level_old': 1,
+                'index_old': 0,
+                'level_new': 2,
+                'index_new': 0
+            })
+
+
+        if self.doc_type == 'marriage':
+            data.append({
+                'name1': self.ref_list[2].get_compact_name().replace('_', ' '),
+                'name2': self.ref_list[3].get_compact_name().replace('_', ' '),
+                'level_old': 0,
+                'index_old': 0,
+                'level_new': 1,
+                'index_new': 0
+            })
+            data.append({
+                'name1': self.ref_list[4].get_compact_name().replace('_', ' '),
+                'name2': self.ref_list[5].get_compact_name().replace('_', ' '),
+                'level_old': 0,
+                'index_old': 0,
+                'level_new': 1,
+                'index_new': 1
+            })
+            data.append({
+                'name1': self.ref_list[0].get_compact_name().replace('_', ' '),
+                'name2': self.ref_list[1].get_compact_name().replace('_', ' '),
+                'level_old': 1,
+                'index_old': 0,
+                'level_new': 2,
+                'index_new': 1
+            })
+            data.append({
+                'name1': self.ref_list[0].get_compact_name().replace('_', ' '),
+                'name2': self.ref_list[1].get_compact_name().replace('_', ' '),
+                'level_old': 1,
+                'index_old': 1,
+                'level_new': 2,
+                'index_new': 1
+            })
+
+
+        #
+        #
+        #
+        # if self.doc_type == 'birth' or self.doc_type == 'death':
+        #     family['couple'] = 1
+        #     for ref in self.ref_list:
+        #         if ref.ref_type == 'Parent':
+        #             if not family.get('name1', ''):
+        #                 family['name1'] = ref.get_compact_name().replace('_', ' ')
+        #             else:
+        #                 family['name2'] = ref.get_compact_name().replace('_', ' ')
+        #
+        #         if ref.ref_type == 'Born':
+        #             family['children'] = [{'name1': ref.get_compact_name().replace('_', ' '), 'name2': ''}]
+        #         if ref.ref_type == 'Deceased':
+        #             family['children'] = [{'name1': ref.get_compact_name().replace('_', ' '), 'name2': ''}]
+        #         if ref.ref_type == 'Relative':
+        #             family['children'][-1]['name2'] = ref.get_compact_name().replace('_', ' ')
+        #
+        # if self.doc_type == 'marriage':
+        #     family['name1'] = self.ref_list[2].get_compact_name().replace('_', ' ')
+        #     family['name2'] = self.ref_list[3].get_compact_name().replace('_', ' ')
+        #
+        #     family['children'] = [
+        #         {'name1': self.ref_list[0].get_compact_name().replace('_', ' '),
+        #          'name2': self.ref_list[1].get_compact_name().replace('_', ' '),
+        #          'parents': [{'name1': self.ref_list[4].get_compact_name().replace('_', ' '),
+        #                      'name2': self.ref_list[5].get_compact_name().replace('_', ' ')}]}]
+
+            # print family
+        return data
+
+
     def get_html(self, hash_key=[], features_ref=[]):
 
 
@@ -117,7 +227,8 @@ class Document():
                     if len(ref_name.split()) > 1:
                         ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
                         if ref_key in hash_key:
-                            if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
+                            if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + [
+                                '_'.join(key.split('_')[2:]) for key in features_ref]:
                                 text = text.replace(ref_name, '<span class="highlight">%s</span>' % ref_name)
                             else:
                                 text = text.replace(ref_name, '<span class="highlight_fuzzy">%s</span>' % ref_name)
@@ -148,7 +259,8 @@ class Document():
                 if len(ref_name.split()) > 1:
                     ref_key = ref_name.split()[0] + '_' + ref_name.split()[-1]
                     if ref_key in hash_key:
-                        if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + ['_'.join(key.split('_')[2:]) for key in features_ref]:
+                        if ref_key in ['_'.join(key.split('_')[:2]) for key in features_ref] + [
+                            '_'.join(key.split('_')[2:]) for key in features_ref]:
                             ref_name = '<span class="highlight"> %s </span>' % ref_name
                         else:
                             ref_name = '<span class="highlight_fuzzy"> %s </span>' % ref_name
@@ -229,10 +341,10 @@ class Document():
 # class Match():
 # """
 # a class for storing are found matches
-#     """
-#     def __init__(self, match_id=None, doc_id1=None, doc_id2=None, match_type=None):
-#         self.match_id = match_id
-#         self.doc_id1 = doc_id1
+# """
+# def __init__(self, match_id=None, doc_id1=None, doc_id2=None, match_type=None):
+# self.match_id = match_id
+# self.doc_id1 = doc_id1
 #         self.doc_id2 = doc_id2
 #         self.match_type = match_type
 #
@@ -368,7 +480,8 @@ def get_notarial_act(text_id=None, century18=False):
         if not century18:
             index = loadData.update_notarial_acts(['', '', 'where row_id = %s' % str(text_id)])
         else:
-            index = loadData.update_notarial_acts(['', '', 'where date like %s limit %s, 1' % ("'%-18%'", str(text_id))])
+            index = loadData.update_notarial_acts(
+                ['', '', 'where date like %s limit %s, 1' % ("'%-18%'", str(text_id))])
         text = loadData.table_notarial_acts.get(index)
 
     if text:
