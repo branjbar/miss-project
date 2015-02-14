@@ -1,4 +1,5 @@
 from modules.NERD.dict_based_nerd import Nerd
+from modules.basic_modules.treeStructure import LeafNode, Leaf, Branch
 
 __author__ = 'Bijan'
 
@@ -89,111 +90,42 @@ class Document():
 
     def get_relatives(self, hash_key=[], features_ref=[]):
         family = {}
-        data = []
-
+        data = {'leaves': [], 'branches': []}
 
         if self.doc_type == 'birth':
-            data.append({
-                'name1': self.ref_list[1].get_compact_name().replace('_', ' '),
-                'name2': self.ref_list[2].get_compact_name().replace('_', ' '),
-                'level_old': 0,
-                'index_old': 0,
-                'level_new': 1,
-                'index_new': 0
-            })
-            data.append({
-                'name1': self.ref_list[0].get_compact_name().replace('_', ' '),
-                'name2': '',
-                'level_old': 1,
-                'index_old': 0,
-                'level_new': 2,
-                'index_new': 0
-            })
+            lnode1 = LeafNode(self.ref_list[0].get_compact_name().replace('_', ' '))
+            lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '))
+            lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '))
+            lnode4 = LeafNode('x')
+            leaf1 = Leaf(lnode2, lnode3, 1, 1)
+            leaf2 = Leaf(lnode1, lnode4, 2, 1)
+            branch1 = Branch(leaf1, leaf2)
+            return {'leaves': [leaf1, leaf2], 'branches': [branch1]}
 
         if self.doc_type == 'death':
-            data.append({
-                'name1': self.ref_list[1].get_compact_name().replace('_', ' '),
-                'name2': self.ref_list[2].get_compact_name().replace('_', ' '),
-                'level_old': 0,
-                'index_old': 0,
-                'level_new': 1,
-                'index_new': 0
-            })
-            data.append({
-                'name1': self.ref_list[0].get_compact_name().replace('_', ' '),
-                'name2': self.ref_list[3].get_compact_name().replace('_', ' '),
-                'level_old': 1,
-                'index_old': 0,
-                'level_new': 2,
-                'index_new': 0
-            })
-
+            lnode1 = LeafNode(self.ref_list[0].get_compact_name().replace('_', ' '))
+            lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '))
+            lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '))
+            lnode4 = LeafNode(self.ref_list[3].get_compact_name().replace('_', ' '))
+            leaf1 = Leaf(lnode2, lnode3, 1, 1)
+            leaf2 = Leaf(lnode1, lnode4, 2, 1)
+            branch1 = Branch(leaf1, leaf2)
+            return {'leaves': [leaf1, leaf2], 'branches': [branch1]}
 
         if self.doc_type == 'marriage':
-            data.append({
-                'name1': self.ref_list[2].get_compact_name().replace('_', ' '),
-                'name2': self.ref_list[3].get_compact_name().replace('_', ' '),
-                'level_old': 0,
-                'index_old': 0,
-                'level_new': 1,
-                'index_new': 0
-            })
-            data.append({
-                'name1': self.ref_list[4].get_compact_name().replace('_', ' '),
-                'name2': self.ref_list[5].get_compact_name().replace('_', ' '),
-                'level_old': 0,
-                'index_old': 0,
-                'level_new': 1,
-                'index_new': 1
-            })
-            data.append({
-                'name1': self.ref_list[0].get_compact_name().replace('_', ' '),
-                'name2': self.ref_list[1].get_compact_name().replace('_', ' '),
-                'level_old': 1,
-                'index_old': 0,
-                'level_new': 2,
-                'index_new': 1
-            })
-            data.append({
-                'name1': self.ref_list[0].get_compact_name().replace('_', ' '),
-                'name2': self.ref_list[1].get_compact_name().replace('_', ' '),
-                'level_old': 1,
-                'index_old': 1,
-                'level_new': 2,
-                'index_new': 1
-            })
+            lnode1 = LeafNode(self.ref_list[0].get_compact_name().replace('_', ' '))
+            lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '))
+            lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '))
+            lnode4 = LeafNode(self.ref_list[3].get_compact_name().replace('_', ' '))
+            lnode5 = LeafNode(self.ref_list[4].get_compact_name().replace('_', ' '))
+            lnode6 = LeafNode(self.ref_list[5].get_compact_name().replace('_', ' '))
+            leaf1 = Leaf(lnode3, lnode4, 1, 1)
+            leaf2 = Leaf(lnode5, lnode6, 1, 2)
+            leaf3 = Leaf(lnode1, lnode2, 2, 1)
+            branch1 = Branch(leaf1, leaf3)
+            branch2 = Branch(leaf2, leaf3)
+            return {'leaves': [leaf1, leaf2, leaf3], 'branches': [branch1, branch2]}
 
-
-        #
-        #
-        #
-        # if self.doc_type == 'birth' or self.doc_type == 'death':
-        #     family['couple'] = 1
-        #     for ref in self.ref_list:
-        #         if ref.ref_type == 'Parent':
-        #             if not family.get('name1', ''):
-        #                 family['name1'] = ref.get_compact_name().replace('_', ' ')
-        #             else:
-        #                 family['name2'] = ref.get_compact_name().replace('_', ' ')
-        #
-        #         if ref.ref_type == 'Born':
-        #             family['children'] = [{'name1': ref.get_compact_name().replace('_', ' '), 'name2': ''}]
-        #         if ref.ref_type == 'Deceased':
-        #             family['children'] = [{'name1': ref.get_compact_name().replace('_', ' '), 'name2': ''}]
-        #         if ref.ref_type == 'Relative':
-        #             family['children'][-1]['name2'] = ref.get_compact_name().replace('_', ' ')
-        #
-        # if self.doc_type == 'marriage':
-        #     family['name1'] = self.ref_list[2].get_compact_name().replace('_', ' ')
-        #     family['name2'] = self.ref_list[3].get_compact_name().replace('_', ' ')
-        #
-        #     family['children'] = [
-        #         {'name1': self.ref_list[0].get_compact_name().replace('_', ' '),
-        #          'name2': self.ref_list[1].get_compact_name().replace('_', ' '),
-        #          'parents': [{'name1': self.ref_list[4].get_compact_name().replace('_', ' '),
-        #                      'name2': self.ref_list[5].get_compact_name().replace('_', ' ')}]}]
-
-            # print family
         return data
 
 
@@ -345,7 +277,7 @@ class Document():
 # def __init__(self, match_id=None, doc_id1=None, doc_id2=None, match_type=None):
 # self.match_id = match_id
 # self.doc_id1 = doc_id1
-#         self.doc_id2 = doc_id2
+# self.doc_id2 = doc_id2
 #         self.match_type = match_type
 #
 #     def __repr__(self):

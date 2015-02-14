@@ -10,6 +10,7 @@ from interface import app
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
 from modules.basic_modules.myOrm import Reference, Document
+from modules.basic_modules.treeStructure import TreeStructure, LeafNode, Leaf, Branch, visualize_tree
 from modules.record_linkage.hashing import Hashing, generate_features
 
 # new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
@@ -36,90 +37,34 @@ def routing():
     @app.route('/search/', methods=['GET', 'POST'])
     def searching_intel():
 
-        # search_term = "Adriaan_Made_Lijntje_Timmers"
-        search_term = "Jacobus_Sneep_Stijntje_Made"
+        search_term = "Adriaan_Made_Lijntje_Timmers"
+        # search_term = "Jacobus_Sneep_Stijntje_Made"
         solr_results = my_hash.search(search_term, '')
 
-        doc_list = []
         search_results = {}
-        html_year = []
         couple_names = []
-        facets = {}
 
         if solr_results:
-        #     # first let's get the facets from results
-        #     facet_fields = solr_results.facet_counts['facet_fields']
-        #     for key in facet_fields:
-        #         facets[key] = sorted(facet_fields[key].iteritems(), key=lambda x: x[1], reverse=True)[:20]
-        #
-        #     # polishing the feature_ss with removing the underline and adding &
-        #     for index, value in enumerate(facets['features_ss']):
-        #         facets['features_ss'][index] = [
-        #             value[0].replace('_', ' ', 1).replace('_', ' - ', 1).replace('_', ' '), value[1]]
-        #
-        #     # adding the date range to the facets
-        #     facets['date'] = []
-        #     facet_ranges = solr_results.facet_counts['facet_ranges']['date_dt']['counts']
-        #     for x in sorted(facet_ranges.items(), key=lambda s: s[0]):
-        #         facets['date'].append([x[0][:4] + '-' + str(int(x[0][:4]) + 10), x[1]])
-        #
-        #     # now we get the main results and highlights
-        #     search_results = {}
-        #
-        #     if len(search_term.split('_')) == 4:
-        #         couple_names = ['_'.join(search_term.split('_')[:2]), '_'.join(search_term.split('_')[-2:])]
-        #
+
             # here we simultaneously get the search results and highlights
             for result in solr_results.highlighting.iteritems():
                 search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
-        family = {'name1': 0, 'name2': 0, 'children': []}
+
+        tree = TreeStructure()
 
         if search_results:
-            doc_list = []
-            html_year = []
-            dataset = []
-            dataset_last_index = 0
 
             for doc_id in search_results.keys():
-                tmp_max_index = 0
                 doc = Document()
                 doc.set_id(doc_id)
                 new_data = doc.get_relatives(search_results[doc_id], couple_names)
-                for d in new_data:
-                    if d['index_new'] > tmp_max_index:
-                        tmp_max_index = d['index_new']
-                    if d['index_old'] > tmp_max_index:
-                        tmp_max_index = d['index_old']
-
-                    d['index_new'] += dataset_last_index
-                    d['index_old'] += dataset_last_index
+                for leaf in new_data['leaves']:
+                    tree.add_leaf(leaf)
+                for branch in new_data['branches']:
+                    tree.add_branch(branch)
 
 
-                dataset += new_data
-                dataset_last_index += tmp_max_index + 1
-
-                # tmp_flag = True
-                # print '-->', new_family
-                #
-                # if new_family.get('name1'):
-                #     for parents in family['children']:
-                #         if new_family.get('name1') and parents.get('name1'):
-                #             if parents['name1'] == new_family['name1'] and parents['name2'] == new_family['name2']:
-                #                 tmp_flag = False
-                #                 if new_family['children'][0] not in parents['children']:
-                #                     parents['children'].append(new_family['children'][0])
-                #     if tmp_flag:
-                #         family['children'].append(new_family)
-                    # if not family:
-                    #     family = new_family
-                    # else:
-                    #     family_child = family
-                    #     while family_child.get('children'):
-                    #         family_child = family_child['children'][0]
-                    #         print family_child
-                    #     family_child['children'] = [new_family]
-
-        return render_template('search_page.html', dataset=dataset)
+        return render_template('search_page.html', dataset=tree.__dict__)
 
 
     @app.route('/hash_matches/', methods=['GET', 'POST'])

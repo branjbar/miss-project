@@ -18,7 +18,15 @@
         <div id="tree"></div>
 
   </body>
-        {{dataset}}
+        {% for b in dataset.leaves %}
+            {{b.level}}, {{b.order}})    {{b.node1.name}} -- {{b.node2.name}}
+            <br>
+        {% endfor %}
+        <br><br>
+        {% for b in dataset.branches %}
+            {{b.source.level}}, {{b.source.order}} --> {{b.target.level}}, {{b.target.order}}
+            <br>
+        {% endfor %}
         <script type="text/javascript">
 
 
@@ -61,11 +69,11 @@
             }
             */
             WIDTH = 1200
-            BLOCK_WIDTH = 300
+            BLOCK_WIDTH = 200
             BLOCK_HEIGHT = 30
-            HEIGHT = level_index[0] * BLOCK_HEIGHT * 1.2
-            var x_scale = d3.scale.linear().domain([1,3]).range([10,WIDTH-BLOCK_WIDTH])
-            var y_scale = d3.scale.linear().domain([-.5,.5]).range([10,HEIGHT-BLOCK_HEIGHT])
+            HEIGHT = 10 * BLOCK_HEIGHT * 1.2
+            var x_scale = d3.scale.linear().domain([1,5]).range([10,WIDTH-BLOCK_WIDTH])
+            var y_scale = d3.scale.linear().domain([1,4]).range([10,HEIGHT-BLOCK_HEIGHT])
 
             svg = d3.select("body")
             .select("#tree")
@@ -75,44 +83,36 @@
 
 
              svg.selectAll("line")
-             .data(dataset)
+             .data(dataset.branches)
              .enter()
              .append("line")
-             .attr("x1",function(d){return x_scale(d.level_old) + BLOCK_WIDTH })
-             .attr("x2",function(d){return x_scale(d.level_new) })
-             .attr("y1",function(d){return y_scale((d.index_old)/ level_index[d.level_old] - .5) + BLOCK_HEIGHT/2})
-             .attr("y2",function(d){return y_scale((d.index_new)/ level_index[d.level_new] - .5) + BLOCK_HEIGHT/2 })
+             .attr("x1",function(d){return x_scale(d.source.level) + BLOCK_WIDTH  })
+             .attr("y1",function(d){return y_scale(d.source.order) + BLOCK_HEIGHT / 2})
+             .attr("x2",function(d){return x_scale(d.target.level)})
+             .attr("y2",function(d){return y_scale(d.target.order) + BLOCK_HEIGHT / 2})
              .attr("stroke", "black")
 
             svg.selectAll("rect")
-            .data(dataset)
+            .data(dataset.leaves)
             .enter()
             .append("rect")
             .attr("width", function(d){ return BLOCK_WIDTH})
             .attr("height", function(d){ return  BLOCK_HEIGHT})
-            .attr("x",function(d){return x_scale(d.level_new) })
-            .attr("y",function(d){return y_scale((d.index_new) / level_index[d.level_new] - .5)})
+            .attr("x",function(d){return x_scale(d.level) })
+            .attr("y",function(d){return y_scale(d.order)})
             .attr("fill",  "beige")
             .attr("stroke-width",1)
             .attr("stroke", "black")
 
-
-
-            for (i=0; i<dataset.length; i++) {
-                d = dataset[i]
-                    svg
-                    .append("text")
-                    .attr("x", x_scale(d.level_new) + BLOCK_WIDTH/2)
-                    .attr("y", y_scale((d.index_new)/ level_index[d.level_new] - .5) + BLOCK_HEIGHT/2 )
-                    .attr("text-anchor","middle")
-                    .attr("font-size", 12)
-                    .text(d.name1 + ' - ' + d.name2)
-
-
-            }
-
-
-
+            svg.selectAll("text")
+            .data(dataset.leaves)
+            .enter()
+            .append("text")
+            .attr("x", function(d) {return x_scale(d.level) + BLOCK_WIDTH/2})
+            .attr("y", function(d) {return y_scale(d.order) + BLOCK_HEIGHT/2})
+            .attr("text-anchor","middle")
+            .attr("font-size", 12)
+            .text(function(d) {return d.node1.name + ' - ' + d.node2.name})
 
 
         </script>

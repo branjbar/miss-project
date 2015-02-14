@@ -1,3 +1,5 @@
+import uuid
+
 __author__ = 'bijan'
 
 
@@ -23,6 +25,7 @@ class Leaf:
         self.node2 = node2.__dict__
         self.level = level
         self.order = order
+        self.unique_key = uuid.uuid4()
 
     def __str__(self):
         return str(self.__dict__)
@@ -33,8 +36,8 @@ class Branch:
     """
 
     def __init__(self, leaf1, leaf2):
-        self.source = {'level': leaf1.level, 'order': leaf1.order}
-        self.target = {'level': leaf2.level, 'order': leaf2.order}
+        self.source = {'level': leaf1.level, 'order': leaf1.order, 'unique_key': leaf1.unique_key}
+        self.target = {'level': leaf2.level, 'order': leaf2.order, 'unique_key': leaf2.unique_key}
 
     def __str__(self):
         return str(self.source) + str(self.target)
@@ -47,12 +50,27 @@ class TreeStructure:
         self.columns = {}
 
     def add_leaf(self, leaf):
+
+        if leaf.order <= len(self.columns.get(leaf.level,[])):
+            leaf.order += 1
         self.leaves.append(leaf.__dict__)
         self.columns[leaf.level] = self.columns.get(leaf.level, []) + [leaf.__dict__]
 
+        return leaf
 
     def add_branch(self, branch):
+        for leaf in self.leaves:
+            print leaf
+            print branch.__dict__
+            if branch.source['unique_key'] == leaf['unique_key']:
+                branch.source['order'] = leaf['order']
+                branch.source['level'] = leaf['level']
+            if branch.target['unique_key'] == leaf['unique_key']:
+                branch.target['order'] = leaf['order']
+                branch.target['level'] = leaf['level']
+
         self.branches.append(branch.__dict__)
+
 
 
 def visualize_tree(tree):
