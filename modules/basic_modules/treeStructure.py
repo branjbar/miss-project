@@ -60,7 +60,6 @@ class TreeStructure:
 
     def add_branch(self, branch):
         for leaf in self.leaves:
-            print leaf
             print branch.__dict__
             if branch.source['unique_key'] == leaf['unique_key']:
                 branch.source['order'] = leaf['order']
@@ -71,15 +70,6 @@ class TreeStructure:
 
         self.branches.append(branch.__dict__)
 
-
-
-def visualize_tree(tree):
-    for column_level in tree.columns.keys():
-        for leaf in tree.columns[column_level]:
-            print column_level, leaf.order, leaf.node1, leaf.node2
-
-    for branch in tree.branches:
-        print branch
 
 
 if __name__ == "__main__":

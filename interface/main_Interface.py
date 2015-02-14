@@ -10,7 +10,7 @@ from interface import app
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
 from modules.basic_modules.myOrm import Reference, Document
-from modules.basic_modules.treeStructure import TreeStructure, LeafNode, Leaf, Branch, visualize_tree
+from modules.basic_modules.treeStructure import TreeStructure, LeafNode, Leaf, Branch
 from modules.record_linkage.hashing import Hashing, generate_features
 
 # new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
