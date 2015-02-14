@@ -34,46 +34,17 @@
 
             dataset = {{dataset|tojson|safe}}
             var level_index = [1,0,0,0,0,0,0,0]
-            max_index = d3.max(dataset,function(d){d.index_new})
-            max_index = 100
 
-            for (i =0 ; i<= 5; i++) {
-                level_index[i] = max_index
-                }
+            min_level = d3.min(dataset.leaves, function(d){return d.level})
+            max_level = d3.max(dataset.leaves, function(d){return d.level})
+            max_order = d3.max(dataset.leaves, function(d){return d.order})
 
-            /*
-            add_node(1,1,1,family)
-
-            function add_node(level_old, index_old, level_new, person) {
-                for (i =0 ; i<= 5; i++) {
-                    level_index[i] += 1
-                    }
-                if (level_new > 10) {
-                    return 0
-                }
-                var the_index = level_index[level_new]
-                dataset.push({level_old:level_old, index_old:index_old, level_new:level_new, index_new:the_index, name1: person.name1, name2: person.name2, couple: person.couple})
-
-
-                if (person.children) {
-                    for (var i = 0; i < person.children.length; i++) {
-                        add_node(level_new, the_index, level_new+1, person.children[i])
-                    }
-                }
-                if (person.parents) {
-                    for (var i = 0; i < person.parents.length; i++) {
-                        add_node(level_new, the_index, level_new-1, person.parents[i])
-                    }
-                }
-
-            }
-            */
-            WIDTH = 1200
             BLOCK_WIDTH = 200
             BLOCK_HEIGHT = 30
-            HEIGHT = 10 * BLOCK_HEIGHT * 1.2
-            var x_scale = d3.scale.linear().domain([1,5]).range([10,WIDTH-BLOCK_WIDTH])
-            var y_scale = d3.scale.linear().domain([1,4]).range([10,HEIGHT-BLOCK_HEIGHT])
+            WIDTH = (max_level - min_level + 1) * BLOCK_WIDTH * 1.5
+            HEIGHT = max_order * BLOCK_HEIGHT * 1.5
+            var x_scale = d3.scale.linear().domain([min_level,max_level]).range([10,WIDTH-BLOCK_WIDTH])
+            var y_scale = d3.scale.linear().domain([1,max_order]).range([10,HEIGHT-BLOCK_HEIGHT])
 
             svg = d3.select("body")
             .select("#tree")

@@ -1,3 +1,4 @@
+import copy
 import uuid
 
 __author__ = 'bijan'
@@ -30,6 +31,7 @@ class Leaf:
     def __str__(self):
         return str(self.__dict__)
 
+
 class Branch:
     """
     a branch represents a relation (mostly parent-child) between two leaves
@@ -51,24 +53,108 @@ class TreeStructure:
 
     def add_leaf(self, leaf):
 
-        if leaf.order <= len(self.columns.get(leaf.level,[])):
-            leaf.order += 1
-        self.leaves.append(leaf.__dict__)
-        self.columns[leaf.level] = self.columns.get(leaf.level, []) + [leaf.__dict__]
+        if leaf.order <= len(self.columns.get(leaf.level, [])):
+            leaf.order = len(self.columns.get(leaf.level, [])) + 1
+        self.leaves.append(leaf)
+        self.columns[leaf.level] = self.columns.get(leaf.level, []) + [leaf]
 
         return leaf
 
     def add_branch(self, branch):
         for leaf in self.leaves:
-            print branch.__dict__
-            if branch.source['unique_key'] == leaf['unique_key']:
-                branch.source['order'] = leaf['order']
-                branch.source['level'] = leaf['level']
-            if branch.target['unique_key'] == leaf['unique_key']:
-                branch.target['order'] = leaf['order']
-                branch.target['level'] = leaf['level']
+            if branch.source['unique_key'] == leaf.unique_key:
+                branch.source['order'] = leaf.order
+                branch.source['level'] = leaf.level
+            if branch.target['unique_key'] == leaf.unique_key:
+                branch.target['order'] = leaf.order
+                branch.target['level'] = leaf.level
 
-        self.branches.append(branch.__dict__)
+        self.branches.append(branch)
+
+    def get_dict(self):
+        """
+        generates a dict for json of html page
+        """
+        return {'leaves':[leaf.__dict__ for leaf in self.leaves],
+                'branches':[branch.__dict__ for branch in self.branches]}
+
+    def update(self):
+        self.merge_columns()
+        self.merge_between_columns()
+
+    def merge_columns(self):
+
+        for level in self.columns.keys():  # for each column
+            leaf_list = copy.copy(self.columns[level])  # take a copy of all leaves such that you don't mix things up between the levels.
+            for index1, leaf1 in enumerate(leaf_list):
+                for index2, leaf2 in enumerate(leaf_list):
+                    if index2 > index1:
+                        if leaf1.node1 == leaf2.node1 and leaf1.node2 == leaf2.node2:
+                            # here we want to remove leaf2 and redirect every pointer to leaf1
+                            if leaf2 in self.leaves:
+                                self.leaves.remove(leaf2)
+                                self.columns[level].remove(leaf2)
+
+                                for branch in self.branches:
+
+                                    if branch.source['unique_key'] == leaf2.unique_key:
+                                        branch.source['order'] = leaf1.order
+                                        branch.source['level'] = leaf1.level
+                                        branch.source['unique_key'] = leaf1.unique_key
+
+                                    if branch.target['unique_key'] == leaf2.unique_key:
+                                        branch.target['order'] = leaf1.order
+                                        branch.target['level'] = leaf1.level
+                                        branch.target['unique_key'] = leaf1.unique_key
+    def merge_between_columns(self):
+
+        for level1 in self.columns.keys():  # for each column
+            leaf_list_1 = copy.copy(self.columns.get(level1,[]))
+            leaf_list_2 = copy.copy(self.columns.get(level1+1,[]))
+            for index1, leaf1 in enumerate(leaf_list_1):
+                for index2, leaf2 in enumerate(leaf_list_2):
+                    if leaf1.node1 == leaf2.node1 and leaf1.node2 == leaf2.node2:
+
+                        # here we want to remove leaf2 and redirect every pointer to leaf1
+                        if leaf2 in self.leaves:
+                            self.leaves.remove(leaf2)
+                            self.columns[level1+1].remove(leaf2)
+
+                            for branch in self.branches:
+
+                                if branch.source['unique_key'] == leaf2.unique_key:
+                                    branch.source['order'] = leaf1.order
+                                    branch.source['level'] = leaf1.level
+                                    branch.source['unique_key'] = leaf1.unique_key
+                                    self.update_leaf(branch.source['unique_key'], +1)
+
+
+                                if branch.target['unique_key'] == leaf2.unique_key:
+                                    branch.target['order'] = leaf1.order
+                                    branch.target['level'] = leaf1.level
+                                    branch.target['unique_key'] = leaf1.unique_key
+                                    self.update_leaf(branch.source['unique_key'], -1)
+
+    def update_leaf(self, unique_key, level_change):
+        for leaf in self.leaves:
+            if leaf.unique_key == unique_key:
+                leaf.level = leaf.level + level_change
+                leaf_level = leaf.level
+                leaf.order = len(self.columns.get(leaf_level, [])) + 1
+                leaf_order = leaf.order
+                self.columns[leaf_level] = self.columns.get(leaf_level,[]) + [leaf]
+        for branch in self.branches:
+
+            if branch.source['unique_key'] == unique_key:
+                branch.source['order'] = leaf_order
+                branch.source['level'] = leaf_level
+
+
+            if branch.target['unique_key'] == unique_key:
+                branch.target['order'] = leaf_order
+                branch.target['level'] = leaf_level
+
+
 
 
 
@@ -82,18 +168,17 @@ if __name__ == "__main__":
     lnode6 = LeafNode('-')
     lnode7 = LeafNode('Stijntje Made')
 
-    leaf1 = Leaf(lnode1,lnode2,1,1)
-    leaf2 = Leaf(lnode3,lnode4,1,2)
-    leaf3 = Leaf(lnode1,lnode2,1,3)
-    leaf4 = Leaf(lnode5,lnode6,2,1)
-    leaf5 = Leaf(lnode5,lnode7,2,2)
+    leaf1 = Leaf(lnode1, lnode2, 1, 1)
+    leaf2 = Leaf(lnode3, lnode4, 1, 2)
+    leaf3 = Leaf(lnode1, lnode2, 1, 3)
+    leaf4 = Leaf(lnode5, lnode6, 2, 1)
+    leaf5 = Leaf(lnode5, lnode7, 2, 2)
 
-    branch1 = Branch(leaf1,leaf4)
-    branch2 = Branch(leaf2,leaf5)
-    branch3 = Branch(leaf3,leaf5)
+    branch1 = Branch(leaf1, leaf4)
+    branch2 = Branch(leaf2, leaf5)
+    branch3 = Branch(leaf3, leaf5)
 
     tree.add_leaf(leaf1)
-    tree.add_leaf(leaf2),tree.add_leaf(leaf3),tree.add_leaf(leaf4),tree.add_leaf(leaf5)
-    tree.add_branch(branch1),tree.add_branch(branch2),tree.add_branch(branch3)
+    tree.add_leaf(leaf2), tree.add_leaf(leaf3), tree.add_leaf(leaf4), tree.add_leaf(leaf5)
+    tree.add_branch(branch1), tree.add_branch(branch2), tree.add_branch(branch3)
 
-    visualize_tree(tree)
