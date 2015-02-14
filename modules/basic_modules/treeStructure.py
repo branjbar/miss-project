@@ -1,5 +1,6 @@
 import copy
 import uuid
+from modules.basic_modules.basic import string_compare
 
 __author__ = 'bijan'
 
@@ -81,15 +82,16 @@ class TreeStructure:
     def update(self):
         self.merge_columns()
         self.merge_between_columns()
+        self.remove_gaps()
 
     def merge_columns(self):
 
-        for level in self.columns.keys():  # for each column
+        for level in sorted(self.columns.keys()):  # for each column
             leaf_list = copy.copy(self.columns[level])  # take a copy of all leaves such that you don't mix things up between the levels.
             for index1, leaf1 in enumerate(leaf_list):
                 for index2, leaf2 in enumerate(leaf_list):
                     if index2 > index1:
-                        if leaf1.node1 == leaf2.node1 and leaf1.node2 == leaf2.node2:
+                        if string_compare(leaf1.node1['name'] + leaf1.node2['name'], leaf2.node1['name'] + leaf2.node2['name'],'LEV') < 3:
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if leaf2 in self.leaves:
                                 self.leaves.remove(leaf2)
@@ -106,55 +108,76 @@ class TreeStructure:
                                         branch.target['order'] = leaf1.order
                                         branch.target['level'] = leaf1.level
                                         branch.target['unique_key'] = leaf1.unique_key
-    def merge_between_columns(self):
 
-        for level1 in self.columns.keys():  # for each column
+    def merge_between_columns(self):
+        for level1 in sorted(self.columns.keys()):  # for each column
             leaf_list_1 = copy.copy(self.columns.get(level1,[]))
             leaf_list_2 = copy.copy(self.columns.get(level1+1,[]))
+
             for index1, leaf1 in enumerate(leaf_list_1):
                 for index2, leaf2 in enumerate(leaf_list_2):
-                    if leaf1.node1 == leaf2.node1 and leaf1.node2 == leaf2.node2:
+                    if leaf1.unique_key != leaf2.unique_key:
+                        if string_compare(leaf1.node1['name'] + leaf1.node2['name'], leaf2.node1['name'] + leaf2.node2['name'],'LEV') < 3:
 
-                        # here we want to remove leaf2 and redirect every pointer to leaf1
-                        if leaf2 in self.leaves:
-                            self.leaves.remove(leaf2)
-                            self.columns[level1+1].remove(leaf2)
+                            # here we want to remove leaf2 and redirect every pointer to leaf1
+                            if leaf2 in self.leaves:
+                                self.leaves.remove(leaf2)
+                                self.columns[level1+1].remove(leaf2)
 
-                            for branch in self.branches:
+                                for branch in self.branches:
 
-                                if branch.source['unique_key'] == leaf2.unique_key:
-                                    branch.source['order'] = leaf1.order
-                                    branch.source['level'] = leaf1.level
-                                    branch.source['unique_key'] = leaf1.unique_key
-                                    self.update_leaf(branch.source['unique_key'], +1)
+                                    if branch.source['unique_key'] == leaf2.unique_key:
+                                        branch.source['order'] = leaf1.order
+                                        branch.source['level'] = leaf1.level
+                                        branch.source['unique_key'] = leaf1.unique_key
 
 
-                                if branch.target['unique_key'] == leaf2.unique_key:
-                                    branch.target['order'] = leaf1.order
-                                    branch.target['level'] = leaf1.level
-                                    branch.target['unique_key'] = leaf1.unique_key
-                                    self.update_leaf(branch.source['unique_key'], -1)
+                                    if branch.target['unique_key'] == leaf2.unique_key:
+                                        branch.target['order'] = leaf1.order
+                                        branch.target['level'] = leaf1.level
+                                        branch.target['unique_key'] = leaf1.unique_key
+                                        self.update_leaf(branch.source['unique_key'], leaf1.level-1)
 
-    def update_leaf(self, unique_key, level_change):
+    def update_leaf(self, unique_key, new_level, new_order=None, shuffle=True):
         for leaf in self.leaves:
             if leaf.unique_key == unique_key:
-                leaf.level = leaf.level + level_change
-                leaf_level = leaf.level
-                leaf.order = len(self.columns.get(leaf_level, [])) + 1
-                leaf_order = leaf.order
-                self.columns[leaf_level] = self.columns.get(leaf_level,[]) + [leaf]
+                self.columns[leaf.level].remove(leaf)
+                leaf.level = new_level
+
+                if not new_order:
+                    if self.columns.get(new_level):
+                        new_order = max([leaf2.order for leaf2 in self.columns.get(new_level)])+1
+                    else:
+                        new_order = 1
+
+                leaf.order = new_order
+
+                # print new_level, new_order
+                self.columns[new_level] = self.columns.get(new_level, []) + [leaf]
+
         for branch in self.branches:
 
             if branch.source['unique_key'] == unique_key:
-                branch.source['order'] = leaf_order
-                branch.source['level'] = leaf_level
+                branch.source['order'] = new_order
+                branch.source['level'] = new_level
 
 
             if branch.target['unique_key'] == unique_key:
-                branch.target['order'] = leaf_order
-                branch.target['level'] = leaf_level
+                branch.target['order'] = new_order
+                branch.target['level'] = new_level
+                if shuffle:
+                    self.update_leaf(branch.source['unique_key'], new_level-1)
 
 
+    def remove_gaps(self):
+        """
+        here we sort all the nodes in each column based on their index.
+        :return:
+        """
+        for level in sorted(self.columns.keys()):
+            leaf_list = copy.copy(self.columns.get(level,[]))
+            for index, leaf in enumerate(leaf_list):
+                self.update_leaf(leaf.unique_key, leaf.level, index+1, False)
 
 
 

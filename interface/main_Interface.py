@@ -32,23 +32,44 @@ from modules.record_linkage.hashing import Hashing, generate_features
 
 my_hash = Hashing()
 
+def recursive_search(search_results,new_search_term_list):
+    solr_results_list = []
+    for doc_id in search_results.keys():
+        doc = Document()
+        doc.set_id(doc_id)
+        for name1 in [ref.name for ref in doc.ref_list]:
+            for name2 in [ref.name for ref in doc.ref_list]:
+                search_term = generate_features(name1.split(), name2.split())
+                if search_term not in new_search_term_list:
+                    new_search_term_list.append(search_term)
+
+    for search_term in new_search_term_list:
+        solr_results_list.append(my_hash.search(search_term, ''))
+
+    for solr_result in solr_results_list:
+        if solr_result:
+            for result in solr_result.highlighting.iteritems():
+                search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
+
+    return new_search_term_list, search_results
 
 def routing():
     @app.route('/search/', methods=['GET', 'POST'])
     def searching_intel():
 
-        search_term = "Adriaan_Made_Lijntje_Timmers"
-        search_term = "Jacobus_Sneep_Stijntje_Made"
-        solr_results = my_hash.search(search_term, '')
+        search_term_1 = "Adriaan_Made_Lijntje_Timmers"
+        search_term_2 = "Jacobus_Sneep_Stijntje_Made"
+        solr_results_1 = my_hash.search(search_term_1, '')
 
         search_results = {}
-        couple_names = []
 
-        if solr_results:
-
-            # here we simultaneously get the search results and highlights
-            for result in solr_results.highlighting.iteritems():
+        if solr_results_1:
+            for result in solr_results_1.highlighting.iteritems():
                 search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
+
+        new_search_term_list, search_results = recursive_search(search_results, [])
+        new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+
 
         tree = TreeStructure()
 
@@ -57,7 +78,7 @@ def routing():
             for doc_id in search_results.keys():
                 doc = Document()
                 doc.set_id(doc_id)
-                new_data = doc.get_relatives(search_results[doc_id], couple_names)
+                new_data = doc.get_relatives(search_results[doc_id], [])
                 for leaf in new_data['leaves']:
                     tree.add_leaf(leaf)
                 for branch in new_data['branches']:
