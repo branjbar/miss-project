@@ -69,6 +69,7 @@ def routing():
 
         new_search_term_list, search_results = recursive_search(search_results, [])
         new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+        new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
 
 
         tree = TreeStructure()

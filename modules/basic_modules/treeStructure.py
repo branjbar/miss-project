@@ -82,7 +82,9 @@ class TreeStructure:
     def update(self):
         self.merge_columns()
         self.merge_between_columns()
-        self.remove_gaps()
+        for i in xrange(3):
+            self.remove_horizontal_gaps()
+            self.remove_vertical_gaps()
 
     def merge_columns(self):
 
@@ -91,7 +93,8 @@ class TreeStructure:
             for index1, leaf1 in enumerate(leaf_list):
                 for index2, leaf2 in enumerate(leaf_list):
                     if index2 > index1:
-                        if string_compare(leaf1.node1['name'] + leaf1.node2['name'], leaf2.node1['name'] + leaf2.node2['name'],'LEV') < 3:
+                        if string_compare(leaf1.node1['name'] + leaf1.node2['name'], leaf2.node1['name'] + leaf2.node2['name'],'LEV') < 3\
+                                and len(leaf1.node2['name']) > 2:
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if leaf2 in self.leaves:
                                 self.leaves.remove(leaf2)
@@ -117,20 +120,19 @@ class TreeStructure:
             for index1, leaf1 in enumerate(leaf_list_1):
                 for index2, leaf2 in enumerate(leaf_list_2):
                     if leaf1.unique_key != leaf2.unique_key:
-                        if string_compare(leaf1.node1['name'] + leaf1.node2['name'], leaf2.node1['name'] + leaf2.node2['name'],'LEV') < 3:
+                        if string_compare(leaf1.node1['name'] + leaf1.node2['name'], leaf2.node1['name'] + leaf2.node2['name'],'LEV') < 3\
+                                and len(leaf1.node2['name']) > 2:
 
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if leaf2 in self.leaves:
                                 self.leaves.remove(leaf2)
                                 self.columns[level1+1].remove(leaf2)
-
                                 for branch in self.branches:
 
                                     if branch.source['unique_key'] == leaf2.unique_key:
                                         branch.source['order'] = leaf1.order
                                         branch.source['level'] = leaf1.level
                                         branch.source['unique_key'] = leaf1.unique_key
-
 
                                     if branch.target['unique_key'] == leaf2.unique_key:
                                         branch.target['order'] = leaf1.order
@@ -152,7 +154,6 @@ class TreeStructure:
 
                 leaf.order = new_order
 
-                # print new_level, new_order
                 self.columns[new_level] = self.columns.get(new_level, []) + [leaf]
 
         for branch in self.branches:
@@ -161,7 +162,6 @@ class TreeStructure:
                 branch.source['order'] = new_order
                 branch.source['level'] = new_level
 
-
             if branch.target['unique_key'] == unique_key:
                 branch.target['order'] = new_order
                 branch.target['level'] = new_level
@@ -169,7 +169,7 @@ class TreeStructure:
                     self.update_leaf(branch.source['unique_key'], new_level-1)
 
 
-    def remove_gaps(self):
+    def remove_vertical_gaps(self):
         """
         here we sort all the nodes in each column based on their index.
         :return:
@@ -179,7 +179,21 @@ class TreeStructure:
             for index, leaf in enumerate(leaf_list):
                 self.update_leaf(leaf.unique_key, leaf.level, index+1, False)
 
+    def remove_horizontal_gaps(self):
+        """
+        here we sort all the nodes in each column based on their index.
+        :return:
+        """
 
+        moved_nodes = []
+        for branch in self.branches:
+            if branch.target['level'] - branch.source['level'] > 1:
+                if not branch.target['unique_key'] in moved_nodes:
+                    self.update_leaf(branch.target['unique_key'], branch.source['level']+1)
+                    moved_nodes.append(branch.target['unique_key'])
+
+        print len(moved_nodes)
+        return moved_nodes
 
 if __name__ == "__main__":
     tree = TreeStructure()
