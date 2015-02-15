@@ -15,7 +15,7 @@ class LeafNode:
         self.name = name
 
     def __str__(self):
-        return self.namenew
+        return self.name
 
 
 class Leaf:
@@ -23,13 +23,15 @@ class Leaf:
     a leaf represents a couple. Each lever has an order and a level which shows where it is positioned
     """
 
-    def __init__(self, node1, node2, level=0, order=0):
+    def __init__(self, node1, node2, doc_id, level=0, order=0):
         self.node1 = node1.__dict__
         self.node2 = node2.__dict__
         self.level = level
         self.order = order
-        self.unique_key = uuid.uuid4()
         self.depth = None
+        self.doc_id = str(doc_id)
+        self.index = -1
+        self.unique_key = uuid.uuid4()
 
     def __str__(self):
         return str(self.__dict__)
@@ -41,9 +43,9 @@ class Branch:
     """
 
     def __init__(self, leaf1, leaf2):
-        self.source = {'level': leaf1.level, 'order': leaf1.order, 'unique_key': leaf1.unique_key}
-        self.target = {'level': leaf2.level, 'order': leaf2.order, 'unique_key': leaf2.unique_key}
-        self.color = "black"
+        self.source = leaf1.unique_key
+        self.target = leaf2.unique_key
+        self.color = "gray"
 
     def __str__(self):
         return str(self.source) + str(self.target)
@@ -59,6 +61,7 @@ class TreeStructure:
 
         if leaf.order <= len(self.columns.get(leaf.level, [])):
             leaf.order = len(self.columns.get(leaf.level, [])) + 1
+        leaf.index = len(self.leaves) + 1
         self.leaves.append(leaf)
         self.columns[leaf.level] = self.columns.get(leaf.level, []) + [leaf]
 
@@ -66,12 +69,11 @@ class TreeStructure:
 
     def add_branch(self, branch):
         for leaf in self.leaves:
-            if branch.source['unique_key'] == leaf.unique_key:
-                branch.source['order'] = leaf.order
-                branch.source['level'] = leaf.level
-            if branch.target['unique_key'] == leaf.unique_key:
-                branch.target['order'] = leaf.order
-                branch.target['level'] = leaf.level
+            if branch.source == leaf.unique_key:
+                branch.source = leaf.index
+
+            if branch.target == leaf.unique_key:
+                branch.target = leaf.index
 
         self.branches.append(branch)
 
@@ -100,20 +102,17 @@ class TreeStructure:
                                         and len(leaf1.node2['name']) > 2 and len(leaf1.node1['name']) > 2:
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if leaf2 in self.leaves:
+                                leaf1.doc_id += ', ' + leaf2.doc_id
                                 self.leaves.remove(leaf2)
                                 self.columns[level].remove(leaf2)
 
                                 for branch in self.branches:
 
-                                    if branch.source['unique_key'] == leaf2.unique_key:
-                                        branch.source['order'] = leaf1.order
-                                        branch.source['level'] = leaf1.level
-                                        branch.source['unique_key'] = leaf1.unique_key
+                                    if branch.source == leaf2.index:
+                                        branch.source = leaf1.index
 
-                                    if branch.target['unique_key'] == leaf2.unique_key:
-                                        branch.target['order'] = leaf1.order
-                                        branch.target['level'] = leaf1.level
-                                        branch.target['unique_key'] = leaf1.unique_key
+                                    if branch.target == leaf2.index:
+                                        branch.target = leaf1.index
 
     def merge_between_columns(self):
         for level1 in sorted(self.columns.keys()):  # for each column
@@ -122,7 +121,7 @@ class TreeStructure:
 
             for index1, leaf1 in enumerate(leaf_list_1):
                 for index2, leaf2 in enumerate(leaf_list_2):
-                    if leaf1.unique_key != leaf2.unique_key:
+                    if leaf1.index != leaf2.index:
                         if (string_compare(leaf1.node1['name'] + leaf1.node2['name'], leaf2.node1['name'] + leaf2.node2['name'],'LEV') < 4\
                                 or string_compare(leaf1.node2['name'] + leaf1.node1['name'], leaf2.node1['name'] + leaf2.node2['name'],'LEV') < 4 )\
                                         and len(leaf1.node2['name']) > 2 and len(leaf1.node1['name']) > 2:
@@ -133,32 +132,25 @@ class TreeStructure:
                                 self.columns[level1+1].remove(leaf2)
                                 for branch in self.branches:
 
-                                    if branch.source['unique_key'] == leaf2.unique_key:
-                                        branch.source['order'] = leaf1.order
-                                        branch.source['level'] = leaf1.level
-                                        branch.source['unique_key'] = leaf1.unique_key
+                                    if branch.source == leaf2.index:
+                                        branch.source = leaf1.index
 
-                                    if branch.target['unique_key'] == leaf2.unique_key:
-                                        branch.target['order'] = leaf1.order
-                                        branch.target['level'] = leaf1.level
-                                        branch.target['unique_key'] = leaf1.unique_key
-                                        self.update_leaf(branch.source['unique_key'], leaf1.level-1)
+                                    if branch.target == leaf2.index:
+                                        branch.target = leaf1.index
+                                        self.update_leaf(branch.source, leaf1.level-1)
 
-    def update_leaf(self, unique_key, new_level, new_order=None, shuffle=True):
+    def update_leaf(self, index, new_level, new_order=None, shuffle=True):
         leaf_found = False
         for leaf in self.leaves:
-            if leaf.unique_key == unique_key:
+            if leaf.index == index:
                 self.columns[leaf.level].remove(leaf)
 
                 # we don't like to move nodes to right, so we check if new_level is less that leaf.level
-                # if new_level < leaf.level:
                 leaf.level = new_level
-                # else:
-                #     new_level = leaf.level
 
                 if not new_order:
                     if self.columns.get(new_level):
-                        new_order = max([leaf2.order for leaf2 in self.columns.get(new_level)])+1
+                        new_order = max([leaf_tmp.order for leaf_tmp in self.columns.get(new_level)])+1
                     else:
                         new_order = 1
 
@@ -169,16 +161,9 @@ class TreeStructure:
 
         if leaf_found:
             for branch in self.branches:
-
-                if branch.source['unique_key'] == unique_key:
-                    branch.source['order'] = new_order
-                    branch.source['level'] = new_level
-
-                if branch.target['unique_key'] == unique_key:
-                    branch.target['order'] = new_order
-                    branch.target['level'] = new_level
+                if branch.target == index:
                     if shuffle:
-                        self.update_leaf(branch.source['unique_key'], new_level-1)
+                        self.update_leaf(branch.source, new_level-1)
 
 
     def remove_vertical_gaps(self):
@@ -188,16 +173,16 @@ class TreeStructure:
         """
         for level in sorted(self.columns.keys()):
             leaf_list = copy.copy(self.columns.get(level,[]))
-            for index, leaf in enumerate(leaf_list):
-                self.update_leaf(leaf.unique_key, leaf.level, index+1, False)
+            for index_tmp, leaf in enumerate(leaf_list):
+                self.update_leaf(leaf.index, leaf.level, index_tmp+1, False)
 
-    def decrease_depth(self, unique_key, depth):
-        for index, leaf in enumerate(self.leaves):
-            if leaf.unique_key == unique_key:
-                self.leaves[index].depth = depth
+    def decrease_depth(self, index, depth):
+        for index_tmp, leaf in enumerate(self.leaves):
+            if leaf.index == index:
+                self.leaves[index_tmp].depth = depth
                 for branch in self.branches:
-                    if branch.target['unique_key'] == unique_key:
-                        self.decrease_depth(branch.source['unique_key'], depth-1)
+                    if branch.target == index:
+                        self.decrease_depth(branch.source, depth-1)
 
 
     def remove_horizontal_gaps(self):
@@ -205,9 +190,9 @@ class TreeStructure:
         here we sort all the nodes in each column based on their index.
         :return:
         """
-        for index, leaf in enumerate(self.leaves):
-            if self.leaves[index].depth is None:
-                self.decrease_depth(leaf.unique_key, 0)
+        for index_tmp, leaf in enumerate(self.leaves):
+            if self.leaves[index_tmp].depth is None:
+                self.decrease_depth(leaf.index, 0)
 
         MAX_DEPTH = 10
         for leaf in self.leaves:
@@ -227,7 +212,7 @@ class TreeStructure:
         self.bfs_round()
 
         for leaf in self.leaves:
-            self.update_leaf(leaf.unique_key,leaf.depth, None, False)
+            self.update_leaf(leaf.index,leaf.depth, None, False)
 
     def bfs_round(self):
         change_flag = True
@@ -236,9 +221,9 @@ class TreeStructure:
             for leaf_target in self.leaves:
                 if leaf_target.depth >= -1:
                     for branch in self.branches:
-                        if leaf_target.unique_key == branch.target['unique_key']:
+                        if leaf_target.index == branch.target:
                             for leaf_source in self.leaves:
-                                if leaf_source.unique_key == branch.source['unique_key']:
+                                if leaf_source.index == branch.source:
                                     if leaf_source.depth == -3:
                                         leaf_source.depth = leaf_target.depth - 1
                                         change_flag = True
@@ -249,9 +234,9 @@ class TreeStructure:
             for leaf_source in self.leaves:
                 if leaf_source.depth >= -1:
                     for branch in self.branches:
-                        if leaf_source.unique_key == branch.source['unique_key']:
+                        if leaf_source.index == branch.source:
                             for leaf_target in self.leaves:
-                                if leaf_target.unique_key == branch.target['unique_key']:
+                                if leaf_target.index == branch.target:
                                     if leaf_target.depth <= leaf_source.depth:
                                         leaf_target.depth = leaf_source.depth + 1
                                         change_flag = True

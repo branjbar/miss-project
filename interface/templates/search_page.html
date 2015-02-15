@@ -8,6 +8,7 @@
     <title>MiSS Intelligent Search Engine</title>
 
     <!-- Bootstrap core CSS -->
+    <script src="../static/jquery-1.11.1.min.js"></script>
     <script src="../static/d3/d3.js"></script>
 
 
@@ -57,11 +58,11 @@
              .data(dataset.branches)
              .enter()
              .append("line")
-             .attr("x1",function(d){return x_scale(d.source.level) + BLOCK_WIDTH  })
-             .attr("y1",function(d){return y_scale(d.source.order) + BLOCK_HEIGHT / 2})
-             .attr("x2",function(d){return x_scale(d.target.level)})
-             .attr("y2",function(d){return y_scale(d.target.order) + BLOCK_HEIGHT / 2})
-             .attr("stroke", "black")
+             .attr("x1",function(d){leaf = $.grep(dataset.leaves, function(e){ return e.index == d.source; }); return  x_scale(leaf[0].level) + BLOCK_WIDTH  })
+             .attr("y1",function(d){leaf = $.grep(dataset.leaves, function(e){ return e.index == d.source; }); return y_scale(leaf[0].order) + BLOCK_HEIGHT / 2})
+             .attr("x2",function(d){leaf = $.grep(dataset.leaves, function(e){ return e.index == d.target; }); return x_scale(leaf[0].level)})
+             .attr("y2",function(d){leaf = $.grep(dataset.leaves, function(e){ return e.index == d.target; }); return y_scale(leaf[0].order) + BLOCK_HEIGHT / 2})
+             .attr("stroke", "gray")
 
             svg.selectAll("rect")
             .data(dataset.leaves)
@@ -84,16 +85,15 @@
                     d3.select(this)
                     .attr("fill", "yellow")
 
-                     the_order = d.order
-                     the_level = d.level
+                     the_index = d.index
 
                      svg.selectAll("line")
                      .data(dataset.branches)
                      .attr("stroke", function(d) {
-                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                     if (d.source == the_index){
                                                         return "darkred"
                                                      }
-                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                     else if (d.target == the_index){
                                                         return "darkblue"
                                                      }
                                                      else {
@@ -102,10 +102,10 @@
 
                                                   })
                      .attr("stroke-width", function(d) {
-                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                     if ((d.source == the_index) ){
                                                         return 3
                                                      }
-                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                     else if ((d.target == the_index) ){
                                                         return 3
                                                      }
                                                      else {
@@ -134,8 +134,7 @@
             }
 
             function mouseClick(d) {
-                 the_order = d.order
-                 the_level = d.level
+                the_index = d.index
                 if (!d.gold) {
                     d.gold = true
                     d3.select(this)
@@ -146,11 +145,11 @@
                      svg.selectAll("line")
                      .data(dataset.branches)
                      .attr("stroke", function(d) {
-                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                     if (d.source == the_index){
                                                         d.color = "red"
                                                         return "red"
                                                      }
-                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                     if (d.target == the_index){
                                                         d.color = "blue"
                                                         return "blue"
                                                      }
@@ -160,11 +159,11 @@
 
                                                   })
                      .attr("stroke-width", function(d) {
-                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                     if (d.source == the_index){
                                                         d.width = 3
                                                         return 3
                                                      }
-                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                     if (d.target == the_index){
                                                         d.width = 3
                                                         return 3
                                                      }
@@ -183,13 +182,13 @@
                      svg.selectAll("line")
                      .data(dataset.branches)
                      .attr("stroke", function(d) {
-                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
-                                                        d.color = "black"
-                                                        return "black"
+                                                     if (d.source == the_index){
+                                                        d.color = "gray"
+                                                        return "gray"
                                                      }
-                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
-                                                        d.color = "black"
-                                                        return "black"
+                                                     if (d.target == the_index){
+                                                        d.color = "gray"
+                                                        return "gray"
                                                      }
                                                      else {
                                                         return d.color
@@ -197,11 +196,11 @@
 
                                                   })
                      .attr("stroke-width", function(d) {
-                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                     if (d.source == the_index){
                                                         d.width = 1
                                                         return 1
                                                      }
-                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                     if (d.target == the_index){
                                                         d.width = 1
                                                         return 1
                                                      }
@@ -211,15 +210,28 @@
 
                                                   })                }
              }
-            svg.selectAll("text")
+            svg.selectAll("text .name")
             .data(dataset.leaves)
             .enter()
             .append("text")
+            .attr("class","name")
             .attr("x", function(d) {return x_scale(d.level) + BLOCK_WIDTH/2})
             .attr("y", function(d) {return y_scale(d.order) + BLOCK_HEIGHT/2})
             .attr("text-anchor","middle")
             .attr("font-size", 12)
             .text(function(d) {return d.node1.name + ' - ' + d.node2.name}) // + '(' + d.depth + ')'})
+            .style("pointer-events", "none")
+
+             svg.selectAll("text .doc")
+            .data(dataset.leaves)
+            .enter()
+            .append("text")
+            .attr("class","doc")
+            .attr("x", function(d) {return x_scale(d.level) + BLOCK_WIDTH/2})
+            .attr("y", function(d) {return y_scale(d.order) + BLOCK_HEIGHT/1.1})
+            .attr("text-anchor","middle")
+            .attr("font-size", 9)
+            .text(function(d) {return d.doc_id.length<40?d.doc_id:d.doc_id.substring(0,40)+"...";})
             .style("pointer-events", "none")
 
 

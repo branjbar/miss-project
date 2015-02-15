@@ -38,12 +38,13 @@ def recursive_search(search_results, new_search_term_list):
     for doc_id in search_results.keys():
         doc = Document()
         doc.set_id(doc_id)
-        for name1 in [ref.name for ref in doc.ref_list]:
-            for name2 in [ref.name for ref in doc.ref_list]:
-                if len(name1) > 2 and len(name2) > 2:
-                    search_term = generate_features(name1.split(), name2.split())
-                    if search_term not in new_search_term_list:
-                        new_search_term_list.append(search_term)
+        for couple in doc.get_couples():
+            name1 = couple[0]
+            name2 = couple[1]
+            if len(name1) > 2 and len(name2) > 2:
+                search_term = generate_features(name1.split(), name2.split())
+                if search_term not in new_search_term_list:
+                    new_search_term_list.append(search_term)
 
     for search_term in new_search_term_list:
         solr_results_list.append(my_hash.search(search_term, ''))
