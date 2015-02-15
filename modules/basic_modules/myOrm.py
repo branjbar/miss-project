@@ -96,8 +96,8 @@ class Document():
             lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '))
             lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '))
             lnode4 = LeafNode('x')
-            leaf1 = Leaf(lnode2, lnode3, self.doc_id, 1, 1)
-            leaf2 = Leaf(lnode1, lnode4, self.doc_id, 2, 1)
+            leaf1 = Leaf(lnode2, lnode3, self.doc_id, self.date, 1)
+            leaf2 = Leaf(lnode1, lnode4, self.doc_id, self.date, 2)
             branch1 = Branch(leaf1, leaf2)
             return {'leaves': [leaf1, leaf2], 'branches': [branch1]}
 
@@ -106,8 +106,8 @@ class Document():
             lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '))
             lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '))
             lnode4 = LeafNode(self.ref_list[3].get_compact_name().replace('_', ' '))
-            leaf1 = Leaf(lnode2, lnode3, self.doc_id, 1, 1)
-            leaf2 = Leaf(lnode1, lnode4, self.doc_id, 2, 1)
+            leaf1 = Leaf(lnode2, lnode3, self.doc_id, self.date, 1)
+            leaf2 = Leaf(lnode1, lnode4, self.doc_id, self.date, 2)
             branch1 = Branch(leaf1, leaf2)
             return {'leaves': [leaf1, leaf2], 'branches': [branch1]}
 
@@ -118,9 +118,9 @@ class Document():
             lnode4 = LeafNode(self.ref_list[3].get_compact_name().replace('_', ' '))
             lnode5 = LeafNode(self.ref_list[4].get_compact_name().replace('_', ' '))
             lnode6 = LeafNode(self.ref_list[5].get_compact_name().replace('_', ' '))
-            leaf1 = Leaf(lnode3, lnode4, self.doc_id, 1, 1)
-            leaf2 = Leaf(lnode5, lnode6, self.doc_id, 1, 2)
-            leaf3 = Leaf(lnode1, lnode2, self.doc_id, 2, 1)
+            leaf1 = Leaf(lnode3, lnode4, self.doc_id, self.date, 1)
+            leaf2 = Leaf(lnode5, lnode6, self.doc_id, self.date, 1)
+            leaf3 = Leaf(lnode1, lnode2, self.doc_id, self.date, 2)
             branch1 = Branch(leaf1, leaf3)
             branch2 = Branch(leaf2, leaf3)
             return {'leaves': [leaf1, leaf2, leaf3], 'branches': [branch1, branch2]}

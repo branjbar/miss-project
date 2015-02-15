@@ -61,10 +61,10 @@ def routing():
     @app.route('/search/', methods=['GET', 'POST'])
     def searching_intel():
 
-        # search_term_1 = "Adriaan_Made_Lijntje_Timmers"
-        # search_term_2 = "Jacobus_Sneep_Stijntje_Made"
-        search_term_1 = "Maria_Verheijen_Peter_Keukens"
-        search_term_1 = "Anna_Senders_Gerardus_Greef"
+        search_term_1 = "Adriaan_Made_Lijntje_Timmers"
+        # search_term_1 = "Jacobus_Sneep_Stijntje_Made"
+        # search_term_1 = "Maria_Verheijen_Peter_Keukens"
+        # search_term_1 = "Anna_Senders_Gerardus_Greef"
         solr_results_1 = my_hash.search(search_term_1, '')
 
         search_results = {}
@@ -74,8 +74,10 @@ def routing():
                 search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
 
         new_search_term_list, search_results = recursive_search(search_results, [])
-        # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
-        # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+        new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+        new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+        new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+        new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
 
 
         tree = TreeStructure()
