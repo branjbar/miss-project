@@ -32,16 +32,18 @@ from modules.record_linkage.hashing import Hashing, generate_features
 
 my_hash = Hashing()
 
-def recursive_search(search_results,new_search_term_list):
+
+def recursive_search(search_results, new_search_term_list):
     solr_results_list = []
     for doc_id in search_results.keys():
         doc = Document()
         doc.set_id(doc_id)
         for name1 in [ref.name for ref in doc.ref_list]:
             for name2 in [ref.name for ref in doc.ref_list]:
-                search_term = generate_features(name1.split(), name2.split())
-                if search_term not in new_search_term_list:
-                    new_search_term_list.append(search_term)
+                if len(name1) > 2 and len(name2) > 2:
+                    search_term = generate_features(name1.split(), name2.split())
+                    if search_term not in new_search_term_list:
+                        new_search_term_list.append(search_term)
 
     for search_term in new_search_term_list:
         solr_results_list.append(my_hash.search(search_term, ''))
@@ -53,12 +55,15 @@ def recursive_search(search_results,new_search_term_list):
 
     return new_search_term_list, search_results
 
+
 def routing():
     @app.route('/search/', methods=['GET', 'POST'])
     def searching_intel():
 
-        search_term_1 = "Adriaan_Made_Lijntje_Timmers"
-        search_term_2 = "Jacobus_Sneep_Stijntje_Made"
+        # search_term_1 = "Adriaan_Made_Lijntje_Timmers"
+        # search_term_2 = "Jacobus_Sneep_Stijntje_Made"
+        search_term_1 = "Maria_Verheijen_Peter_Keukens"
+        search_term_1 = "Anna_Senders_Gerardus_Greef"
         solr_results_1 = my_hash.search(search_term_1, '')
 
         search_results = {}
@@ -84,7 +89,6 @@ def routing():
                     tree.add_leaf(leaf)
                 for branch in new_data['branches']:
                     tree.add_branch(branch)
-
 
         tree.update()
 

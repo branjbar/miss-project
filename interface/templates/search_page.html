@@ -43,8 +43,8 @@
             BLOCK_HEIGHT = 30
             WIDTH = (max_level - min_level + 1) * BLOCK_WIDTH * 1.5
             HEIGHT = max_order * BLOCK_HEIGHT * 1.5
-            var x_scale = d3.scale.linear().domain([min_level,max_level]).range([10,WIDTH-BLOCK_WIDTH])
-            var y_scale = d3.scale.linear().domain([1,max_order]).range([10,HEIGHT-BLOCK_HEIGHT])
+            var x_scale = d3.scale.linear().domain([min_level,max_level]).range([10,WIDTH-BLOCK_WIDTH-2])
+            var y_scale = d3.scale.linear().domain([1,max_order]).range([10,HEIGHT-BLOCK_HEIGHT-2])
 
             svg = d3.select("body")
             .select("#tree")
@@ -79,61 +79,138 @@
             .on("click", mouseClick);
 
             function mouseOver(d) {
-                d3.select(this)
-                .attr("fill", "yellow")
 
-                 console.log(d)
-                 the_order = d.order
-                 the_level = d.level
+                if (!d.gold) {
+                    d3.select(this)
+                    .attr("fill", "yellow")
 
-                 svg.selectAll("line")
-                 .data(dataset.branches)
-                 .attr("stroke", function(d) {
-                                                 if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
-                                                    return "red"
-                                                 }
-                                                 else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
-                                                    return "blue"
-                                                 }
-                                                 else {
-                                                    return "black"
-                                                 }
+                     the_order = d.order
+                     the_level = d.level
 
-                                              })
-                 .attr("stroke-width", function(d) {
-                                                 if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
-                                                    return 3
-                                                 }
-                                                 else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
-                                                    return 3
-                                                 }
-                                                 else {
-                                                    return 1
-                                                 }
+                     svg.selectAll("line")
+                     .data(dataset.branches)
+                     .attr("stroke", function(d) {
+                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                        return "darkred"
+                                                     }
+                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                        return "darkblue"
+                                                     }
+                                                     else {
+                                                        return d.color
+                                                     }
 
-                                              })
+                                                  })
+                     .attr("stroke-width", function(d) {
+                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                        return 3
+                                                     }
+                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                        return 3
+                                                     }
+                                                     else {
+                                                        return d.width
+                                                     }
 
+                                                  })
 
+                }
              }
 
 
 
-            function mouseOut() {
-                d3.select(this)
-                .attr("fill", "beige")
+            function mouseOut(d) {
 
-                 svg.selectAll("line")
-                 .data(dataset.branches)
-                 .attr("stroke", "black")
-                 .attr("stroke-width", 1)
+                if (!d.gold) {
+                    d3.select(this)
+                    .attr("fill", "beige")
 
+                     svg.selectAll("line")
+                     .data(dataset.branches)
+                     .attr("stroke", function(d) {return d.color})
+                     .attr("stroke-width", function(d) {return d.width})
+                }
 
             }
 
-            function mouseClick() {
-                console.log("mouseClick");
-            }
+            function mouseClick(d) {
+                 the_order = d.order
+                 the_level = d.level
+                if (!d.gold) {
+                    d.gold = true
+                    d3.select(this)
+                    .attr("fill", "gold")
 
+
+
+                     svg.selectAll("line")
+                     .data(dataset.branches)
+                     .attr("stroke", function(d) {
+                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                        d.color = "red"
+                                                        return "red"
+                                                     }
+                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                        d.color = "blue"
+                                                        return "blue"
+                                                     }
+                                                     else {
+                                                        return d.color
+                                                     }
+
+                                                  })
+                     .attr("stroke-width", function(d) {
+                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                        d.width = 3
+                                                        return 3
+                                                     }
+                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                        d.width = 3
+                                                        return 3
+                                                     }
+                                                     else {
+                                                        return d.width
+                                                     }
+
+                                                  })
+
+                }
+                else {
+                    d.gold = false
+                    d3.select(this)
+                    .attr("fill", "beige")
+
+                     svg.selectAll("line")
+                     .data(dataset.branches)
+                     .attr("stroke", function(d) {
+                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                        d.color = "black"
+                                                        return "black"
+                                                     }
+                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                        d.color = "black"
+                                                        return "black"
+                                                     }
+                                                     else {
+                                                        return d.color
+                                                     }
+
+                                                  })
+                     .attr("stroke-width", function(d) {
+                                                     if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                        d.width = 1
+                                                        return 1
+                                                     }
+                                                     else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                        d.width = 1
+                                                        return 1
+                                                     }
+                                                     else {
+                                                        return d.width
+                                                     }
+
+                                                  })                }
+             }
             svg.selectAll("text")
             .data(dataset.leaves)
             .enter()
@@ -142,7 +219,8 @@
             .attr("y", function(d) {return y_scale(d.order) + BLOCK_HEIGHT/2})
             .attr("text-anchor","middle")
             .attr("font-size", 12)
-            .text(function(d) {return d.node1.name + ' - ' + d.node2.name})
+            .text(function(d) {return d.node1.name + ' - ' + d.node2.name}) // + '(' + d.depth + ')'})
+            .style("pointer-events", "none")
 
 
         </script>

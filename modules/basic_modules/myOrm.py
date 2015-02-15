@@ -89,7 +89,6 @@ class Document():
         return dict
 
     def get_relatives(self, hash_key=[], features_ref=[]):
-        family = {}
         data = {'leaves': [], 'branches': []}
 
         if self.doc_type == 'birth':
@@ -268,22 +267,24 @@ class Document():
                     self.add_ref(ref1)
                     self.add_ref(ref2)
 
+    def get_couples(self):
+        """
+        the extracted couples help to expand the search
+        """
+        if self.doc_type == 'birth':
+            couple1 = [self.ref_list[1].get_compact_name().replace('_', ' '),self.ref_list[2].get_compact_name().replace('_', ' ')]
+            return [couple1]
 
-#
-# class Match():
-# """
-# a class for storing are found matches
-# """
-# def __init__(self, match_id=None, doc_id1=None, doc_id2=None, match_type=None):
-# self.match_id = match_id
-# self.doc_id1 = doc_id1
-# self.doc_id2 = doc_id2
-#         self.match_type = match_type
-#
-#     def __repr__(self):
-#
-#         return str(self.match_id) + '_' + str(self.doc_id1) + '_' + str(self.doc_id2) + '_' + str(self.match_type)
-#
+        if self.doc_type == 'death':
+            couple1 = [self.ref_list[1].get_compact_name().replace('_', ' '),self.ref_list[2].get_compact_name().replace('_', ' ')]
+            couple2 = [self.ref_list[0].get_compact_name().replace('_', ' '),self.ref_list[3].get_compact_name().replace('_', ' ')]
+            return [couple1, couple2]
+
+        if self.doc_type == 'marriage':
+            couple1 = [self.ref_list[0].get_compact_name().replace('_', ' '),self.ref_list[1].get_compact_name().replace('_', ' ')]
+            couple2 = [self.ref_list[2].get_compact_name().replace('_', ' '),self.ref_list[3].get_compact_name().replace('_', ' ')]
+            couple3 = [self.ref_list[4].get_compact_name().replace('_', ' '),self.ref_list[5].get_compact_name().replace('_', ' ')]
+            return [couple1, couple2, couple3]
 
 def row_to_reference(row, table="all_persons_2014"):
     ''' (list, table) -> (dict)
