@@ -82,9 +82,9 @@ class TreeStructure:
     def update(self):
         self.merge_columns()
         self.merge_between_columns()
-        for i in xrange(3):
-            self.remove_horizontal_gaps()
-            self.remove_vertical_gaps()
+        # self.remove_horizontal_gaps()
+        # self.remove_vertical_gaps()
+        pass
 
     def merge_columns(self):
 

@@ -68,8 +68,8 @@ def routing():
                 search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
 
         new_search_term_list, search_results = recursive_search(search_results, [])
-        new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
-        new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+        # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+        # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
 
 
         tree = TreeStructure()
@@ -85,7 +85,9 @@ def routing():
                 for branch in new_data['branches']:
                     tree.add_branch(branch)
 
+
         tree.update()
+
         return render_template('search_page.html', dataset=tree.get_dict())
 
 

@@ -74,6 +74,65 @@
             .attr("fill",  "beige")
             .attr("stroke-width",1)
             .attr("stroke", "black")
+            .on("mouseover", mouseOver)
+            .on("mouseout", mouseOut)
+            .on("click", mouseClick);
+
+            function mouseOver(d) {
+                d3.select(this)
+                .attr("fill", "yellow")
+
+                 console.log(d)
+                 the_order = d.order
+                 the_level = d.level
+
+                 svg.selectAll("line")
+                 .data(dataset.branches)
+                 .attr("stroke", function(d) {
+                                                 if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                    return "red"
+                                                 }
+                                                 else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                    return "blue"
+                                                 }
+                                                 else {
+                                                    return "black"
+                                                 }
+
+                                              })
+                 .attr("stroke-width", function(d) {
+                                                 if ((d.source.level == the_level) && ( d.source.order == the_order ) ){
+                                                    return 3
+                                                 }
+                                                 else if ((d.target.level == the_level) && ( d.target.order == the_order ) ){
+                                                    return 3
+                                                 }
+                                                 else {
+                                                    return 1
+                                                 }
+
+                                              })
+
+
+             }
+
+
+
+            function mouseOut() {
+                d3.select(this)
+                .attr("fill", "beige")
+
+                 svg.selectAll("line")
+                 .data(dataset.branches)
+                 .attr("stroke", "black")
+                 .attr("stroke-width", 1)
+
+
+            }
+
+            function mouseClick() {
+                console.log("mouseClick");
+            }
 
             svg.selectAll("text")
             .data(dataset.leaves)
