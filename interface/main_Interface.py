@@ -59,22 +59,34 @@ def routing():
     @app.route('/search/', methods=['GET', 'POST'])
     def searching_intel():
 
-        search_term_1 = "Adriaan_Made_Lijntje_Timmers"
+        search_term = request.args.get('search_term')  # the main searching term
+        depth_level = request.args.get('depth_level')  # the main searching term
+        if not search_term:
+            search_term = "Willem_Dijk_Johanna_Bakel"
         # search_term_1 = "Jacobus_Sneep_Stijntje_Made"
         # search_term_1 = "Maria_Verheijen_Peter_Keukens"
         # search_term_1 = "Anna_Senders_Gerardus_Greef"
-        solr_results_1 = my_hash.search(search_term_1, '')
 
+        search_term = ' '.join(search_term.split('_'))
+        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','')
+        ref1 = ' '.join(search_term.split()[:2])
+        ref2 = ' '.join(search_term.split()[-2:])
+
+        search_term = generate_features(ref1.split(), ref2.split())
+        solr_results_1 = my_hash.search(search_term, '')
         search_results = {}
 
         if solr_results_1:
             for result in solr_results_1.highlighting.iteritems():
                 search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
 
-        print 'step 1', len([]), ', ', len(search_results)
-        new_search_term_list, search_results = recursive_search(search_results, [])
-        print 'step 2', len(new_search_term_list), ', ', len(search_results)
-        new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+        new_search_term_list = [search_term]
+        print 'step', 0, ')',  len(new_search_term_list), ', ', len(search_results)
+        if depth_level:
+            for i in xrange(int(depth_level)):
+                new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+                print 'step', i+1, ')',  len(new_search_term_list), ', ', len(search_results)
+
         # print 'step 3', len(new_search_term_list), ', ', len(search_results)
         # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
         # print 'step 4', len(new_search_term_list), ', ', len(search_results)
@@ -84,7 +96,6 @@ def routing():
         # print 'step 6', len(new_search_term_list), ', ', len(search_results)
 
         tree = TreeStructure()
-
         if search_results:
 
             for doc_id in search_results.keys():
@@ -154,7 +165,7 @@ def routing():
             field_query += 'cat: ' + '"' + facet_query.split(':')[1].replace('+', ' ') + '"'
 
         search_term = ' '.join(search_term.split('_'))
-        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ')
+        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','')
         ref1 = ' '.join(search_term.split()[:2])
         ref2 = ' '.join(search_term.split()[-2:])
 
