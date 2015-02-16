@@ -29,6 +29,7 @@ class Leaf:
         self.level = level
         self.order = -1
         self.depth = None
+        self.color = "beige"
         self.doc_id = str(doc_id)
         self.min_date = int(date[-4:])
         self.max_date = int(date[-4:])
@@ -154,8 +155,8 @@ class TreeStructure:
 
     def merge_columns_for_births(self):
         for level in sorted(self.columns.keys()):  # for each column
-            leaf_list_1 = copy.copy(
-                self.columns[level])  # take a copy of all leaves such that you don't mix things up between the levels.
+            leaf_list_1 = copy.copy(self.columns[level])
+
             for index1, leaf1 in enumerate(leaf_list_1):
                 for index2, leaf2 in enumerate(leaf_list_1):
                     if index2 > index1:
@@ -168,6 +169,37 @@ class TreeStructure:
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if len(leaf2.node2['name']) < 3:  # leaf1 += leaf2
                                 # print leaf1.node1['name'], ' - ', leaf1.node2['name'], ' , ',leaf2.node1['name'], ' - ',  leaf2.node2['name']
+
+                                if leaf2 in self.leaves and leaf1 in self.leaves:
+                                    leaf1.doc_id += ', ' + leaf2.doc_id
+                                    if leaf2.min_date < leaf1.min_date:
+                                        leaf1.min_date = leaf2.min_date
+                                    if leaf2.max_date > leaf1.max_date:
+                                        leaf1.max_date = leaf2.max_date
+
+                                    self.leaves.remove(leaf2)
+                                    self.columns[level].remove(leaf2)
+
+                                    for branch in self.branches:
+
+                                        if branch.source == leaf2.index:
+                                            branch.source = leaf1.index
+
+                                        if branch.target == leaf2.index:
+                                            branch.target = leaf1.index
+
+            # to merge the lower leaf with and upper one
+            for index1, leaf1 in enumerate(leaf_list_1):
+                for index2, leaf2 in enumerate(leaf_list_1):
+                    if index2 < index1:
+                        # to capture the '- x' for birth and '- ' for death
+                        if (len(leaf1.node2['name']) < 3 or len(leaf2.node2['name']) < 2) and \
+                                (string_compare(leaf1.node1['name'], leaf2.node1['name'],'LEV') < 2 or
+                                 string_compare(leaf1.node1['name'], leaf2.node2['name'],'LEV') < 2 or
+                                 string_compare(leaf1.node2['name'], leaf2.node1['name'],'LEV') < 2):
+
+                            # here we want to remove leaf2 and redirect every pointer to leaf1
+                            if len(leaf2.node2['name']) < 3:  # leaf1 += leaf2
 
                                 if leaf2 in self.leaves and leaf1 in self.leaves:
                                     leaf1.doc_id += ', ' + leaf2.doc_id
