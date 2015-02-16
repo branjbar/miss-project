@@ -305,6 +305,7 @@ class TreeStructure:
         self.bfs_round()
         self.bfs_round()
         self.bfs_round()
+        self.bfs_round()
 
         for leaf in self.leaves:
             self.update_leaf(leaf.index, leaf.depth, None, False)

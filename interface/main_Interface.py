@@ -63,7 +63,7 @@ def routing():
         search_term = request.args.get('search_term')  # the main searching term
         depth_level = request.args.get('depth_level')  # the main searching term
         if not search_term:
-            search_term = "Willem_Dijk_Johanna_Bakel"
+            search_term = "Arnoldus Ippel_Pietje Biesheuvel"
 
         search_term = ' '.join(search_term.split('_'))
         search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','')
@@ -79,11 +79,9 @@ def routing():
                 search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
 
         new_search_term_list = [search_term]
-        print 'step', 0, ')',  len(new_search_term_list), ', ', len(search_results)
         if depth_level:
-            for i in xrange(int(depth_level)):
+            for i in xrange(int(depth_level)-1):
                 new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
-                print 'step', i+1, ')',  len(new_search_term_list), ', ', len(search_results)
 
 
         tree = TreeStructure()
@@ -103,12 +101,8 @@ def routing():
                     tree.add_branch(branch)
 
         tree.update()
-        print set([leaf.index for leaf in  tree.leaves])
-        print set([branch.source for branch in  tree.branches])
-        print set([branch.target for branch in  tree.branches])
 
 
-        print "results are sent to html page."
         return render_template('search_page.html', dataset=tree.get_dict())
 
 
