@@ -261,7 +261,7 @@
                              } )
 
                     d3.select(this)
-                    .attr("fill", function(d){d.color="LightGreen"; return d.color})
+                    .attr("fill", function(d){if (d.color!="Coral") d.color="LightGreen"; return d.color})
 
 
                      svg.selectAll("line")

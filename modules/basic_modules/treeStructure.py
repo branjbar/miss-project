@@ -176,7 +176,6 @@ class TreeStructure:
 
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if len(leaf2.node2['name']) < 3:  # leaf1 += leaf2
-                                # print leaf1.node1['name'], ' - ', leaf1.node2['name'], ' , ',leaf2.node1['name'], ' - ',  leaf2.node2['name']
                                 if set(self.get_ancestors(leaf1.index)).intersection(self.get_ancestors(leaf2.index)):
 
                                     if leaf2 in self.leaves and leaf1 in self.leaves:

@@ -96,8 +96,6 @@ def routing():
                 for leaf in new_data['leaves']:
                     name1 = leaf.node1['name']
                     name2 = leaf.node2['name']
-                    print search_term.replace('_',' ')
-                    print name1 + ' ' + name2
                     if string_compare(name1 + ' ' + name2, search_term.replace('_',' '), 'LEV') < 3 or string_compare(name2 + ' ' + name1, search_term.replace('_',' '), 'LEV') < 3:
                         leaf.color = "Coral"
                     tree.add_leaf(leaf)
