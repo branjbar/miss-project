@@ -191,9 +191,9 @@ class TreeStructure:
                     if index2 > index1:
                         # to capture the '- x' for birth and '- ' for death
                         if (len(leaf1.node2['name']) < 3 or len(leaf2.node2['name']) < 2) and \
-                                (string_compare(leaf1.node1['name'], leaf2.node1['name'],'LEV') < 2 or
-                                 string_compare(leaf1.node1['name'], leaf2.node2['name'],'LEV') < 2 or
-                                 string_compare(leaf1.node2['name'], leaf2.node1['name'],'LEV') < 2):
+                                (string_compare(leaf1.node1['name'], leaf2.node1['name'],'LEV') < 3 or
+                                 string_compare(leaf1.node1['name'], leaf2.node2['name'],'LEV') < 3 or
+                                 string_compare(leaf1.node2['name'], leaf2.node1['name'],'LEV') < 3):
 
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if len(leaf2.node2['name']) < 3:  # leaf1 += leaf2
@@ -305,7 +305,6 @@ class TreeStructure:
         self.bfs_round()
         self.bfs_round()
         self.bfs_round()
-
 
         for leaf in self.leaves:
             self.update_leaf(leaf.index, leaf.depth, None, False)
