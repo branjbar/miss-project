@@ -113,16 +113,16 @@
                   .style('left', position[0] + 30 + "px")
                   .style('top', position[1] + "px")
                   .select("#hyper6")
-                  .attr("href", "http://localhost:20002/hash_matches/?search_term=" + d.node1.name + '_' + d.node2.name)
+                  .attr("href", "hash_matches/?search_term=" + d.node1.name + '_' + d.node2.name)
 
                   d3.select('#tooltip').select("#hyper1")
-                  .attr("href", "http://localhost:20002/search/?depth_level=1&search_term=" + d.node1.name + '_' + d.node2.name)
+                  .attr("href", "search/?depth_level=1&search_term=" + d.node1.name + '_' + d.node2.name)
                   d3.select('#tooltip').select("#hyper2")
-                  .attr("href", "http://localhost:20002/search/?depth_level=2&search_term=" + d.node1.name + '_' + d.node2.name)
+                  .attr("href", "search/?depth_level=2&search_term=" + d.node1.name + '_' + d.node2.name)
                   d3.select('#tooltip').select("#hyper3")
-                  .attr("href", "http://localhost:20002/search/?depth_level=3&search_term=" + d.node1.name + '_' + d.node2.name)
+                  .attr("href", "search/?depth_level=3&search_term=" + d.node1.name + '_' + d.node2.name)
                   d3.select('#tooltip').select("#hyper4")
-                  .attr("href", "http://localhost:20002/search/?depth_level=4&search_term=" + d.node1.name + '_' + d.node2.name)
+                  .attr("href", "search/?depth_level=4&search_term=" + d.node1.name + '_' + d.node2.name)
 
                 d3.select("#tooltip").classed("hidden", false);
 
