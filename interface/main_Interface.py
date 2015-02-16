@@ -75,7 +75,7 @@ def routing():
         new_search_term_list, search_results = recursive_search(search_results, [])
         print 'step 2', len(new_search_term_list), ', ', len(search_results)
         new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
-        print 'step 3', len(new_search_term_list), ', ', len(search_results)
+        # print 'step 3', len(new_search_term_list), ', ', len(search_results)
         # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
         # print 'step 4', len(new_search_term_list), ', ', len(search_results)
         # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
