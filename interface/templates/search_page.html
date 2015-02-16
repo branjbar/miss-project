@@ -25,7 +25,7 @@
         {% endfor %}
         <br><br>
         {% for b in dataset.branches %}
-            {{b.source}} --> {{b.target.target}}
+            {{b.source}} --> {{b.target}}
             <br>
         {% endfor %}
         <script type="text/javascript">
@@ -42,7 +42,7 @@
 
             BLOCK_WIDTH = 200
             BLOCK_HEIGHT = 30
-            WIDTH = (max_level - min_level + 1) * BLOCK_WIDTH * 1.5
+            WIDTH = (max_level - min_level + 1) * BLOCK_WIDTH * 1.7
             HEIGHT = max_order * BLOCK_HEIGHT * 1.5
             var x_scale = d3.scale.linear().domain([min_level,max_level]).range([10,WIDTH-BLOCK_WIDTH-2])
             var y_scale = d3.scale.linear().domain([1,max_order]).range([10,HEIGHT-BLOCK_HEIGHT-2])
@@ -81,21 +81,63 @@
             .append("title")
             .text(function(d){return "date = " + d.min_date + '-'+ d.max_date})
 
+
+            function get_target_list(the_index) {
+                len_old = 0
+                target_list = [the_index]
+                while (target_list.length > len_old) {
+                    len_old = target_list.length
+                    for (i=0; i < dataset.branches.length; i++) {
+                        if ((target_list.indexOf(dataset.branches[i].target) > -1) && (target_list.indexOf(dataset.branches[i].source) == -1) ){
+                            target_list.push(dataset.branches[i].source)
+
+                        }
+                    }
+                }
+            return target_list
+            }
+
+            function get_source_list(the_index) {
+                len_old = 0
+                source_list = [the_index]
+                while (source_list.length > len_old) {
+                    len_old = source_list.length
+                    for (i=0; i < dataset.branches.length; i++) {
+                        if ((source_list.indexOf(dataset.branches[i].source) > -1) && (source_list.indexOf(dataset.branches[i].target) == -1) ){
+                            source_list.push(dataset.branches[i].target)
+
+                        }
+                    }
+                }
+            return source_list
+            }
+
+
             function mouseOver(d) {
 
                 if (!d.gold) {
-                    d3.select(this)
-                    .attr("fill", "yellow")
 
                      the_index = d.index
+
+                     target_list = get_target_list(d.index)
+                     source_list = get_source_list(d.index)
+
+                     svg.selectAll("rect")
+                     .data(dataset.leaves)
+                     .attr("fill", function(d) {return (target_list.indexOf(d.index)>-1) || (source_list.indexOf(d.index)>-1)? "yellow": d.color})
+
+                    d3.select(this)
+                    .attr("fill", "Gold")
+
 
                      svg.selectAll("line")
                      .data(dataset.branches)
                      .attr("stroke", function(d) {
-                                                     if (d.source == the_index){
+                                                     if (source_list.indexOf(d.source)>-1){
+
                                                         return "darkred"
                                                      }
-                                                     else if (d.target == the_index){
+                                                     else if (target_list.indexOf(d.target)>-1){
                                                         return "darkblue"
                                                      }
                                                      else {
@@ -104,10 +146,10 @@
 
                                                   })
                      .attr("stroke-width", function(d) {
-                                                     if ((d.source == the_index) ){
+                                                     if (source_list.indexOf(d.source)>-1){
                                                         return 3
                                                      }
-                                                     else if ((d.target == the_index) ){
+                                                     else if (target_list.indexOf(d.target)>-1 ){
                                                         return 3
                                                      }
                                                      else {
@@ -127,6 +169,10 @@
                     d3.select(this)
                     .attr("fill", "beige")
 
+                     svg.selectAll("rect")
+                     .data(dataset.leaves)
+                     .attr("fill", function(d){return d.color})
+
                      svg.selectAll("line")
                      .data(dataset.branches)
                      .attr("stroke", function(d) {return d.color})
@@ -137,21 +183,34 @@
 
             function mouseClick(d) {
                 the_index = d.index
+
+                 target_list = get_target_list(the_index)
+                 source_list = get_source_list(the_index)
+
                 if (!d.gold) {
                     d.gold = true
-                    d3.select(this)
-                    .attr("fill", "gold")
 
+                     svg.selectAll("rect")
+                     .data(dataset.leaves)
+                     .attr("fill", function(d) {
+                            if ((target_list.indexOf(d.index)>-1) || (source_list.indexOf(d.index)>-1)) {
+                                d.color = "SkyBlue"
+                             }
+                             return d.color
+                             } )
+
+                    d3.select(this)
+                    .attr("fill", function(d){d.color="LightGreen"; return d.color})
 
 
                      svg.selectAll("line")
                      .data(dataset.branches)
                      .attr("stroke", function(d) {
-                                                     if (d.source == the_index){
+                                                     if (source_list.indexOf(d.source)>-1){
                                                         d.color = "red"
                                                         return "red"
                                                      }
-                                                     if (d.target == the_index){
+                                                     if (target_list.indexOf(d.target)>-1){
                                                         d.color = "blue"
                                                         return "blue"
                                                      }
@@ -161,11 +220,11 @@
 
                                                   })
                      .attr("stroke-width", function(d) {
-                                                     if (d.source == the_index){
+                                                     if (source_list.indexOf(d.source)>-1){
                                                         d.width = 3
                                                         return 3
                                                      }
-                                                     if (d.target == the_index){
+                                                     if (target_list.indexOf(d.target)>-1){
                                                         d.width = 3
                                                         return 3
                                                      }
@@ -181,36 +240,25 @@
                     d3.select(this)
                     .attr("fill", "beige")
 
+                     svg.selectAll("rect")
+                     .data(dataset.leaves)
+                     .attr("fill", function(d){d.color = "beige"; d.gold = false; return d.color})
+
+
                      svg.selectAll("line")
                      .data(dataset.branches)
                      .attr("stroke", function(d) {
-                                                     if (d.source == the_index){
                                                         d.color = "gray"
-                                                        return "gray"
-                                                     }
-                                                     if (d.target == the_index){
-                                                        d.color = "gray"
-                                                        return "gray"
-                                                     }
-                                                     else {
                                                         return d.color
-                                                     }
+                                                  }
+
+                                                  )
+                     .attr("stroke-width", function(d) {
+                                                        d.width = 1
+                                                        return d.width
 
                                                   })
-                     .attr("stroke-width", function(d) {
-                                                     if (d.source == the_index){
-                                                        d.width = 1
-                                                        return 1
-                                                     }
-                                                     if (d.target == the_index){
-                                                        d.width = 1
-                                                        return 1
-                                                     }
-                                                     else {
-                                                        return d.width
-                                                     }
-
-                                                  })                }
+                                                  }
              }
             svg.selectAll("text .name")
             .data(dataset.leaves)
