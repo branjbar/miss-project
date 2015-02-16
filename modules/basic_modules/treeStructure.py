@@ -66,7 +66,41 @@ class TreeStructure:
         self.leaves.append(leaf)
         self.columns[leaf.level] = self.columns.get(leaf.level, []) + [leaf]
 
+
+
         return leaf
+
+    def merge_leaf(self, main_leaf, to_be_removed_leaf):
+        # if to_be_removed_leaf.index == 293:
+        #     print 'found!', to_be_removed_leaf.node1['name'], to_be_removed_leaf.node2['name']
+        #     for branch in self.branches:
+        #         if branch.source == to_be_removed_leaf.index:
+        #             branch.source = 1
+        #
+        #         if branch.target == to_be_removed_leaf.index:
+        #             branch.source = 1
+
+        if main_leaf.index == 293:
+            # print 'found! found!!', to_be_removed_leaf.node1['name'], to_be_removed_leaf.node2['name']
+            for branch in self.branches:
+                if branch.source == to_be_removed_leaf.index:
+                    branch.source = 1
+
+                if branch.target == to_be_removed_leaf.index:
+                    branch.source = 1
+
+
+        self.leaves.remove(to_be_removed_leaf)
+        self.columns[to_be_removed_leaf.level].remove(to_be_removed_leaf)
+
+        for branch in self.branches:
+
+            if branch.source == to_be_removed_leaf.index:
+                branch.source = main_leaf.index
+
+            if branch.target == to_be_removed_leaf.index:
+                branch.target = main_leaf.index
+
 
     def add_branch(self, branch):
         for leaf in self.leaves:
@@ -106,23 +140,15 @@ class TreeStructure:
                                                       leaf2.node1['name'] + leaf2.node2['name'], 'LEV') < 4 ) \
                                 and len(leaf1.node2['name']) > 2 and len(leaf1.node1['name']) > 2:
                             # here we want to remove leaf2 and redirect every pointer to leaf1
-                            if leaf2 in self.leaves:
+                            if leaf2 in self.leaves and leaf1 in self.leaves:
                                 leaf1.doc_id += ', ' + leaf2.doc_id
                                 if leaf2.min_date < leaf1.min_date:
                                     leaf1.min_date = leaf2.min_date
                                 if leaf2.max_date > leaf1.max_date:
                                     leaf1.max_date = leaf2.max_date
 
-                                self.leaves.remove(leaf2)
-                                self.columns[level].remove(leaf2)
+                                self.merge_leaf(leaf1, leaf2)
 
-                                for branch in self.branches:
-
-                                    if branch.source == leaf2.index:
-                                        branch.source = leaf1.index
-
-                                    if branch.target == leaf2.index:
-                                        branch.target = leaf1.index
 
             for index1, leaf1 in enumerate(leaf_list_1):
                 for index2, leaf2 in enumerate(leaf_list_2):
@@ -134,7 +160,7 @@ class TreeStructure:
                                 and len(leaf1.node2['name']) > 2 and len(leaf1.node1['name']) > 2:
 
                             # here we want to remove leaf2 and redirect every pointer to leaf1
-                            if leaf2 in self.leaves:
+                            if leaf2 in self.leaves and leaf1 in self.leaves:
 
                                 leaf1.doc_id += ', ' + leaf2.doc_id
                                 if leaf2.min_date < leaf1.min_date:
@@ -142,16 +168,11 @@ class TreeStructure:
                                 if leaf2.max_date > leaf1.max_date:
                                     leaf1.max_date = leaf2.max_date
 
-                                self.leaves.remove(leaf2)
-                                self.columns[level + 1].remove(leaf2)
-                                for branch in self.branches:
-
-                                    if branch.source == leaf2.index:
-                                        branch.source = leaf1.index
-
-                                    if branch.target == leaf2.index:
-                                        branch.target = leaf1.index
-                                        self.update_leaf(branch.source, leaf1.level - 1)
+                                self.merge_leaf(leaf1, leaf2)
+                                #
+                                # for branch in self.branches:
+                                #     if branch.target == leaf1.index:
+                                #         self.update_leaf(branch.source, leaf1.level - 1)
 
     def get_ancestors(self, index):
         source_list = []
@@ -185,16 +206,7 @@ class TreeStructure:
                                         if leaf2.max_date > leaf1.max_date:
                                             leaf1.max_date = leaf2.max_date
 
-                                        self.leaves.remove(leaf2)
-                                        self.columns[level].remove(leaf2)
-
-                                        for branch in self.branches:
-
-                                            if branch.source == leaf2.index:
-                                                branch.source = leaf1.index
-
-                                            if branch.target == leaf2.index:
-                                                branch.target = leaf1.index
+                                        self.merge_leaf(leaf1, leaf2)
 
             # to merge the lower leaf with and upper one
             for index1, leaf1 in enumerate(leaf_list_1):
@@ -217,16 +229,7 @@ class TreeStructure:
                                         if leaf2.max_date > leaf1.max_date:
                                             leaf1.max_date = leaf2.max_date
 
-                                        self.leaves.remove(leaf2)
-                                        self.columns[level].remove(leaf2)
-
-                                        for branch in self.branches:
-
-                                            if branch.source == leaf2.index:
-                                                branch.source = leaf1.index
-
-                                            if branch.target == leaf2.index:
-                                                branch.target = leaf1.index
+                                        self.merge_leaf(leaf1, leaf2)
 
 
     def update_leaf(self, index, new_level, new_order=None, shuffle=True):
