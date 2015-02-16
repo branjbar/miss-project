@@ -56,15 +56,6 @@
         </div>
 
   </body>
-        {% for b in dataset.leaves %}
-            #{{b.index}}  ({{b.level}}, {{b.order}})    {{b.node1.name}} -- {{b.node2.name}}
-            <br>
-        {% endfor %}
-        <br><br>
-        {% for b in dataset.branches %}
-            {{b.source}} --> {{b.target}}
-            <br>
-        {% endfor %}
         <script type="text/javascript">
 
 
