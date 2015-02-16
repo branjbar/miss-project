@@ -20,12 +20,12 @@
 
   </body>
         {% for b in dataset.leaves %}
-            {{b.level}}, {{b.order}})    {{b.node1.name}} -- {{b.node2.name}}
+            #{{b.index}}  ({{b.level}}, {{b.order}})    {{b.node1.name}} -- {{b.node2.name}}
             <br>
         {% endfor %}
         <br><br>
         {% for b in dataset.branches %}
-            {{b.source.level}}, {{b.source.order}} --> {{b.target.level}}, {{b.target.order}}
+            {{b.source}} --> {{b.target.target}}
             <br>
         {% endfor %}
         <script type="text/javascript">

@@ -30,8 +30,8 @@ class Leaf:
         self.order = -1
         self.depth = None
         self.doc_id = str(doc_id)
-        self.min_date = date[-4:]
-        self.max_date = date[-4:]
+        self.min_date = int(date[-4:])
+        self.max_date = int(date[-4:])
         self.index = -1
         self.unique_key = uuid.uuid4()
 
@@ -134,6 +134,15 @@ class TreeStructure:
 
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if leaf2 in self.leaves:
+
+                                leaf1.doc_id += ', ' + leaf2.doc_id
+                                if leaf2.min_date < leaf1.min_date:
+                                    leaf1.min_date = leaf2.min_date
+                                if leaf2.max_date > leaf1.max_date:
+                                    leaf1.max_date = leaf2.max_date
+
+                                leaf1.doc_id += ', ' + leaf2.doc_id
+
                                 self.leaves.remove(leaf2)
                                 self.columns[level + 1].remove(leaf2)
                                 for branch in self.branches:
@@ -178,8 +187,14 @@ class TreeStructure:
         """
         for level in sorted(self.columns.keys()):
             leaf_list = copy.copy(self.columns.get(level, []))
-            for index_tmp, leaf in enumerate(leaf_list):
-                self.update_leaf(leaf.index, leaf.level, index_tmp + 1, False)
+
+            # sorting the leaves based on average date.
+            # data = [((l.min_date + l.max_date) / 2, l) for l in leaf_list]
+            data = [(l.min_date,l) for l in leaf_list]
+            data = sorted(data, key=itemgetter(0))
+
+            for index_tmp, leaf in enumerate(data):
+                self.update_leaf(leaf[1].index, leaf[1].level, index_tmp + 1, False)
 
     def decrease_depth(self, index, depth):
         for index_tmp, leaf in enumerate(self.leaves):
