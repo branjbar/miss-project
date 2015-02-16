@@ -65,8 +65,9 @@ def string_compare(str1, str2, method='JARO'):
     '''
 
     if method == "LEV":
-        # computes Levnenshtein distance which is an integer larger or equal to zero 
-        return jellyfish.levenshtein_distance(str1, str2)
+        # computes Levnenshtein distance which is an integer larger or equal to zero
+        # return jellyfish.levenshtein_distance(str1,str2)
+        return jellyfish.levenshtein_distance(str1.lower(), str2.lower())
 
     if method == "JARO":
         # computes Jaro Winkler measure which is always between 0 and 1

@@ -39,7 +39,11 @@
                                 </div>
                             </div><!-- /.nav-collapse -->
                         </form>
-                    <p class="text-center">{{found_results}} results found for: <br> <strong> {{couple_name}} </strong>  </p> <br>
+                    <p class="text-center">{{found_results}} results found for: <br> <strong> {{couple_name}} </strong>  </p>
+                      {% if couple_name %}
+                        <a href= "http://localhost:20002/search/?depth_level=1&search_term={{couple_name}}" target="blank"><p class="text-center"> Open the Pedigree View (NEW!!)</p></a>
+                      {% endif %}
+                      <br>
                       {{field_query}}
 
                         {%for key, value in facets.iteritems() %}

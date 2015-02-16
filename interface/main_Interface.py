@@ -39,14 +39,15 @@ def recursive_search(search_results, new_search_term_list):
     for doc_id in search_results.keys():
         doc = Document()
         doc.set_id(doc_id)
-        for couple in doc.get_couples():
-            name1 = couple[0]
-            name2 = couple[1]
-            if len(name1) > 2 and len(name2) > 2:
-                search_term = generate_features(name1.split(), name2.split())
-                if search_term not in new_search_term_list:
-                    new_search_term_list.append(search_term)
-                    solr_results_list.append(my_hash.search(search_term, ''))
+        if doc.get_couples():
+            for couple in doc.get_couples():
+                name1 = couple[0]
+                name2 = couple[1]
+                if len(name1) > 2 and len(name2) > 2:
+                    search_term = generate_features(name1.split(), name2.split())
+                    if search_term not in new_search_term_list:
+                        new_search_term_list.append(search_term)
+                        solr_results_list.append(my_hash.search(search_term, ''))
 
     for solr_result in solr_results_list:
         if solr_result:
@@ -66,7 +67,7 @@ def routing():
             search_term = "Arnoldus Ippel_Pietje Biesheuvel"
 
         search_term = ' '.join(search_term.split('_'))
-        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','')
+        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','').title()
         ref1 = ' '.join(search_term.split()[:2])
         ref2 = ' '.join(search_term.split()[-2:])
 
@@ -94,7 +95,7 @@ def routing():
                 for leaf in new_data['leaves']:
                     name1 = leaf.node1['name']
                     name2 = leaf.node2['name']
-                    if string_compare(name1 + ' ' + name2, search_term.replace('_',' '), 'LEV') < 3 or string_compare(name2 + ' ' + name1, search_term.replace('_',' '), 'LEV') < 3:
+                    if string_compare(name1 + ' ' + name2, search_term.replace('_',' '), 'LEV') < 4 or string_compare(name2 + ' ' + name1, search_term.replace('_',' '), 'LEV') < 4:
                         leaf.color = "Coral"
                     tree.add_leaf(leaf)
                 for branch in new_data['branches']:
@@ -159,7 +160,7 @@ def routing():
             field_query += 'cat: ' + '"' + facet_query.split(':')[1].replace('+', ' ') + '"'
 
         search_term = ' '.join(search_term.split('_'))
-        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','')
+        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','').title()
         ref1 = ' '.join(search_term.split()[:2])
         ref2 = ' '.join(search_term.split()[-2:])
 
