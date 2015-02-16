@@ -45,9 +45,7 @@ def recursive_search(search_results, new_search_term_list):
                 search_term = generate_features(name1.split(), name2.split())
                 if search_term not in new_search_term_list:
                     new_search_term_list.append(search_term)
-
-    for search_term in new_search_term_list:
-        solr_results_list.append(my_hash.search(search_term, ''))
+                    solr_results_list.append(my_hash.search(search_term, ''))
 
     for solr_result in solr_results_list:
         if solr_result:
@@ -73,12 +71,17 @@ def routing():
             for result in solr_results_1.highlighting.iteritems():
                 search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
 
+        print 'step 1', len([]), ', ', len(search_results)
         new_search_term_list, search_results = recursive_search(search_results, [])
+        print 'step 2', len(new_search_term_list), ', ', len(search_results)
         new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+        print 'step 3', len(new_search_term_list), ', ', len(search_results)
         new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
-        new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
-        new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
-
+        print 'step 4', len(new_search_term_list), ', ', len(search_results)
+        # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+        # print 'step 5', len(new_search_term_list), ', ', len(search_results)
+        # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
+        # print 'step 6', len(new_search_term_list), ', ', len(search_results)
 
         tree = TreeStructure()
 
