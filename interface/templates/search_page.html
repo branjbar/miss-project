@@ -11,12 +11,49 @@
     <script src="../static/jquery-1.11.1.min.js"></script>
     <script src="../static/d3/d3.js"></script>
 
+    <style>
+        #tooltip {
+            position: absolute;
+            width: 200px;
+            height: auto;
+            padding: 10px;
+            background-color: white;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            border-radius: 10px;
+            -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+            -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+        }
 
+        #tooltip.hidden {
+                display: none;
+        }
+
+        #tooltip p {
+                margin: 0;
+                font-family: sans-serif;
+                font-size: 16px;
+                line-height: 20px;
+        }
+    </style>
 
   </head>
 
   <body>
         <div id="tree"></div>
+
+
+        <div id="tooltip" class="hidden">
+        <div class="hide" id="rmenu">
+        <a id="hyper1">Search level 1</a><br>
+        <a id="hyper2">Search level 2</a><br>
+        <a id="hyper3">Search level 3</a><br>
+        <a id="hyper4">Search level 4</a><br>
+        <a id="hyper5">Narrow Down</a><br>
+        <a id="hyper6" target="_blank">See Timeline</a> <br>
+        </div>
+        </div>
 
   </body>
         {% for b in dataset.leaves %}
@@ -63,6 +100,7 @@
              .attr("x2",function(d){leaf = $.grep(dataset.leaves, function(e){ return e.index == d.target; }); return x_scale(leaf[0].level)})
              .attr("y2",function(d){leaf = $.grep(dataset.leaves, function(e){ return e.index == d.target; }); return y_scale(leaf[0].order) + BLOCK_HEIGHT / 2})
              .attr("stroke", "gray")
+             .on("mouseover",function(d) {d3.select("#tooltip").classed("hidden", true)})
 
             svg.selectAll("rect")
             .data(dataset.leaves)
@@ -78,6 +116,27 @@
             .on("mouseover", mouseOver)
             .on("mouseout", mouseOut)
             .on("click", mouseClick)
+            .on("contextmenu", function(d, index) {
+                var position = d3.mouse(this);
+                d3.select('#tooltip')
+                  .style('left', position[0] + 30 + "px")
+                  .style('top', position[1] + "px")
+                  .select("#hyper6")
+                  .attr("href", "http://localhost:20002/hash_matches/?search_term=" + d.node1.name + '_' + d.node2.name)
+
+                  d3.select('#tooltip').select("#hyper1")
+                  .attr("href", "http://localhost:20002/search/?depth_level=0&search_term=" + d.node1.name + '_' + d.node2.name)
+                  d3.select('#tooltip').select("#hyper2")
+                  .attr("href", "http://localhost:20002/search/?depth_level=1&search_term=" + d.node1.name + '_' + d.node2.name)
+                  d3.select('#tooltip').select("#hyper3")
+                  .attr("href", "http://localhost:20002/search/?depth_level=2&search_term=" + d.node1.name + '_' + d.node2.name)
+                  d3.select('#tooltip').select("#hyper4")
+                  .attr("href", "http://localhost:20002/search/?depth_level=3&search_term=" + d.node1.name + '_' + d.node2.name)
+
+                d3.select("#tooltip").classed("hidden", false);
+
+                d3.event.preventDefault();
+            })
             .append("title")
             .text(function(d){return "date = " + d.min_date + '-'+ d.max_date})
 
@@ -114,6 +173,7 @@
 
 
             function mouseOver(d) {
+                d3.select("#tooltip").classed("hidden", true);
 
                 if (!d.gold) {
 
@@ -273,7 +333,7 @@
             .attr("text-anchor","middle")
             .attr("font-size", 12)
             .text(function(d) {return d.node1.name + ' - ' + d.node2.name}) // + '(' + d.depth + ')'})
-            //.style("pointer-events", "none")
+            .style("pointer-events", "none")
 
              svg.selectAll("text .doc")
             .data(dataset.leaves)
