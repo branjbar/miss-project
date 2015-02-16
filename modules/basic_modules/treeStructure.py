@@ -23,13 +23,13 @@ class Leaf:
     a leaf represents a couple. Each lever has an order and a level which shows where it is positioned
     """
 
-    def __init__(self, node1, node2, doc_id, date, level=-1):
+    def __init__(self, node1, node2, doc_id, date, level=-1, color="beige"):
         self.node1 = node1.__dict__
         self.node2 = node2.__dict__
         self.level = level
         self.order = -1
         self.depth = None
-        self.color = "beige"
+        self.color = color
         self.doc_id = str(doc_id)
         self.min_date = int(date[-4:])
         self.max_date = int(date[-4:])

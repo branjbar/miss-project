@@ -110,7 +110,7 @@
             .attr("height", function(d){ return  BLOCK_HEIGHT})
             .attr("x",function(d){return x_scale(d.level) })
             .attr("y",function(d){return y_scale(d.order)})
-            .attr("fill",  "beige")
+            .attr("fill",  function(d){return d.color})
             .attr("stroke-width",1)
             .attr("stroke", "black")
             .on("mouseover", mouseOver)
@@ -184,7 +184,7 @@
 
                      svg.selectAll("rect")
                      .data(dataset.leaves)
-                     .attr("fill", function(d) {return (target_list.indexOf(d.index)>-1) || (source_list.indexOf(d.index)>-1)? "yellow": d.color})
+                     .attr("fill", function(d) {return (((target_list.indexOf(d.index)>-1) || (source_list.indexOf(d.index)>-1)) && d.color!="Coral")? "yellow": d.color})
 
                     d3.select(this)
                     .attr("fill", "Gold")
@@ -254,7 +254,8 @@
                      .data(dataset.leaves)
                      .attr("fill", function(d) {
                             if ((target_list.indexOf(d.index)>-1) || (source_list.indexOf(d.index)>-1)) {
-                                d.color = "SkyBlue"
+                                if (d.color != "Coral")
+                                    d.color = "SkyBlue"
                              }
                              return d.color
                              } )
@@ -302,7 +303,7 @@
 
                      svg.selectAll("rect")
                      .data(dataset.leaves)
-                     .attr("fill", function(d){d.color = "beige"; d.gold = false; return d.color})
+                     .attr("fill", function(d){if (d.color != "Coral") d.color = "beige"; d.gold = false; return d.color})
 
 
                      svg.selectAll("line")

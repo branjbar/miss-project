@@ -9,6 +9,7 @@ from interface import app
 
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
+from modules.basic_modules.basic import string_compare
 from modules.basic_modules.myOrm import Reference, Document
 from modules.basic_modules.treeStructure import TreeStructure
 from modules.record_linkage.hashing import Hashing, generate_features
@@ -63,9 +64,6 @@ def routing():
         depth_level = request.args.get('depth_level')  # the main searching term
         if not search_term:
             search_term = "Willem_Dijk_Johanna_Bakel"
-        # search_term_1 = "Jacobus_Sneep_Stijntje_Made"
-        # search_term_1 = "Maria_Verheijen_Peter_Keukens"
-        # search_term_1 = "Anna_Senders_Gerardus_Greef"
 
         search_term = ' '.join(search_term.split('_'))
         search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','')
@@ -87,13 +85,6 @@ def routing():
                 new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
                 print 'step', i+1, ')',  len(new_search_term_list), ', ', len(search_results)
 
-        # print 'step 3', len(new_search_term_list), ', ', len(search_results)
-        # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
-        # print 'step 4', len(new_search_term_list), ', ', len(search_results)
-        # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
-        # print 'step 5', len(new_search_term_list), ', ', len(search_results)
-        # new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
-        # print 'step 6', len(new_search_term_list), ', ', len(search_results)
 
         tree = TreeStructure()
         if search_results:
@@ -103,12 +94,23 @@ def routing():
                 doc.set_id(doc_id)
                 new_data = doc.get_relatives(search_results[doc_id], [])
                 for leaf in new_data['leaves']:
+                    name1 = leaf.node1['name']
+                    name2 = leaf.node2['name']
+                    print search_term.replace('_',' ')
+                    print name1 + ' ' + name2
+                    if string_compare(name1 + ' ' + name2, search_term.replace('_',' '), 'LEV') < 3 or string_compare(name2 + ' ' + name1, search_term.replace('_',' '), 'LEV') < 3:
+                        leaf.color = "Coral"
                     tree.add_leaf(leaf)
                 for branch in new_data['branches']:
                     tree.add_branch(branch)
 
         tree.update()
+        print set([leaf.index for leaf in  tree.leaves])
+        print set([branch.source for branch in  tree.branches])
+        print set([branch.target for branch in  tree.branches])
 
+
+        print "results are sent to html page."
         return render_template('search_page.html', dataset=tree.get_dict())
 
 
