@@ -87,7 +87,7 @@ class TreeStructure:
                     branch.source = 1
 
                 if branch.target == to_be_removed_leaf.index:
-                    branch.source = 1a
+                    branch.source = 1
 
 
         self.leaves.remove(to_be_removed_leaf)
