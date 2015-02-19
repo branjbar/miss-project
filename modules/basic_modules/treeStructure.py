@@ -87,7 +87,7 @@ class TreeStructure:
                     branch.source = 1
 
                 if branch.target == to_be_removed_leaf.index:
-                    branch.source = 1
+                    branch.source = 1a
 
 
         self.leaves.remove(to_be_removed_leaf)
@@ -181,6 +181,13 @@ class TreeStructure:
                 source_list.append(branch.source)
         return source_list
 
+    def get_descendants(self, index):
+        target_list = []
+        for branch in self.branches:
+            if branch.source == index:
+                target_list.append(branch.target)
+        return target_list
+
 
     def merge_columns_for_births(self):
         for level in sorted(self.columns.keys()):  # for each column
@@ -197,7 +204,7 @@ class TreeStructure:
 
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if len(leaf2.node2['name']) < 3:  # leaf1 += leaf2
-                                if set(self.get_ancestors(leaf1.index)).intersection(self.get_ancestors(leaf2.index)):
+                                if set(self.get_ancestors(leaf1.index)).intersection(self.get_ancestors(leaf2.index)) or set(self.get_descendants(leaf1.index)).intersection(self.get_descendants(leaf2.index)):
 
                                     if leaf2 in self.leaves and leaf1 in self.leaves:
                                         leaf1.doc_id += ', ' + leaf2.doc_id
@@ -220,7 +227,7 @@ class TreeStructure:
 
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if len(leaf2.node2['name']) < 3:  # leaf1 += leaf2
-                                if set(self.get_ancestors(leaf1.index)).intersection(self.get_ancestors(leaf2.index)):
+                                if set(self.get_ancestors(leaf1.index)).intersection(self.get_ancestors(leaf2.index)) or set(self.get_descendants(leaf1.index)).intersection(self.get_descendants(leaf2.index)):
 
                                     if leaf2 in self.leaves and leaf1 in self.leaves:
                                         leaf1.doc_id += ', ' + leaf2.doc_id
