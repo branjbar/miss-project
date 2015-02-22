@@ -79,7 +79,9 @@ def indexing_stat_individual():
         if not key_flag:
             indexing_dict[full_name] = 1
 
-    print indexing_dict.values()
+    # print indexing_dict.values()
+    with open("index_person", "a") as myfile:
+        myfile.write(str(indexing_dict.values()))
 
 
 def indexing_stat_couple():
@@ -138,7 +140,9 @@ def indexing_stat_couple():
                 if not key_flag:
                     indexing_dict[full_name] = 1
 
-    print indexing_dict.values()
+    # print indexing_dict.values()
+    with open("index_couple", "a") as myfile:
+        myfile.write(str(indexing_dict.values()))
 
 
 
@@ -155,4 +159,4 @@ def indexing_stat_couple():
     #     myfile.write(csv_text)
 
 if __name__ == "__main__":
-    indexing_stat_individual()
+    indexing_stat_couple()
