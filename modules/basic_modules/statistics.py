@@ -84,7 +84,7 @@ def indexing_stat_couple():
     """
 
     # we block the records based on the couple names
-    query = "select type_number, reference_ids from all_documents limit 1000"
+    query = "select type_number, reference_ids from all_documents"
     row_list = basic.run_query(query)
     indexing_dict = {}
     count = 0
