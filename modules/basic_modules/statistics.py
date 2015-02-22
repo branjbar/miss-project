@@ -1,4 +1,5 @@
 from modules.basic_modules import myOrm, basic
+from modules.basic_modules.basic import string_compare
 
 __author__ = 'Bijan'
 
@@ -48,5 +49,106 @@ def get_migration_list():
 
     print index
 
+
+def indexing_stat_individual():
+    """
+    here the goal is to compute size of blocks based on full names
+    """
+
+    #  we block the records based on the person name
+    query = "select first_name, last_name from all_persons_new"
+    row_list = basic.run_query(query)
+
+    indexing_dict = {}
+    for row in row_list.fetchall():
+        if row[0] and row[1]:
+            first_name = row[0].split()[0]
+            last_name = row[1].split()[0]
+        full_name = first_name + '_' + last_name
+
+        key_flag = False
+        for key in indexing_dict.keys():
+            if string_compare(full_name,key,'LEV') < 3:
+                indexing_dict[key] += 1
+                key_flag = True
+                break
+        if not key_flag:
+            indexing_dict[full_name] = 1
+
+    print indexing_dict.values()
+
+
+def indexing_stat_couple():
+    """
+    here the goal is to compute size of blocks based on couple names
+    """
+
+    # we block the records based on the couple names
+    query = "select type_number, reference_ids from all_documents limit 1000"
+    row_list = basic.run_query(query)
+    indexing_dict = {}
+    count = 0
+    for row in row_list.fetchall():
+        count += 1
+        if not count%100:
+            print count
+        type_number = row[0]
+        reference_ids = row[1].split(',')
+
+        if type_number == '1':
+            new_query = ["select first_name, last_name from all_persons_new where id = " + reference_ids[1] + ' or id = ' + reference_ids[2]]
+
+        if type_number == '2':
+            new_query = ["select first_name, last_name from all_persons_new where id = " + reference_ids[0] + ' or id = ' + reference_ids[1]]
+            new_query += ["select first_name, last_name from all_persons_new where id = " + reference_ids[2] + ' or id = ' + reference_ids[3]]
+            new_query += ["select first_name, last_name from all_persons_new where id = " + reference_ids[4] + ' or id = ' + reference_ids[5]]
+
+        if type_number == '3':
+            new_query = ["select first_name, last_name from all_persons_new where id = " + reference_ids[0] + ' or id = ' + reference_ids[3]]
+            new_query += ["select first_name, last_name from all_persons_new where id = " + reference_ids[1] + ' or id = ' + reference_ids[2]]
+
+        for q in new_query:
+            row_list = basic.run_query(q)
+            results = row_list.fetchall()
+            first_name_0 = results[0][0]
+            last_name_0 = results[0][1]
+            first_name_1 = results[1][0]
+            last_name_1 = results[1][1]
+            if first_name_0 and last_name_0 and first_name_1 and last_name_1:
+                first_name_0 = first_name_0.split()[0]
+                first_name_1 = first_name_1.split()[0]
+                last_name_0 = last_name_0.split()[0]
+                last_name_1 = last_name_1.split()[0]
+                name0 = first_name_0 + '_' + last_name_0
+                name1 = first_name_1 + '_' + last_name_1
+                names = sorted([name0, name1])
+
+                full_name = names[0] + '_' + names[1]
+
+                key_flag = False
+                for key in indexing_dict.keys():
+                    if string_compare(full_name,key,'LEV') < 3:
+                        indexing_dict[key] += 1
+                        key_flag = True
+                        break
+                if not key_flag:
+                    indexing_dict[full_name] = 1
+
+    print indexing_dict.values()
+
+
+
+    #
+    #     index += 1
+    #     if not index % 1000:
+    #         print index, time.time()-t
+    #         t = time.time()
+    #         with open("data/migrate.csv", "a") as myfile:
+    #             myfile.write(csv_text)
+    #         csv_text = ''
+    #
+    # with open("data/migrate.csv", "a") as myfile:
+    #     myfile.write(csv_text)
+
 if __name__ == "__main__":
-    get_migration_list()
+    indexing_stat_couple()
