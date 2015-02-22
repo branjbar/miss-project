@@ -58,9 +58,13 @@ def indexing_stat_individual():
     #  we block the records based on the person name
     query = "select first_name, last_name from all_persons_new"
     row_list = basic.run_query(query)
-
+    count = 0
     indexing_dict = {}
     for row in row_list.fetchall():
+        count += 1
+        if not count%100:
+            print count
+
         if row[0] and row[1]:
             first_name = row[0].split()[0]
             last_name = row[1].split()[0]
@@ -151,4 +155,4 @@ def indexing_stat_couple():
     #     myfile.write(csv_text)
 
 if __name__ == "__main__":
-    indexing_stat_couple()
+    indexing_stat_individual()
