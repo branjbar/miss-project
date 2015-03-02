@@ -86,7 +86,7 @@
 
                         doc_list = {{html_year|tojson|safe}}
 
-                        padding = 20;
+                        padding = 60;
 
                         c_r = 6
                         div_size=150
@@ -128,7 +128,6 @@
                         .attr("stroke","black")
                         .append("title")
                         .text(function(d){return d.title})
-
 
 
                         svg_r.selectAll("text .title")
@@ -191,9 +190,12 @@
                         .attr("fill", "white")
 
 
+
+
                         for (i=0; i<=doc_list.length;i++){
 
-                                var xPosition = i%2? 0 : w/2 + 4 * padding ;
+                                // Position of the tooltips
+                                var xPosition = i%2? 0 : w/2 + 2 * padding ;
                                 var yPosition = year_scale(i) - div_size/2;
 
                                 //Update the tooltip position and value
