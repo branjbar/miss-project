@@ -314,8 +314,33 @@ class TreeStructure:
         self.bfs_round()
         self.bfs_round()
 
+
         for leaf in self.leaves:
             self.update_leaf(leaf.index, leaf.depth, None, False)
+
+
+###  once more I apply BFS and DFS to avoid isolated left overs.
+        max_depth = 10
+        for leaf in self.leaves:
+            if leaf.depth < max_depth:
+                max_depth = leaf.depth
+
+        for leaf in self.leaves:
+            if not leaf.depth == max_depth:
+                pass
+            else:
+                leaf.depth = -1
+
+        self.bfs_round()
+        self.bfs_round()
+        self.bfs_round()
+        self.bfs_round()
+        self.bfs_round()
+
+
+        for leaf in self.leaves:
+            self.update_leaf(leaf.index, leaf.depth, None, False)
+
 
     def bfs_round(self):
         change_flag = True
