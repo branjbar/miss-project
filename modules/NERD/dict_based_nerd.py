@@ -279,7 +279,7 @@ class Nerd():
 
                         # TODO: use "te" to extract locations. Or use the Lexicon of location names for this!
 
-    def extract_solr_relations(self, negative_samples=True):
+    def extract_solr_relations(self, negative_samples=False):
         """
         here for every pair of relationships we look at
         """
