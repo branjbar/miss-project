@@ -63,21 +63,32 @@ def routing():
 
         search_term = request.args.get('search_term')  # the main searching term
         depth_level = request.args.get('depth_level')  # the main searching term
+
+        # for the specific case that more than one couple is received from a nerd_vis page
+        search_term_list = []
+        if '__' in search_term:
+            for term in search_term.split('__')[:-1]:
+                search_term_list.append(term.split('_')[0].split()[0] + ' ' + term.split('_')[0].split()[-1] + ' ' +  term.split('_')[1].split()[0] + ' ' +  term.split('_')[1].split()[-1])
+        else:
+            search_term_list = [search_term]
+
         if not search_term:
-            search_term = "Arnoldus Ippel_Pietje Biesheuvel"
+            search_term_list = ["Petrus_Heijden_Anna_Leen", "Hendrina_Heijden_Francis_Wit"]
+            depth_level = 3
 
-        search_term = ' '.join(search_term.split('_'))
-        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','').title()
-        ref1 = ' '.join(search_term.split()[:2])
-        ref2 = ' '.join(search_term.split()[-2:])
-
-        search_term = generate_features(ref1.split(), ref2.split())
-        solr_results_1 = my_hash.search(search_term, '')
         search_results = {}
+        for search_term in search_term_list:
+            search_term = ' '.join(search_term.split('_'))
+            search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','').title()
+            ref1 = ' '.join(search_term.split()[:2])
+            ref2 = ' '.join(search_term.split()[-2:])
 
-        if solr_results_1:
-            for result in solr_results_1.highlighting.iteritems():
-                search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
+            search_term = generate_features(ref1.split(), ref2.split())
+            solr_results_1 = my_hash.search(search_term, '')
+
+            if solr_results_1:
+                for result in solr_results_1.highlighting.iteritems():
+                    search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
 
         new_search_term_list = [search_term]
         if depth_level:
@@ -95,8 +106,10 @@ def routing():
                 for leaf in new_data['leaves']:
                     name1 = leaf.node1['name']
                     name2 = leaf.node2['name']
-                    if string_compare(name1 + ' ' + name2, search_term.replace('_',' '), 'LEV') < 4 or string_compare(name2 + ' ' + name1, search_term.replace('_',' '), 'LEV') < 4:
-                        leaf.color = "Coral"
+                    for search_term in search_term_list:
+                        if string_compare(name1 + ' ' + name2, search_term.replace('_',' '), 'LEV') < 4 or string_compare(name2 + ' ' + name1, search_term.replace('_',' '), 'LEV') < 4:
+                            leaf.color = "Coral"
+
                     tree.add_leaf(leaf)
                 for branch in new_data['branches']:
                     tree.add_branch(branch)

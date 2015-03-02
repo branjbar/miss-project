@@ -45,6 +45,19 @@
                 <button type="button" class="btn btn-warning" onclick="window.location='/nerd_vis/?lucky=1';">
                     NEXT
                 </button>
+                      {% if True %}
+
+                <br><br><br>
+                NEW!!
+                    {% set search_term_list = '' %}
+                    {% for ref_pair in extracted_relations %}
+                        {% set search_term_list = search_term_list + ref_pair.ref1[1] + '_' + ref_pair.ref2[1] + '__' %}
+                        {% if loop.index == extracted_relations|length %}
+                            <a href= "/search/?depth_level=1&search_term={{search_term_list}}" target="blank"><p class="text-center"> Pedigree View </p></a>
+                        {% endif %}
+
+                    {%endfor%}
+                    {% endif %}
 
                 <!-- Modal -->
                 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
