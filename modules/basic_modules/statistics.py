@@ -1,5 +1,7 @@
+import numpy
 from modules.basic_modules import myOrm, basic
 from modules.basic_modules.basic import string_compare
+from modules.record_linkage.hashing import Hashing
 
 __author__ = 'Bijan'
 
@@ -146,6 +148,32 @@ def indexing_stat_couple():
 
 
 
+def get_couple_pairs():
+    """
+    here first we extract all the couple names from the Solr list. Then, we
+
+    :return:
+    """
+    my_hash = Hashing()
+
+    solr_results = my_hash.search('*', 'cat:death or cat:birth or cat:marriage', facet_limit=-1)
+    facet_fields = solr_results.facet_counts['facet_fields']
+    facets = sorted(facet_fields['features_ss'].iteritems(), key=lambda x: x[1], reverse=True)
+    with open("facet_couple_name.csv", "a") as myfile:
+        myfile.write(str(facets))
+    num_found_list = []
+    from random import shuffle
+    shuffle(facets)
+    print 'getting statistics started'
+    for index, f in enumerate(facets):
+
+        num_found_list.append(my_hash.search(f[0], 'cat:death or cat:birth or cat:marriage',facet_limit=0).numFound)
+        x = numpy.histogram(num_found_list, bins=100)
+        if not index % 100:
+            print index, ' out of ', len(facets)
+            print list(x[0])
+            print list(x[1])
+
     #
     #     index += 1
     #     if not index % 1000:
@@ -159,4 +187,4 @@ def indexing_stat_couple():
     #     myfile.write(csv_text)
 
 if __name__ == "__main__":
-    indexing_stat_couple()
+    get_couple_pairs()
