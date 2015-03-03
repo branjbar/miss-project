@@ -260,7 +260,7 @@ class Hashing():
                 print self.commit_number
                 self.commit_number += 1
 
-    def search(self, features_list, filter_query):
+    def search(self, features_list, filter_query, facet_limit=30):
 
         if features_list:
             query = 'features: ' + features_list + '~'
@@ -268,6 +268,7 @@ class Hashing():
         filter_query = filter_query.split(' -')
         query_results = self.s.query(query, fq=filter_query, rows=60, highlight=True, facet='true',
                                      facet_field=['features_ss', 'location_s', 'cat'],
+                                     facet_limit=facet_limit,
                                      facet_range='date_dt',
                                      facet_range_start='1700-00-00T00:00:00Z',
                                      facet_range_end='1900-00-00T00:00:00Z',
