@@ -12,26 +12,12 @@ from interface import app
 from modules.basic_modules.basic import string_compare
 from modules.basic_modules.myOrm import Reference, Document
 from modules.basic_modules.treeStructure import TreeStructure
-from modules.record_linkage.hashing import Hashing, generate_features
-
-# new_blocks = pickle.load(open("matches_notary_civil.p", "r"))
-
-# try:
-# story_file = open('../data/good_stories.txt', 'r')
-# except:
-# story_file = open('data/good_stories.txt', 'r')
-
-# lucky_stories = []
-# line = story_file.readline()
-# while line:
-# lucky_stories.append(line.split()[1])
-# line = story_file.readline()
+from modules.record_linkage.hashing import generate_features
+from modules.solr_search.solr_query import SolrQuery
 
 
-# pickle.dump(hash_table, open("hashing_v1.p", 'w'))
 
-
-my_hash = Hashing()
+my_hash = SolrQuery()
 
 
 def recursive_search(search_results, new_search_term_list):

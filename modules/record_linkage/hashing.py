@@ -41,7 +41,8 @@ class Hashing():
         initializes the Solr connection
         :return:
         """
-        self.s = solr.SolrConnection('http://localhost:8983/solr')
+        from modules import SOLR_CORE
+        self.s = solr.SolrConnection(SOLR_CORE)
         self.commit_counter = 0
         self.commit_number = 0
         self.current_document_id = 0
@@ -260,22 +261,22 @@ class Hashing():
                 print self.commit_number
                 self.commit_number += 1
 
-    def search(self, features_list, filter_query, facet_limit=30):
-
-        if features_list:
-            query = 'features: ' + features_list + '~'
-
-        filter_query = filter_query.split(' -')
-        query_results = self.s.query(query, fq=filter_query, rows=60, highlight=True, facet='true',
-                                     facet_field=['features_ss', 'location_s', 'cat'],
-                                     facet_limit=facet_limit,
-                                     facet_range='date_dt',
-                                     facet_range_start='1700-00-00T00:00:00Z',
-                                     facet_range_end='1900-00-00T00:00:00Z',
-                                     facet_range_gap='+10YEAR',
-                                     fields="features, id, score")
-
-        return query_results
+    # def search(self, features_list, filter_query, facet_limit=30):
+    #
+    #     if features_list:
+    #         query = 'features: ' + features_list + '~'
+    #
+    #     filter_query = filter_query.split(' -')
+    #     query_results = self.s.query(query, fq=filter_query, rows=60, highlight=True, facet='true',
+    #                                  facet_field=['features_ss', 'location_s', 'cat'],
+    #                                  facet_limit=facet_limit,
+    #                                  facet_range='date_dt',
+    #                                  facet_range_start='1700-00-00T00:00:00Z',
+    #                                  facet_range_end='1900-00-00T00:00:00Z',
+    #                                  facet_range_gap='+10YEAR',
+    #                                  fields="features, id, score")
+    #
+    #     return query_results
 
     def block_to_name(self, blocking_key):
         """

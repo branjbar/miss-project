@@ -4,13 +4,14 @@ from modules.NERD import dict_based_nerd
 from modules.basic_modules import loadData
 from modules.basic_modules.basic import run_query
 from modules.basic_modules.myOrm import get_notarial_act, Document
-from modules.record_linkage.hashing import generate_features, Hashing
+from modules.record_linkage.hashing import generate_features
+from modules.solr_search.solr_query import SolrQuery
 
 __author__ = 'bijan'
 
 
 def get_nerd_data(request, t_id):
-    my_hash = Hashing()
+    my_hash = SolrQuery()
     if request.args.get('confirm'):
         opinion = request.args.get('confirm')
         comment = request.args.get('comment').replace("'", "").replace('"', '"')

@@ -1,0 +1,1 @@
+SOLR_CORE = 'http://localhost:8983/solr/gettingstarted_shard1_replica2'
