@@ -17,6 +17,12 @@ This project addresses the problem of how to derive identities of persons and so
 
 ## Publications
 
+* B. Ranjbar-Sahraei, J. Efremova, H. Rahmani, T. Calders, K. Tuyls and G. Weiss, "HiDER: Query-Driven Entity Resolution for Historical Data", In Proceedings of the European Conference on Machine Learning and Principles and Practice of Knowledge Discovery in Databases (ECML PKDD 2015), Porto, Portugal, 2015.
+* H. Rahmani, B. Ranjbar-Sahraei, G. Weiss and K. Tuyls, "Entity Resolution in Disjoint Graphs: an Application on Genealogical Data", Journal of Intelligent Data Analysis (in press).
+* J. Efremova, B. Ranjbar-Sahraei, F. Oliehoek, T. Calders and K. Tuyls, "An Interactive, Web-based Tool for Genealogical Entity Resolution", In Proceedings of the 25th Benelux Conference on Artificial Intelligence (BNAIC), Delft, Netherlands, 2013.
+
+
+
 ## Instructions to use the code
 This project is still a work-in-progress and many components might not be reliable yet.
 
