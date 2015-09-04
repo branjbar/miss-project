@@ -152,7 +152,7 @@ def routing():
         if facet_query and facet_query.split(':')[0] == 'location_s':
             field_query += 'location_s: ' + '"' + facet_query.split(':')[1].replace('+', ' ') + '"'
 
-        if facet_query and facet_query.split(':')[0] == 'date':
+        if facet_query and facet_query.split(':')[0] == 'date_dt':
             field_query += 'date_dt: ' + '[' + facet_query.split(':')[1].split('-')[0] + '-00-00T00:00:00Z TO ' + \
                            str(int(facet_query.split(':')[1].split('-')[1]) + 1) + '-00-00T00:00:00Z ]'
 
@@ -168,7 +168,8 @@ def routing():
         solr_results = my_hash.search(search_term, field_query)
 
         if solr_results:
-            # first let's get the facets from results
+
+            # first let's get the FACETS from results
             facet_fields = solr_results.facet_counts['facet_fields']
             for key in facet_fields:
                 facets[key] = sorted(facet_fields[key].iteritems(), key=lambda x: x[1], reverse=True)[:20]
@@ -179,12 +180,13 @@ def routing():
                     value[0].replace('_', ' ', 1).replace('_', ' - ', 1).replace('_', ' '), value[1]]
 
             # adding the date range to the facets
-            facets['date'] = []
+            facets['date_dt'] = []
             facet_ranges = solr_results.facet_counts['facet_ranges']['date_dt']['counts']
             for x in sorted(facet_ranges.items(), key=lambda s: s[0]):
-                facets['date'].append([x[0][:4] + '-' + str(int(x[0][:4]) + 10), x[1]])
+                facets['date_dt'].append([x[0][:4] + '-' + str(int(x[0][:4]) + 10), x[1]])
 
-            # now we get the main results and highlights
+
+            # second we get the main results and highlights
             search_results = {}
 
             if len(search_term.split('_')) == 4:
