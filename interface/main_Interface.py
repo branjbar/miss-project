@@ -220,43 +220,6 @@ def routing():
                                facets=facets)
 
 
-    @app.route('/complex_matches/', methods=['GET', 'POST'])
-    @app.route('/complex_matches/<p_id>', methods=['GET', 'POST'])
-    def complex_matches(p_id=None):
-        search_id = request.args.get('search_term')
-        if search_id and search_id.isdigit():
-            p_id = int(search_id)
-
-        if not p_id:
-            p_id = 0
-
-        p_id = int(p_id)
-        if p_id < 0:
-            p_id = 0
-
-        block_key = new_blocks[p_id][0]
-        block_list = new_blocks[p_id][1]
-
-        doc_list = []
-        doc_list_d3 = []
-        for doc_id in block_list:
-            doc = Document()
-            doc.set_id(doc_id)
-            doc_list_d3.append(doc.__dict_new__())
-            html = doc.get_html(block_key, [block_key])
-            # for key in block_key.split('_'):
-            # html = html.replace(key, '<span class="highlight"> %s </span>'%key)
-            doc_list.append(html)
-
-            navbar_choices = []
-            for a_match_id in range(p_id, p_id + 11):
-                navbar_choices.append(a_match_id)
-
-        return render_template('match_vis.html', doc_list_d3=doc_list_d3, doc_list=doc_list,
-                               block_key=block_key.split('_'),
-                               navbar_choices=navbar_choices)
-
-
     @app.route('/get_ref/<p_id>')
     @app.route('/get_ref/')
     def get_ref(p_id=None):
