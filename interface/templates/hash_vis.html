@@ -48,7 +48,21 @@
 
                         {%for key, value in facets.iteritems() %}
                             <hr>
-                        <li> <b>{{key}} </b></li>
+                        <li> <b>
+                              <!-- to replace the weird facet names with nicer ones! -->
+                              {% if key == 'features_ss' %}
+                               Couple Name
+                              {% elif key == 'location_s' %}
+                               Location
+                              {% elif key == 'date' %}
+                               Date Range
+                              {% elif key == 'cat' %}
+                               Category Type
+                              {% else %}
+                                {{key}}
+                              {% endif %}
+
+                        </b></li>
                             {% for v in value %}
                                 {% if v.1 > 0%}
                                     <small>
