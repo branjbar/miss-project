@@ -44,7 +44,20 @@
                         <a href= "/search/?depth_level=1&search_term={{couple_name}}" target="blank"><p class="text-center"> Open the Pedigree View (NEW!!)</p></a>
                       {% endif %}
                       <br>
-                      {{field_query}}
+                      {% for key in field_query.split(' ') %}
+                              <!-- to replace the weird facet names with nicer ones! -->
+                              {% if key == '-features_ss:' or key == 'features_ss:' %}
+                               <br><b>Couple Name</b>:
+                              {% elif key == '-location_s:' or key == 'location_s:'%}
+                               <br><b>Location</b>:
+                              {% elif key == '-date_dt:' or key == 'date_dt:' %}
+                               <br><b>Date Range</b>:
+                              {% elif key == '-cat:' or key == 'cat:' %}
+                               <br><b>Record Type</b>:
+                              {% else %}
+                                {{key.replace('_',' ')}}
+                              {% endif %}
+                      {% endfor %}
 
                         {%for key, value in facets.iteritems() %}
                             <hr>
@@ -54,10 +67,10 @@
                                Couple Name
                               {% elif key == 'location_s' %}
                                Location
-                              {% elif key == 'date' %}
+                              {% elif key == 'date_dt' %}
                                Date Range
                               {% elif key == 'cat' %}
-                               Category Type
+                               Record Type
                               {% else %}
                                 {{key}}
                               {% endif %}
