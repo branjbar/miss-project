@@ -131,20 +131,21 @@ class Document():
     def get_html(self, hash_key=[], features_ref=[]):
 
 
-        if self.doc_type == "notarial act":
-            html = """ <div class="panel-body col-xs-12">"""
-        else:
-            html = """ <div class="panel-body col-xs-12" >"""
+        html = """ <div class="panel-body col-xs-12" >"""
 
         html += """
                                 <div class="panel panel-default">
                                   <div class="panel-heading">
-                                    <h3 class="panel-title">%s</h3>
+                                    <h3 class="panel-title">
+                                    <a href="/document/%s" target="_blank" title="%s">
+                                        <i class="glyphicon glyphicon-new-window"></i>
+                                    </a>
+                                    %s</h3>
                                   </div>
                                   <div class="panel-body" >
 
 
-                """ % self.doc_type.title()
+                """ % (self.doc_id,self.doc_id,self.doc_type.title())
 
         if self.doc_type == "notarial act":
             html += """<code>#%s</code> on <code>%s</code> in <code>%s</code>
@@ -170,9 +171,9 @@ class Document():
 
         else:
             html += """ <table class="table table-condensed" style="margin-bottom: 0px; border: none"> """
-            html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % (
-                '<b>id</b>',
-                self.doc_id)
+            # html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % (
+            #     '<b>id</b>',
+            #     self.doc_id)
             html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % (
                 '<b>place</b>',
                 self.place)
