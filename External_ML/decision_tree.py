@@ -1,12 +1,16 @@
 """
- DecisionTreeClassifier take as input two arrays: an array X of size [n_samples, n_features]  and an array Y of integer values, size [n_samples]
+ A TRAINING WHICH IS DONE OFFLINE
+ In order to apply distant supervision, we used the structured data to detect possible "marriage" between every two references.
+ Then, we extracted the text before, beteween and after the two references. This generated a training set for the decision
+ tree in this page.
+
 """
 
 import csv
 
 x = []
 y = []
-with open('weka_file_generated_V_2.csv', 'rb') as csvfile:
+with open('weka_file_generated_V_2.csv', 'rb') as csvfile:  # this file contains the trainign set.
     spamreader = csv.reader(csvfile, delimiter=',', quotechar=",")
     header = True
     for row in spamreader:
@@ -23,26 +27,28 @@ with open('weka_file_generated_V_2.csv', 'rb') as csvfile:
                     this_row.append(int(c.replace("'", '')))
                 except:
                     if c == "'negative'":
-                        y.append(0)
+                        y.append(0)  # class label for negatives
                     else:
-                        y.append(1)
+                        y.append(1)  # class label for positives
 
-            x.append(this_row)
+            x.append(this_row)  # x contains the features
 
-from sklearn import tree
+from sklearn import tree  #  DecisionTreeClassifier take as input two arrays: an array X of size [n_samples, n_features]  and an array Y of integer values, size [n_samples]
 clf = tree.DecisionTreeClassifier(criterion='entropy', splitter='best', max_depth=4, min_samples_split=2,
                                   min_samples_leaf=1, max_features=None, random_state=None, min_density=None,
                                   compute_importances=None, max_leaf_nodes=None)
-clf = clf.fit(x, y)
+clf = clf.fit(x, y)  # train the decision tree
 number_of_samples = len(y)
 # from sklearn import cross_validation
 # print "Doing Cross Validation ..."
 # print cross_validation.cross_val_score(clf, x, y, cv=10)
 #
 with open("iris.dot", 'w') as f:
-    f = tree.export_graphviz(clf, out_file=f)
+    f = tree.export_graphviz(clf, out_file=f)  # export the decision tree to graphviz .dot file
 
 
+
+# manipulate the graphvis file in order to improve it's visibility.
 import fileinput
 import re
 
