@@ -130,28 +130,44 @@ class Document():
 
     def get_html(self, hash_key=[], features_ref=[]):
 
+        if self.doc_type == "notarial act":
 
-        html = """ <div class="panel-body col-xs-12" >"""
+            html = """ <div class="panel-body col-xs-12" >"""
+            html += """
+                                    <div class="panel panel-default">
+                                      <div class="panel-heading">
+                                        <h3 class="panel-title">
+                                        <a href="/nerd_vis/%s" target="_blank" title="%s">
+                                            <i class="glyphicon glyphicon-new-window"></i>
+                                        </a>
+                                        %s</h3>
+                                      </div>
+                                      <div class="panel-body" >
 
-        html += """
-                                <div class="panel panel-default">
-                                  <div class="panel-heading">
-                                    <h3 class="panel-title">
-                                    <a href="/document/%s" target="_blank" title="%s">
-                                        <i class="glyphicon glyphicon-new-window"></i>
-                                    </a>
-                                    %s</h3>
-                                  </div>
-                                  <div class="panel-body" >
+
+                    """ % (self.doc_id,self.doc_id,self.doc_type.title())
+
+        else:
+            html = """ <div class="panel-body col-xs-12" >"""
+            html += """
+                                    <div class="panel panel-default">
+                                      <div class="panel-heading">
+                                        <h3 class="panel-title">
+                                        <a href="/document/%s" target="_blank" title="%s">
+                                            <i class="glyphicon glyphicon-new-window"></i>
+                                        </a>
+                                        %s</h3>
+                                      </div>
+                                      <div class="panel-body" >
 
 
-                """ % (self.doc_id,self.doc_id,self.doc_type.title())
+                    """ % (self.doc_id,self.doc_id,self.doc_type.title())
 
         if self.doc_type == "notarial act":
             html += """<code>#%s</code> on <code>%s</code> in <code>%s</code>
                         <hr style="margin: 8px 0;">
                         <div class="col-xs-12">
-                    """ % (self.doc_id, self.date, self.place)
+                    """ % (int(self.doc_id)-NOTARY_OFFSET, self.date, self.place)
             text = self.text
 
             for rel in self.rel_list:

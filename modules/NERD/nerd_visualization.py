@@ -9,6 +9,7 @@ from modules.solr_search.solr_query import SolrQuery
 
 
 __author__ = 'bijan'
+NOTARY_OFFSET = 30000000
 
 
 def get_nerd_data(request, t_id):
@@ -46,8 +47,11 @@ def get_nerd_data(request, t_id):
 
         counter = 0
         flag = False
-        while not flag and counter < 1000:
-            act = get_notarial_act(t_id, century18=True)
+        t_id = int(t_id)
+        if t_id > NOTARY_OFFSET:
+            t_id -= NOTARY_OFFSET
+            century18 = False
+            act = get_notarial_act(t_id, century18)
             text = act['text1'] + ' ' + act['text2'] + act['text3']
             nerd = dict_based_nerd.Nerd(text)
             reference_list = []
@@ -65,11 +69,35 @@ def get_nerd_data(request, t_id):
                     flag = True
                     t_id = int(t_id) - 1
                     break
-            t_id = int(t_id) + 1
 
-            ######
+        else:
+            century18 = True
+            while not flag and counter < 1000:
+                # to understand whether someone is searching for a specific notarial act or is just wandering around!
 
-        act = get_notarial_act(t_id, century18=True)
+                act = get_notarial_act(t_id, century18)
+                text = act['text1'] + ' ' + act['text2'] + act['text3']
+                nerd = dict_based_nerd.Nerd(text)
+                reference_list = []
+                for ref in nerd.get_references():
+                    if ref[1] not in reference_list:
+                        reference_list.append(ref[1])
+
+                for i in xrange(1, len(reference_list)):
+                    ref1 = reference_list[i - 1]
+                    ref2 = reference_list[i]
+
+                    index_key = generate_features(ref1.split(), ref2.split())
+                    solr_results = my_hash.search(index_key, 'cat:birth OR cat:marriage OR cat:death')
+                    if solr_results.results:
+                        flag = True
+                        t_id = int(t_id) - 1
+                        break
+                t_id = int(t_id) + 1
+
+                ######
+
+            act = get_notarial_act(t_id, century18)
 
     else:
         act = {'text1': personal_text, 'text2': '', 'text3': '', 'id': -1, 'date': 0 - 0 - 0, 'place': 'bhic',
