@@ -43,6 +43,7 @@
                       {% if couple_name %}
                         <a href= "/search/?depth_level=1&search_term={{couple_name}}" target="blank"><p class="text-center"> Open the Pedigree View (NEW!!)</p></a>
                       {% endif %}
+                      <small>
                       {% for key in field_query.split(' ') %}
                               <!-- to replace the weird facet names with nicer ones! -->
                               {% if key == '-features_ss:' or key == 'features_ss:' %}
@@ -57,7 +58,7 @@
                                 {{key.replace('_',' ')}}
                               {% endif %}
                       {% endfor %}
-
+                    </small>
                         {%for key, value in facets.iteritems() %}
                             <hr>
                         <li> <b>
@@ -78,7 +79,7 @@
                             {% for v in value %}
                                 {% if v.1 > 0%}
                                     <small>
-                                        <a href="?mq={{key}}:{{v.0}}">
+                                        <a href="?mq={{key}}: {{v.0}}">
                                         <i class="glyphicon glyphicon-new-window"></i> </a>
                                         <a href="?search_term={{couple_name}}&field_query={{field_query}}&fq={{key}}:{{v.0}}">{{v.0}}</a>
                                     </small> ({{v.1}})
