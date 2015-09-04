@@ -1,9 +1,13 @@
 """
+## BIJAN: I Guess this approach didn't ever work as it was very time consuming!! ##
+
 gets required statistics about the random walk algorithm. Here we use the Solr indexing,
 though the results are identical to the RWR approach.
 """
 import numpy
-from modules.record_linkage.hashing import Hashing
+
+from modules.solr_search.hashing import Hashing
+
 
 __author__ = 'bijan'
 

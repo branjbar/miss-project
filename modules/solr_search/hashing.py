@@ -19,6 +19,14 @@ def generate_features(r1, r2):
             r2 = [r2[0], r2[-1]]
             feature = sorted(['_'.join(r1), '_'.join(r2)])
         else:
+            if not r1[0] == '*':
+               feature = r1[0] + '_' + r1[-1] + '_*_*'
+               return feature
+
+            if not r2[0] == '*':
+               feature = '*_*_' + r2[0] + '_' + r2[-1]
+               return feature
+
             feature = ['*']
 
 

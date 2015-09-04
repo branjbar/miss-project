@@ -134,6 +134,7 @@ def write_variable_to_file(variable, file_name):
     file.close()
 
 
+
 if __name__ == "__main__":
 
     logging.basicConfig(filename='logging.log',level=logging.DEBUG, format='%(asctime)s %(message)s')

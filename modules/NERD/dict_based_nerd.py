@@ -15,7 +15,7 @@ from modules.basic_modules.basic import log
 my_solr = solr_query.SolrQuery()
 meertens_names = {}
 
-PUNCTUATION_LIST = [',', ';', '.', ':', '[', ']', '(', ')', '"', "'"]
+PUNCTUATION_LIST = [',', ';', '.', ':', '[', ']', '(', ')', '"', "'", '-']
 PREFIXES = ['van', 'de', 'van der', 'van den', 'van de', 'den']
 # FREQ_NAMES = ['te', 'een', 'eende', 'voor', 'als', 'zijn', 'die', 'gulden', 'heeft',
 # 'gelegen', 'door', 'huis', 'kinderen', 'schepenen', 'wijlen', 'goederen',
@@ -141,7 +141,7 @@ class Nerd():
             2 : last name prefix
             3 : First word of the whole paragraph which continues with a capital letter word
             4: Very frequent words
-            -1: has capital letter but doesn't exist in the list
+            -1: has capital letter but is not a name
         """
         # search for capital letters
         # global meertens_names
@@ -201,6 +201,11 @@ class Nerd():
             if word in FREQ_NAMES:
                 word_spec[index] = 4
 
+        # this is to get rid of "Sint Oedenrode, Sint Janssstraat, Sint Janssstraat, etc."
+        for index, word in enumerate(self.word_list):
+            if word == 'Sint':
+                word_spec[index] = -1
+
         self.word_list_labeled = word_spec
 
     def extract_references(self):
@@ -216,7 +221,7 @@ class Nerd():
             if self.word_list_labeled[index] in [1, 2, 3]:
                 reference += word + ' '
             else:
-                reference = reference.strip()
+                reference = reference.strip().decode("ISO-8859-1").encode('utf8', 'ignore')
                 ref_len = len(reference.split(' '))
 
                 # if more than one name is extracted:

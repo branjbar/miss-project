@@ -7,12 +7,13 @@ from interface import app
 
 
 
+
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
 from modules.basic_modules.basic import string_compare
 from modules.basic_modules.myOrm import Reference, Document
 from modules.basic_modules.treeStructure import TreeStructure
-from modules.record_linkage.hashing import generate_features
+from modules.solr_search.hashing import generate_features
 from modules.solr_search.solr_query import SolrQuery
 
 
@@ -160,9 +161,9 @@ def routing():
 
         search_term = ' '.join(search_term.split('_'))
         search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','').title()
+
         ref1 = ' '.join(search_term.split()[:2])
         ref2 = ' '.join(search_term.split()[-2:])
-
         search_term = generate_features(ref1.split(), ref2.split())
         solr_results = my_hash.search(search_term, field_query)
 

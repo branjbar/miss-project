@@ -2,9 +2,8 @@
 A class for different types of entity resolution
 """
 import pickle
-import time
 from modules.NERD.dict_based_nerd import Nerd
-from modules.basic_modules.basic import string_compare, run_query, log
+from modules.basic_modules.basic import run_query, log
 from modules.basic_modules.myOrm import Document, Reference
 
 

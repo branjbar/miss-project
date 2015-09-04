@@ -1,7 +1,9 @@
 import numpy
+
 from modules.basic_modules import myOrm, basic
 from modules.basic_modules.basic import string_compare
-from modules.record_linkage.hashing import Hashing
+from modules.solr_search.hashing import Hashing
+
 
 __author__ = 'Bijan'
 

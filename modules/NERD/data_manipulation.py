@@ -4,13 +4,13 @@ Here we export the results of NERD in form of offline html file, sql table, etc.
 """
 import time
 import operator
+
 from interface.main_Interface import my_hash
 from modules.NERD import html_generate
-from modules.NERD.dict_based_nerd import Nerd
 from modules.basic_modules import basic
 from modules.basic_modules.basic import log
-from modules.basic_modules.myOrm import Document
-from modules.record_linkage.hashing import generate_features
+from modules.solr_search.hashing import generate_features
+
 
 __author__ = 'bijan'
 from modules.NERD.dict_based_nerd import Nerd

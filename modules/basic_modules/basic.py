@@ -786,6 +786,20 @@ def haversine(lon1, lat1, lon2, lat2):
     return km
 
 
+def write_list_to_csv(my_list, file_name):
+    """
+    writes a list into a file
+    :param a_list: list of any elements
+    :param file_name: name of the file you want to save the csv in
+    :return: -
+    """
+
+    import csv
+    myfile = open(file_name, 'wb')
+    wr = csv.writer(myfile)  # csv.writer(myfile, quoting=csv.QUOTE_ALL)
+    wr.writerow(my_list)
+
+
 def main():
     pass
 
