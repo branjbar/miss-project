@@ -227,13 +227,16 @@ class Document():
                                           </div>
                                           """
 
-        if self.doc_type == "notarial act":
-            year = self.date[-4:]
+        year = self.date[-4:]
+        month = self.date[-7:-5]
+        # to get rid of non-standard dates
+        if month.isdigit():
+            month = int(month)
         else:
-            year = self.date[-4:]
+            month = 1
 
         place = self.place
-        return {'id': self.doc_id, 'year': year, 'city': place, 'html': html,
+        return {'id': self.doc_id, 'month': month, 'year': year, 'city': place, 'html': html,
                 'title': self.doc_type.title(),
                 'concept': "test"}
 

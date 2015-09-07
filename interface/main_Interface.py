@@ -204,13 +204,12 @@ def routing():
                 doc.set_id(doc_id)
                 html = doc.get_html(search_results[doc_id], couple_names)  # {year:....., html:.....}
 
-                # TODO: Later we sort the html_year based on the years. For equal years we can think of reordering the card based on their type and roles!
                 html_year.append(html)
 
                 doc_list.append(html)
 
-        html_year.sort(key=lambda x: x['year'])
-        doc_list.sort(key=lambda x: x['year'])
+        html_year.sort(key=lambda x: (x['year'],x['month']))
+        doc_list.sort(key=lambda x: (x['year'],x['month']))
 
         return render_template('hash_vis.html',
                                doc_list=doc_list,

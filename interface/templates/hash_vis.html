@@ -59,6 +59,7 @@
                               {% endif %}
                       {% endfor %}
                     </small>
+                      <div style="overflow: scroll; height: 600px;">
                         {%for key, value in facets.iteritems() %}
                             <hr>
                         <li> <b>
@@ -87,7 +88,7 @@
                                 {% endif %}
                             {% endfor %}
                       {% endfor %}
-
+                        </div>
                             <ul>
                             </ul>
                         <!--<li> <p class="small" align="center"> <b>Matching Score</b><p></li>-->
@@ -102,7 +103,7 @@
 
 
 
-            <div class="col-xs-9" id="d3_panel" style="overflow: scroll; height: 1000px;"/>
+            <div class="col-xs-9" id="d3_panel" style="overflow: scroll; height: 700px;"/>
             {% for doc in doc_list %}
                 <div class="col-xs-5"  style="height:350px; overflow:auto" id="a{{loop.index-1}}">{{doc['html']|safe}}</div>
             {% endfor %}
@@ -119,7 +120,7 @@
                         div_size=150
                         //w = svg_r.style("width").replace("px", "");
                         w = 1000;  // for a Macbook Air usually 1000 works perfectly, and for larger screens go for 1200
-                        h = div_size * doc_list.length  ;
+                        h = div_size * doc_list.length * 1.2;
                         svg_r.attr("height", h)
                         .attr("width",w)
 
@@ -261,9 +262,6 @@
 
                         <!--Here we have the hidden cards that will show up once we move on the key -->
              </div>
-                    <div class="col-xs-12" />
-                    <br><br><br><br><br><br><br><br><br><br><br><br><br>
-                    </div>
             {% else %}
 
                 <p class="text-warning" align="center">No results found!  </p> <p class="text-info">Either search for a couple (e.g., Anna Hout & Johannes Timmers) using the top right search bar,
