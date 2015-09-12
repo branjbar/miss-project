@@ -53,6 +53,7 @@ RELATION_INDICATORS_MIDDLE = {"gehuwd met": "married with",
                               "huisvrouw van": "wife of",
                               "en zijn huisvrouw": "husband of",
                               "getrouwd met": "married with",
+                              "echtgenote van": "married with",
                               }
 #                               "zoon van": "son of",
 #                               ", dochter van": "daughter of",
