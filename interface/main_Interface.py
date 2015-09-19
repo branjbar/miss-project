@@ -6,41 +6,16 @@ from modules.basic_modules import basic, loadData, myOrm, generatePedigree
 from interface import app
 
 
-
-
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
 from modules.basic_modules.myOrm import Reference, Document
-from modules.family_network.family_network import get_family_network
+from modules.family_network.family_network import get_family_network, get_family_from_solr
 from modules.solr_search.hashing import generate_features
 from modules.solr_search.solr_query import SolrQuery
-
-
-
 my_hash = SolrQuery()
 
 
-def recursive_search(search_results, new_search_term_list):
-    solr_results_list = []
-    for doc_id in search_results.keys():
-        doc = Document()
-        doc.set_id(doc_id)
-        if doc.get_couples():
-            for couple in doc.get_couples():
-                name1 = couple[0]
-                name2 = couple[1]
-                if len(name1) > 2 and len(name2) > 2:
-                    search_term = generate_features(name1.split(), name2.split())
-                    if search_term not in new_search_term_list:
-                        new_search_term_list.append(search_term)
-                        solr_results_list.append(my_hash.search(search_term, ''))
 
-    for solr_result in solr_results_list:
-        if solr_result:
-            for result in solr_result.highlighting.iteritems():
-                search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
-
-    return new_search_term_list, search_results
 
 
 def routing():
@@ -48,7 +23,7 @@ def routing():
     def searching_intel():
 
         search_term = request.args.get('search_term')  # the main searching term
-        depth_level = request.args.get('depth_level')  # the main searching term
+        depth_level = int(request.args.get('depth_level'))  # the main searching term
 
         # for the specific case that more than one couple is received from a nerd_vis page
         search_term_list = []
@@ -62,24 +37,9 @@ def routing():
             search_term_list = ["Petrus_Heijden_Anna_Leen", "Hendrina_Heijden_Francis_Wit"]
             depth_level = 3
 
-        search_results = {}
-        for search_term in search_term_list:
-            search_term = ' '.join(search_term.split('_'))
-            search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','').title()
-            ref1 = ' '.join(search_term.split()[:2])
-            ref2 = ' '.join(search_term.split()[-2:])
 
-            search_term = generate_features(ref1.split(), ref2.split())
-            solr_results_1 = my_hash.search(search_term, '')
+        search_results = get_family_from_solr(search_term_list, depth_level)
 
-            if solr_results_1:
-                for result in solr_results_1.highlighting.iteritems():
-                    search_results[result[0]] = result[1]['features'][0].replace('<em>', '').replace('</em>', '')
-
-        new_search_term_list = [search_term]
-        if depth_level:
-            for i in xrange(int(depth_level)-1):
-                new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
 
         # get_family_network() gets the data for each document in solr search results and generates family tree.
         # using the TreeStructure class it takes care of required merges, etc.

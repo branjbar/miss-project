@@ -94,3 +94,4 @@ class SolrQuery():
         sup_r1r2 = solr_results_r1r2.numFound
 
         return {'support': [sup_r1r2, sup_r1, sup_r2], 'refs': [r1, r2]}
+

@@ -95,8 +95,8 @@ class Document():
             lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '), self.ref_list[1].ref_id)
             lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '), self.ref_list[2].ref_id)
             lnode4 = LeafNode('x',0)
-            leaf1 = Leaf(lnode2, lnode3, self.doc_id, self.doc_type, self.date, 'parent', 1)
-            leaf2 = Leaf(lnode1, lnode4, self.doc_id, self.doc_type, self.date, 'child', 2)
+            leaf1 = Leaf(lnode2, lnode3, self.doc_id, self.doc_type, self.date, 'parent', self.place, 1)
+            leaf2 = Leaf(lnode1, lnode4, self.doc_id, self.doc_type, self.date, 'child', self.place, 2)
             branch1 = Branch(leaf1, leaf2)
             return {'leaves': [leaf1, leaf2], 'branches': [branch1]}
 
@@ -105,8 +105,8 @@ class Document():
             lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '), self.ref_list[1].ref_id)
             lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '), self.ref_list[2].ref_id)
             lnode4 = LeafNode(self.ref_list[3].get_compact_name().replace('_', ' '), self.ref_list[3].ref_id)
-            leaf1 = Leaf(lnode2, lnode3, self.doc_id, self.doc_type, self.date, 'parent', 1)
-            leaf2 = Leaf(lnode1, lnode4, self.doc_id, self.doc_type, self.date, 'child', 2)
+            leaf1 = Leaf(lnode2, lnode3, self.doc_id, self.doc_type, self.date, 'parent', self.place, 1)
+            leaf2 = Leaf(lnode1, lnode4, self.doc_id, self.doc_type, self.date, 'child', self.place, 2)
             branch1 = Branch(leaf1, leaf2)
             return {'leaves': [leaf1, leaf2], 'branches': [branch1]}
 
@@ -117,9 +117,9 @@ class Document():
             lnode4 = LeafNode(self.ref_list[3].get_compact_name().replace('_', ' '), self.ref_list[3].ref_id)
             lnode5 = LeafNode(self.ref_list[4].get_compact_name().replace('_', ' '), self.ref_list[4].ref_id)
             lnode6 = LeafNode(self.ref_list[5].get_compact_name().replace('_', ' '), self.ref_list[5].ref_id)
-            leaf1 = Leaf(lnode3, lnode4, self.doc_id, self.doc_type, self.date, 'parent', 1)
-            leaf2 = Leaf(lnode5, lnode6, self.doc_id, self.doc_type, self.date, 'parent', 1)
-            leaf3 = Leaf(lnode1, lnode2, self.doc_id, self.doc_type, self.date, 'child', 2)
+            leaf1 = Leaf(lnode3, lnode4, self.doc_id, self.doc_type, self.date, 'parent', self.place, 1)
+            leaf2 = Leaf(lnode5, lnode6, self.doc_id, self.doc_type, self.date, 'parent', self.place, 1)
+            leaf3 = Leaf(lnode1, lnode2, self.doc_id, self.doc_type, self.date, 'child', self.place, 2)
             branch1 = Branch(leaf1, leaf3)
             branch2 = Branch(leaf2, leaf3)
             return {'leaves': [leaf1, leaf2, leaf3], 'branches': [branch1, branch2]}

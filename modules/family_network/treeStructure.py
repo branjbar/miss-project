@@ -25,7 +25,7 @@ class Leaf:
     a leaf represents a couple. Each lever has an order and a level which shows where it is positioned
     """
 
-    def __init__(self, node1, node2, doc_id, doc_type, date, role, level=-1, color="beige"):
+    def __init__(self, node1, node2, doc_id, doc_type, date, role, doc_place, level=-1, color="beige"):
         self.node1 = node1.__dict__
         self.node2 = node2.__dict__
         self.level = level
@@ -35,6 +35,7 @@ class Leaf:
         self.doc_id = str(doc_id)
         self.role = role
         self.doc_type = doc_type
+        self.doc_place = doc_place
         self.min_date = int(date[-4:])
         self.max_date = int(date[-4:])
         self.index = -1
@@ -102,9 +103,11 @@ class TreeStructure:
                 # merge the document types
                 leaf.doc_type = leaf.doc_type + ',' + to_be_removed_leaf.doc_type
 
-
                 # merge the roles
                 leaf.role = leaf.role + ',' + to_be_removed_leaf.role
+
+                # merge the place
+                leaf.doc_place = leaf.doc_place + ',' + to_be_removed_leaf.doc_place
 
         self.leaves.remove(to_be_removed_leaf)
         self.columns[to_be_removed_leaf.level].remove(to_be_removed_leaf)
@@ -172,6 +175,8 @@ class TreeStructure:
                     'target_doc_type': self.leaves[the_target_id].doc_type,
                     'source_role': self.leaves[the_source_id].role,
                     'target_role': self.leaves[the_target_id].role,
+                    'source_doc_place': self.leaves[the_source_id].role,
+                    'target_doc_place': self.leaves[the_target_id].role,
 
             }
             edges.append(edge)
