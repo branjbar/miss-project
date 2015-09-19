@@ -10,9 +10,8 @@ from interface import app
 
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
 # TODO: designing a simple, but fabulous search engine.
-from modules.basic_modules.basic import string_compare
 from modules.basic_modules.myOrm import Reference, Document
-from modules.basic_modules.treeStructure import TreeStructure
+from modules.family_network.family_network import get_family_network
 from modules.solr_search.hashing import generate_features
 from modules.solr_search.solr_query import SolrQuery
 
@@ -82,27 +81,9 @@ def routing():
             for i in xrange(int(depth_level)-1):
                 new_search_term_list, search_results = recursive_search(search_results, new_search_term_list)
 
-
-        tree = TreeStructure()
-        if search_results:
-
-            for doc_id in search_results.keys():
-                doc = Document()
-                doc.set_id(doc_id)
-                new_data = doc.get_relatives(search_results[doc_id], [])
-                for leaf in new_data['leaves']:
-                    name1 = leaf.node1['name']
-                    name2 = leaf.node2['name']
-                    for search_term in search_term_list:
-                        if string_compare(name1 + ' ' + name2, search_term.replace('_',' '), 'LEV') < 4 or string_compare(name2 + ' ' + name1, search_term.replace('_',' '), 'LEV') < 4:
-                            leaf.color = "Coral"
-
-                    tree.add_leaf(leaf)
-                for branch in new_data['branches']:
-                    tree.add_branch(branch)
-
-        tree.update()
-
+        # get_family_network() gets the data for each document in solr search results and generates family tree.
+        # using the TreeStructure class it takes care of required merges, etc.
+        tree = get_family_network(search_term_list, search_results)
 
         return render_template('search_page.html', dataset=tree.get_dict())
 

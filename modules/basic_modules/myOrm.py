@@ -1,5 +1,5 @@
 from modules.NERD.dict_based_nerd import Nerd
-from modules.basic_modules.treeStructure import LeafNode, Leaf, Branch
+from modules.family_network.treeStructure import LeafNode, Leaf, Branch
 
 __author__ = 'Bijan'
 
@@ -43,7 +43,6 @@ class Reference():
 
     def get_compact_name(self):
         if len(self.name) > 1:
-            import unicodedata
 
             compact_name = (self.name.split()[0] + '_' + self.name.split()[-1])
             # compact_name = unicodedata.normalize('NFKD', compact_name)
@@ -92,35 +91,35 @@ class Document():
         data = {'leaves': [], 'branches': []}
 
         if self.doc_type == 'birth':
-            lnode1 = LeafNode(self.ref_list[0].get_compact_name().replace('_', ' '))
-            lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '))
-            lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '))
-            lnode4 = LeafNode('x')
-            leaf1 = Leaf(lnode2, lnode3, self.doc_id, self.date, 1)
-            leaf2 = Leaf(lnode1, lnode4, self.doc_id, self.date, 2)
+            lnode1 = LeafNode(self.ref_list[0].get_compact_name().replace('_', ' '), self.ref_list[0].ref_id)
+            lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '), self.ref_list[1].ref_id)
+            lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '), self.ref_list[2].ref_id)
+            lnode4 = LeafNode('x',0)
+            leaf1 = Leaf(lnode2, lnode3, self.doc_id, self.doc_type, self.date, 'parent', 1)
+            leaf2 = Leaf(lnode1, lnode4, self.doc_id, self.doc_type, self.date, 'child', 2)
             branch1 = Branch(leaf1, leaf2)
             return {'leaves': [leaf1, leaf2], 'branches': [branch1]}
 
         if self.doc_type == 'death':
-            lnode1 = LeafNode(self.ref_list[0].get_compact_name().replace('_', ' '))
-            lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '))
-            lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '))
-            lnode4 = LeafNode(self.ref_list[3].get_compact_name().replace('_', ' '))
-            leaf1 = Leaf(lnode2, lnode3, self.doc_id, self.date, 1)
-            leaf2 = Leaf(lnode1, lnode4, self.doc_id, self.date, 2)
+            lnode1 = LeafNode(self.ref_list[0].get_compact_name().replace('_', ' '), self.ref_list[0].ref_id)
+            lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '), self.ref_list[1].ref_id)
+            lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '), self.ref_list[2].ref_id)
+            lnode4 = LeafNode(self.ref_list[3].get_compact_name().replace('_', ' '), self.ref_list[3].ref_id)
+            leaf1 = Leaf(lnode2, lnode3, self.doc_id, self.doc_type, self.date, 'parent', 1)
+            leaf2 = Leaf(lnode1, lnode4, self.doc_id, self.doc_type, self.date, 'child', 2)
             branch1 = Branch(leaf1, leaf2)
             return {'leaves': [leaf1, leaf2], 'branches': [branch1]}
 
         if self.doc_type == 'marriage':
-            lnode1 = LeafNode(self.ref_list[0].get_compact_name().replace('_', ' '))
-            lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '))
-            lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '))
-            lnode4 = LeafNode(self.ref_list[3].get_compact_name().replace('_', ' '))
-            lnode5 = LeafNode(self.ref_list[4].get_compact_name().replace('_', ' '))
-            lnode6 = LeafNode(self.ref_list[5].get_compact_name().replace('_', ' '))
-            leaf1 = Leaf(lnode3, lnode4, self.doc_id, self.date, 1)
-            leaf2 = Leaf(lnode5, lnode6, self.doc_id, self.date, 1)
-            leaf3 = Leaf(lnode1, lnode2, self.doc_id, self.date, 2)
+            lnode1 = LeafNode(self.ref_list[0].get_compact_name().replace('_', ' '), self.ref_list[0].ref_id)
+            lnode2 = LeafNode(self.ref_list[1].get_compact_name().replace('_', ' '), self.ref_list[1].ref_id)
+            lnode3 = LeafNode(self.ref_list[2].get_compact_name().replace('_', ' '), self.ref_list[2].ref_id)
+            lnode4 = LeafNode(self.ref_list[3].get_compact_name().replace('_', ' '), self.ref_list[3].ref_id)
+            lnode5 = LeafNode(self.ref_list[4].get_compact_name().replace('_', ' '), self.ref_list[4].ref_id)
+            lnode6 = LeafNode(self.ref_list[5].get_compact_name().replace('_', ' '), self.ref_list[5].ref_id)
+            leaf1 = Leaf(lnode3, lnode4, self.doc_id, self.doc_type, self.date, 'parent', 1)
+            leaf2 = Leaf(lnode5, lnode6, self.doc_id, self.doc_type, self.date, 'parent', 1)
+            leaf3 = Leaf(lnode1, lnode2, self.doc_id, self.doc_type, self.date, 'child', 2)
             branch1 = Branch(leaf1, leaf3)
             branch2 = Branch(leaf2, leaf3)
             return {'leaves': [leaf1, leaf2, leaf3], 'branches': [branch1, branch2]}
@@ -145,7 +144,7 @@ class Document():
                                       <div class="panel-body" >
 
 
-                    """ % (self.doc_id,self.doc_id,self.doc_type.title())
+                    """ % (self.doc_id, self.doc_id, self.doc_type.title())
 
         else:
             html = """ <div class="panel-body col-xs-12" >"""
@@ -161,13 +160,13 @@ class Document():
                                       <div class="panel-body" >
 
 
-                    """ % (self.doc_id,self.doc_id,self.doc_type.title())
+                    """ % (self.doc_id, self.doc_id, self.doc_type.title())
 
         if self.doc_type == "notarial act":
             html += """<code>#%s</code> on <code>%s</code> in <code>%s</code>
                         <hr style="margin: 8px 0;">
                         <div class="col-xs-12">
-                    """ % (int(self.doc_id)-NOTARY_OFFSET, self.date, self.place)
+                    """ % (int(self.doc_id) - NOTARY_OFFSET, self.date, self.place)
             text = self.text
 
             for rel in self.rel_list:
@@ -188,7 +187,7 @@ class Document():
         else:
             html += """ <table class="table table-condensed" style="margin-bottom: 0px; border: none"> """
             # html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % (
-            #     '<b>id</b>',
+            # '<b>id</b>',
             #     self.doc_id)
             html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % (
                 '<b>place</b>',
@@ -292,19 +291,26 @@ class Document():
         the extracted couples help to expand the search
         """
         if self.doc_type == 'birth':
-            couple1 = [self.ref_list[1].get_compact_name().replace('_', ' '),self.ref_list[2].get_compact_name().replace('_', ' ')]
+            couple1 = [self.ref_list[1].get_compact_name().replace('_', ' '),
+                       self.ref_list[2].get_compact_name().replace('_', ' ')]
             return [couple1]
 
         if self.doc_type == 'death':
-            couple1 = [self.ref_list[1].get_compact_name().replace('_', ' '),self.ref_list[2].get_compact_name().replace('_', ' ')]
-            couple2 = [self.ref_list[0].get_compact_name().replace('_', ' '),self.ref_list[3].get_compact_name().replace('_', ' ')]
+            couple1 = [self.ref_list[1].get_compact_name().replace('_', ' '),
+                       self.ref_list[2].get_compact_name().replace('_', ' ')]
+            couple2 = [self.ref_list[0].get_compact_name().replace('_', ' '),
+                       self.ref_list[3].get_compact_name().replace('_', ' ')]
             return [couple1, couple2]
 
         if self.doc_type == 'marriage':
-            couple1 = [self.ref_list[0].get_compact_name().replace('_', ' '),self.ref_list[1].get_compact_name().replace('_', ' ')]
-            couple2 = [self.ref_list[2].get_compact_name().replace('_', ' '),self.ref_list[3].get_compact_name().replace('_', ' ')]
-            couple3 = [self.ref_list[4].get_compact_name().replace('_', ' '),self.ref_list[5].get_compact_name().replace('_', ' ')]
+            couple1 = [self.ref_list[0].get_compact_name().replace('_', ' '),
+                       self.ref_list[1].get_compact_name().replace('_', ' ')]
+            couple2 = [self.ref_list[2].get_compact_name().replace('_', ' '),
+                       self.ref_list[3].get_compact_name().replace('_', ' ')]
+            couple3 = [self.ref_list[4].get_compact_name().replace('_', ' '),
+                       self.ref_list[5].get_compact_name().replace('_', ' ')]
             return [couple1, couple2, couple3]
+
 
 def row_to_reference(row, table="all_persons_2014"):
     ''' (list, table) -> (dict)

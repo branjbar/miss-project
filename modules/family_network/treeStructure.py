@@ -11,8 +11,10 @@ class LeafNode:
     a leaf node is basically a single person who forms a leaf by coupling to another person
     """
 
-    def __init__(self, name):
+    def __init__(self, name, person_id):
         self.name = name
+        self.id = person_id
+        self.name_alternatives = name
 
     def __str__(self):
         return self.name
@@ -23,7 +25,7 @@ class Leaf:
     a leaf represents a couple. Each lever has an order and a level which shows where it is positioned
     """
 
-    def __init__(self, node1, node2, doc_id, date, level=-1, color="beige"):
+    def __init__(self, node1, node2, doc_id, doc_type, date, role, level=-1, color="beige"):
         self.node1 = node1.__dict__
         self.node2 = node2.__dict__
         self.level = level
@@ -31,6 +33,8 @@ class Leaf:
         self.depth = None
         self.color = color
         self.doc_id = str(doc_id)
+        self.role = role
+        self.doc_type = doc_type
         self.min_date = int(date[-4:])
         self.max_date = int(date[-4:])
         self.index = -1
@@ -55,6 +59,10 @@ class Branch:
 
 
 class TreeStructure:
+    """
+    a treeStructure consists of leaves and branches which form a complex family network
+    """
+
     def __init__(self):
         self.leaves = []
         self.branches = []
@@ -66,22 +74,12 @@ class TreeStructure:
         self.leaves.append(leaf)
         self.columns[leaf.level] = self.columns.get(leaf.level, []) + [leaf]
 
-
-
         return leaf
 
     def merge_leaf(self, main_leaf, to_be_removed_leaf):
-        # if to_be_removed_leaf.index == 293:
-        #     print 'found!', to_be_removed_leaf.node1['name'], to_be_removed_leaf.node2['name']
-        #     for branch in self.branches:
-        #         if branch.source == to_be_removed_leaf.index:
-        #             branch.source = 1
-        #
-        #         if branch.target == to_be_removed_leaf.index:
-        #             branch.source = 1
 
+        # not sure what this is!!
         if main_leaf.index == 293:
-            # print 'found! found!!', to_be_removed_leaf.node1['name'], to_be_removed_leaf.node2['name']
             for branch in self.branches:
                 if branch.source == to_be_removed_leaf.index:
                     branch.source = 1
@@ -89,6 +87,24 @@ class TreeStructure:
                 if branch.target == to_be_removed_leaf.index:
                     branch.source = 1
 
+        # before removing one leaf, merge the information of leaves!
+        for leaf in self.leaves:
+            if leaf.index == main_leaf.index:
+
+                # append the ids of merged nodes
+                leaf.node1['id'] = str(leaf.node1['id']) + ',' + str(to_be_removed_leaf.node1['id'])
+                leaf.node2['id'] = str(leaf.node2['id']) + ',' + str(to_be_removed_leaf.node2['id'])
+
+                # append the names of merged nodes
+                leaf.node1['name_alternatives'] = str(leaf.node1['name_alternatives']) + ',' + str(to_be_removed_leaf.node1['name_alternatives'])
+                leaf.node2['name_alternatives'] = str(leaf.node2['name_alternatives']) + ',' + str(to_be_removed_leaf.node2['name_alternatives'])
+
+                # merge the document types
+                leaf.doc_type = leaf.doc_type + ',' + to_be_removed_leaf.doc_type
+
+
+                # merge the roles
+                leaf.role = leaf.role + ',' + to_be_removed_leaf.role
 
         self.leaves.remove(to_be_removed_leaf)
         self.columns[to_be_removed_leaf.level].remove(to_be_removed_leaf)
@@ -114,10 +130,53 @@ class TreeStructure:
 
     def get_dict(self):
         """
-        generates a dict for json of html page
+        generates a dict for json of html page which will be used for visualizaiton
         """
         return {'leaves': [leaf.__dict__ for leaf in self.leaves],
                 'branches': [branch.__dict__ for branch in self.branches]}
+
+    def get_edge_list(self):
+        """
+        generates a dict which gives an edge_list
+        this edge list will be exported to a dataset later and can be used for analysis of social networks.
+        """
+        edges = []
+        for branch in self.branches:  # for each edge
+
+            for leaf_id, leaf in enumerate(self.leaves):
+                if leaf.index == branch.source:  # find the source leaf
+                    the_source_id = leaf_id
+                if leaf.index == branch.target:
+                    the_target_id = leaf_id  # find the target leaf
+            edge = {'source': the_source_id,
+                    'target': the_target_id,
+                    'source_id': '-'.join(
+                        [str(self.leaves[the_source_id].node1['id']), str(self.leaves[the_source_id].node2['id'])]),
+                    'target_id': '-'.join(
+                        [str(self.leaves[the_target_id].node1['id']), str(self.leaves[the_target_id].node2['id'])]),
+                    'source_name': '-'.join(
+                        [self.leaves[the_source_id].node1['name'], self.leaves[the_source_id].node2['name']]),
+                    'target_name': '-'.join(
+                        [self.leaves[the_target_id].node1['name'], self.leaves[the_target_id].node2['name']]),
+                    'source_name_alternative': '-'.join(
+                        [self.leaves[the_source_id].node1['name_alternatives'], self.leaves[the_source_id].node2['name_alternatives']]),
+                    'target_name_alternative': '-'.join(
+                        [self.leaves[the_target_id].node1['name_alternatives'], self.leaves[the_target_id].node2['name_alternatives']]),
+                    'source_date': '-'.join(
+                        [str(self.leaves[the_source_id].min_date), str(self.leaves[the_source_id].max_date)]),
+                    'target_date': '-'.join(
+                        [str(self.leaves[the_target_id].min_date), str(self.leaves[the_target_id].max_date)]),
+                    'source_doc_id': self.leaves[the_source_id].doc_id,
+                    'target_doc_id': self.leaves[the_target_id].doc_id,
+                    'source_doc_type': self.leaves[the_source_id].doc_type,
+                    'target_doc_type': self.leaves[the_target_id].doc_type,
+                    'source_role': self.leaves[the_source_id].role,
+                    'target_role': self.leaves[the_target_id].role,
+
+            }
+            edges.append(edge)
+        return edges
+
 
     def update(self):
         self.merge_columns()
@@ -141,14 +200,13 @@ class TreeStructure:
                                 and len(leaf1.node2['name']) > 2 and len(leaf1.node1['name']) > 2:
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if leaf2 in self.leaves and leaf1 in self.leaves:
-                                leaf1.doc_id += ', ' + leaf2.doc_id
+                                leaf1.doc_id += ',' + leaf2.doc_id
                                 if leaf2.min_date < leaf1.min_date:
                                     leaf1.min_date = leaf2.min_date
                                 if leaf2.max_date > leaf1.max_date:
                                     leaf1.max_date = leaf2.max_date
 
                                 self.merge_leaf(leaf1, leaf2)
-
 
             for index1, leaf1 in enumerate(leaf_list_1):
                 for index2, leaf2 in enumerate(leaf_list_2):
@@ -162,7 +220,7 @@ class TreeStructure:
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if leaf2 in self.leaves and leaf1 in self.leaves:
 
-                                leaf1.doc_id += ', ' + leaf2.doc_id
+                                leaf1.doc_id += ',' + leaf2.doc_id
                                 if leaf2.min_date < leaf1.min_date:
                                     leaf1.min_date = leaf2.min_date
                                 if leaf2.max_date > leaf1.max_date:
@@ -171,8 +229,8 @@ class TreeStructure:
                                 self.merge_leaf(leaf1, leaf2)
                                 #
                                 # for branch in self.branches:
-                                #     if branch.target == leaf1.index:
-                                #         self.update_leaf(branch.source, leaf1.level - 1)
+                                # if branch.target == leaf1.index:
+                                # self.update_leaf(branch.source, leaf1.level - 1)
 
     def get_ancestors(self, index):
         source_list = []
@@ -198,16 +256,19 @@ class TreeStructure:
                     if index2 > index1:
                         # to capture the '- x' for birth and '- ' for death
                         if (len(leaf1.node2['name']) < 3 or len(leaf2.node2['name']) < 2) and \
-                                (string_compare(leaf1.node1['name'], leaf2.node1['name'],'LEV') < 4 or
-                                 string_compare(leaf1.node1['name'], leaf2.node2['name'],'LEV') < 4 or
-                                 string_compare(leaf1.node2['name'], leaf2.node1['name'],'LEV') < 4):
+                                (string_compare(leaf1.node1['name'], leaf2.node1['name'], 'LEV') < 4 or
+                                         string_compare(leaf1.node1['name'], leaf2.node2['name'], 'LEV') < 4 or
+                                         string_compare(leaf1.node2['name'], leaf2.node1['name'], 'LEV') < 4):
 
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if len(leaf2.node2['name']) < 3:  # leaf1 += leaf2
-                                if set(self.get_ancestors(leaf1.index)).intersection(self.get_ancestors(leaf2.index)) or set(self.get_descendants(leaf1.index)).intersection(self.get_descendants(leaf2.index)):
+                                if set(self.get_ancestors(leaf1.index)).intersection(
+                                        self.get_ancestors(leaf2.index)) or set(
+                                        self.get_descendants(leaf1.index)).intersection(
+                                        self.get_descendants(leaf2.index)):
 
                                     if leaf2 in self.leaves and leaf1 in self.leaves:
-                                        leaf1.doc_id += ', ' + leaf2.doc_id
+                                        leaf1.doc_id += ',' + leaf2.doc_id
                                         if leaf2.min_date < leaf1.min_date:
                                             leaf1.min_date = leaf2.min_date
                                         if leaf2.max_date > leaf1.max_date:
@@ -221,16 +282,19 @@ class TreeStructure:
                     if index2 < index1:
                         # to capture the '- x' for birth and '- ' for death
                         if (len(leaf1.node2['name']) < 3 or len(leaf2.node2['name']) < 2) and \
-                                (string_compare(leaf1.node1['name'], leaf2.node1['name'],'LEV') < 4 or
-                                 string_compare(leaf1.node1['name'], leaf2.node2['name'],'LEV') < 4 or
-                                 string_compare(leaf1.node2['name'], leaf2.node1['name'],'LEV') < 4):
+                                (string_compare(leaf1.node1['name'], leaf2.node1['name'], 'LEV') < 4 or
+                                         string_compare(leaf1.node1['name'], leaf2.node2['name'], 'LEV') < 4 or
+                                         string_compare(leaf1.node2['name'], leaf2.node1['name'], 'LEV') < 4):
 
                             # here we want to remove leaf2 and redirect every pointer to leaf1
                             if len(leaf2.node2['name']) < 3:  # leaf1 += leaf2
-                                if set(self.get_ancestors(leaf1.index)).intersection(self.get_ancestors(leaf2.index)) or set(self.get_descendants(leaf1.index)).intersection(self.get_descendants(leaf2.index)):
+                                if set(self.get_ancestors(leaf1.index)).intersection(
+                                        self.get_ancestors(leaf2.index)) or set(
+                                        self.get_descendants(leaf1.index)).intersection(
+                                        self.get_descendants(leaf2.index)):
 
                                     if leaf2 in self.leaves and leaf1 in self.leaves:
-                                        leaf1.doc_id += ', ' + leaf2.doc_id
+                                        leaf1.doc_id += ',' + leaf2.doc_id
                                         if leaf2.min_date < leaf1.min_date:
                                             leaf1.min_date = leaf2.min_date
                                         if leaf2.max_date > leaf1.max_date:
@@ -314,12 +378,11 @@ class TreeStructure:
         self.bfs_round()
         self.bfs_round()
 
-
         for leaf in self.leaves:
             self.update_leaf(leaf.index, leaf.depth, None, False)
 
 
-###  once more I apply BFS and DFS to avoid isolated left overs.
+        # ##  once more I apply BFS and DFS to avoid isolated left overs.
         max_depth = 10
         for leaf in self.leaves:
             if leaf.depth < max_depth:
@@ -336,7 +399,6 @@ class TreeStructure:
         self.bfs_round()
         self.bfs_round()
         self.bfs_round()
-
 
         for leaf in self.leaves:
             self.update_leaf(leaf.index, leaf.depth, None, False)
