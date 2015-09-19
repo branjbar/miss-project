@@ -80,8 +80,13 @@
                             {% for v in value %}
                                 {% if v.1 > 0%}
                                     <small>
-                                        <a href="?mq={{key}}: {{v.0}}">
-                                        <i class="glyphicon glyphicon-new-window"></i> </a>
+                                        {% if key == 'features_ss' %}
+                                            <a href="?search_term={{v.0}}">
+                                            <i class="glyphicon glyphicon-new-window"></i> </a>
+                                        {% else %}
+                                            <a href="?mq={{key}}: {{v.0}}">
+                                            <i class="glyphicon glyphicon-new-window"></i> </a>
+                                        {% endif %}
                                         <a href="?search_term={{couple_name}}&field_query={{field_query}}&fq={{key}}:{{v.0}}">{{v.0}}</a>
                                     </small> ({{v.1}})
                                  <br>
