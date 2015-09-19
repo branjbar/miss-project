@@ -43,7 +43,7 @@ class SolrQuery():
         self.date = ''
         self.register_type = ''
 
-    def search(self, features_list, filter_query):
+    def search(self, features_list, filter_query, facet_limit=30):
 
         if features_list:
             query = 'features: ' + features_list + '~'
@@ -56,7 +56,8 @@ class SolrQuery():
                                      facet_range_start='1700-00-00T00:00:00Z',
                                      facet_range_end='1900-00-00T00:00:00Z',
                                      facet_range_gap='+10YEAR',
-                                     fields="features, id") # score is removed from the third attribute
+                                     fields="features, id",
+                                     facet_limit=facet_limit)  # score is removed from the third attribute
 
         return query_results
 

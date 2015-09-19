@@ -101,5 +101,48 @@ def get_family_network(search_term_list, solr_search_results):
 
 if __name__ == '__main__':
     # generating family netowrks using facet information
-    couple_name = 'Cornelia Gommeren - Jacobus Aerts'
-    print get_family_network(get_family_from_solr([],couple_name)).get_edge_list()
+    solr_results = my_hash.search('*', 'cat:death or cat:birth or cat:marriage', facet_limit=10000)
+    facet_fields = solr_results.facet_counts['facet_fields']
+    facets = sorted(facet_fields['features_ss'].iteritems(), key=lambda x: x[1], reverse=True)
+    family_number = 1
+
+    COLUMN_ORDER = [
+        'source',
+        'target',
+        'source_name',
+        'target_name',
+        'source_date',
+        'target_date',
+        'source_id',
+        'target_id',
+        'source_doc_place',
+        'target_doc_place',
+        'source_doc_id',
+        'target_doc_id',
+        'source_doc_type',
+        'target_doc_type',
+        'source_role',
+        'target_role',
+        'target_name_alternative',
+        'source_name_alternative',
+    ]
+    csv_file = open('family_networks.csv', 'a')
+
+    csv_file.write('net_no;' + ';'.join(COLUMN_ORDER))
+
+    for facet in facets:
+        couple_name = 'Cornelia Gommeren - Jacobus Aerts'
+        the_family_edge_list = get_family_network([couple_name], get_family_from_solr([couple_name])).get_edge_list()
+        written_edges = []
+        for edge in the_family_edge_list:
+
+            # sometimes edges are repeated which we don't want to store
+            if [edge['source'], edge['target']] not in written_edges:
+                written_edges.append([edge['source'], edge['target']])  # store the source-target key for an edge
+
+                csv_file.write(str(family_number) + ';')  # in the csv file we track the number of family network
+                for key in COLUMN_ORDER:
+                    csv_file.write(str(edge[key]).replace(';', ',') + ';')
+                csv_file.write('\n')
+        family_number += 1
+

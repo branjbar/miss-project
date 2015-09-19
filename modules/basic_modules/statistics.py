@@ -9,6 +9,7 @@ __author__ = 'Bijan'
 
 import time
 
+
 def get_migration_list():
     """
         gets the migrations
@@ -35,13 +36,13 @@ def get_migration_list():
 
         if d1_m != d2_m:
             if d1_year < d2_year:
-                csv_text += d1_type + "," + d1_m +','+ d1_geo +','+ d1_year +','+ d2_m +','+ d2_geo +','+ d2_year + ',' + d2_type + '\n'
+                csv_text += d1_type + "," + d1_m + ',' + d1_geo + ',' + d1_year + ',' + d2_m + ',' + d2_geo + ',' + d2_year + ',' + d2_type + '\n'
             else:
-                csv_text += d2_type + "," + d2_m +','+ d2_geo +','+ d2_year +','+ d1_m +','+ d1_geo +','+ d1_year + ',' + d1_type + '\n'
+                csv_text += d2_type + "," + d2_m + ',' + d2_geo + ',' + d2_year + ',' + d1_m + ',' + d1_geo + ',' + d1_year + ',' + d1_type + '\n'
 
             index += 1
             if not index % 1000:
-                print index, time.time()-t
+                print index, time.time() - t
                 t = time.time()
                 with open("data/migrate.csv", "a") as myfile:
                     myfile.write(csv_text)
@@ -49,7 +50,6 @@ def get_migration_list():
 
     with open("data/migrate.csv", "a") as myfile:
         myfile.write(csv_text)
-
 
     print index
 
@@ -59,14 +59,14 @@ def indexing_stat_individual():
     here the goal is to compute size of blocks based on full names
     """
 
-    #  we block the records based on the person name
+    # we block the records based on the person name
     query = "select first_name, last_name from all_persons_new"
     row_list = basic.run_query(query)
     count = 0
     indexing_dict = {}
     for row in row_list.fetchall():
         count += 1
-        if not count%100:
+        if not count % 100:
             print count
 
         if row[0] and row[1]:
@@ -76,7 +76,7 @@ def indexing_stat_individual():
 
         key_flag = False
         for key in indexing_dict.keys():
-            if string_compare(full_name,key,'LEV') < 3:
+            if string_compare(full_name, key, 'LEV') < 3:
                 indexing_dict[key] += 1
                 key_flag = True
                 break
@@ -100,22 +100,34 @@ def indexing_stat_couple():
     count = 0
     for row in row_list.fetchall():
         count += 1
-        if not count%100:
+        if not count % 100:
             print count
         type_number = row[0]
         reference_ids = row[1].split(',')
 
         if type_number == '1':
-            new_query = ["select first_name, last_name from all_persons_new where id = " + reference_ids[1] + ' or id = ' + reference_ids[2]]
+            new_query = [
+                "select first_name, last_name from all_persons_new where id = " + reference_ids[1] + ' or id = ' +
+                reference_ids[2]]
 
         if type_number == '2':
-            new_query = ["select first_name, last_name from all_persons_new where id = " + reference_ids[0] + ' or id = ' + reference_ids[1]]
-            new_query += ["select first_name, last_name from all_persons_new where id = " + reference_ids[2] + ' or id = ' + reference_ids[3]]
-            new_query += ["select first_name, last_name from all_persons_new where id = " + reference_ids[4] + ' or id = ' + reference_ids[5]]
+            new_query = [
+                "select first_name, last_name from all_persons_new where id = " + reference_ids[0] + ' or id = ' +
+                reference_ids[1]]
+            new_query += [
+                "select first_name, last_name from all_persons_new where id = " + reference_ids[2] + ' or id = ' +
+                reference_ids[3]]
+            new_query += [
+                "select first_name, last_name from all_persons_new where id = " + reference_ids[4] + ' or id = ' +
+                reference_ids[5]]
 
         if type_number == '3':
-            new_query = ["select first_name, last_name from all_persons_new where id = " + reference_ids[0] + ' or id = ' + reference_ids[3]]
-            new_query += ["select first_name, last_name from all_persons_new where id = " + reference_ids[1] + ' or id = ' + reference_ids[2]]
+            new_query = [
+                "select first_name, last_name from all_persons_new where id = " + reference_ids[0] + ' or id = ' +
+                reference_ids[3]]
+            new_query += [
+                "select first_name, last_name from all_persons_new where id = " + reference_ids[1] + ' or id = ' +
+                reference_ids[2]]
 
         for q in new_query:
             row_list = basic.run_query(q)
@@ -137,7 +149,7 @@ def indexing_stat_couple():
 
                 key_flag = False
                 for key in indexing_dict.keys():
-                    if string_compare(full_name,key,'LEV') < 3:
+                    if string_compare(full_name, key, 'LEV') < 3:
                         indexing_dict[key] += 1
                         key_flag = True
                         break
@@ -149,10 +161,9 @@ def indexing_stat_couple():
         myfile.write(str(indexing_dict.values()))
 
 
-
 def get_couple_pairs():
     """
-    here first we extract all the couple names from the Solr list. Then, we
+    here we extract all the couple names from the Solr list.
 
     :return:
     """
@@ -165,28 +176,30 @@ def get_couple_pairs():
         myfile.write(str(facets))
     num_found_list = []
     from random import shuffle
+
     shuffle(facets)
     print 'getting statistics started'
     for index, f in enumerate(facets):
 
-        num_found_list.append(my_hash.search(f[0], 'cat:death or cat:birth or cat:marriage',facet_limit=0).numFound)
+        num_found_list.append(my_hash.search(f[0], 'cat:death or cat:birth or cat:marriage', facet_limit=0).numFound)
         x = numpy.histogram(num_found_list, bins=100)
         if not index % 100:
             print index, ' out of ', len(facets)
             print list(x[0])
             print list(x[1])
 
-    #
-    #     index += 1
-    #     if not index % 1000:
-    #         print index, time.time()-t
-    #         t = time.time()
-    #         with open("data/migrate.csv", "a") as myfile:
-    #             myfile.write(csv_text)
-    #         csv_text = ''
-    #
-    # with open("data/migrate.csv", "a") as myfile:
-    #     myfile.write(csv_text)
+            #
+            # index += 1
+            #     if not index % 1000:
+            #         print index, time.time()-t
+            #         t = time.time()
+            #         with open("data/migrate.csv", "a") as myfile:
+            #             myfile.write(csv_text)
+            #         csv_text = ''
+            #
+            # with open("data/migrate.csv", "a") as myfile:
+            #     myfile.write(csv_text)
+
 
 if __name__ == "__main__":
     get_couple_pairs()
