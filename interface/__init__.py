@@ -4,6 +4,8 @@ from flask import Flask
 from flask_mail import Mail
 import base64
 
+auth = {'user': 'admin', 'pass': 'secret'}
+
 app = Flask(__name__)
 try:
     f = open('/Users/Bijan/linkspy.cnf', 'r')

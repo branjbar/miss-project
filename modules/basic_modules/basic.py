@@ -10,7 +10,6 @@ and also simple comparison modules for assigning scores to different matches.
 import jellyfish
 import time
 import MySQLdb
-import heapq
 from math import radians, cos, sin, asin, sqrt
 
 STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, role, register_id, register_type \

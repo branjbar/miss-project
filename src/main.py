@@ -10,6 +10,11 @@ import logging
 from modules.basic_modules import basic
 from modules.record_linkage import featureExtraction
 
+from functools import wraps
+from flask import request, Response
+
+
+
 
 def check_a_random_pair():
     ref1 = basic.get_person()
@@ -42,7 +47,7 @@ def feature_set_construct():
         standard = record[2]
         document_type = record[3]
         f_list = featureExtraction.extract_feature(name, standard)
-        #print name, standard, f_list
+        # print name, standard, f_list
         basic.insert_features(id, name, standard, document_type, f_list)
 
 

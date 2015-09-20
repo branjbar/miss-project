@@ -3,7 +3,7 @@ from flask import render_template
 
 from modules.NERD.nerd_visualization import get_nerd_data
 from modules.basic_modules import basic, loadData, myOrm, generatePedigree
-from interface import app
+from interface import app, auth
 
 
 # TODO: designing a nice homepage, with nice pictures and shortcuts to
@@ -13,11 +13,43 @@ from modules.family_network.family_network import get_family_network, get_family
 from modules.solr_search.hashing import generate_features
 from modules.solr_search.solr_query import SolrQuery
 
+
 my_hash = SolrQuery()
+
+# Simple HTTP Basic Auth http://flask.pocoo.org/snippets/8/
+from functools import wraps
+from flask import request, Response
+
+
+def check_auth(username, password):
+    """This function is called to check if a username /
+    password combination is valid.
+    """
+    return username == auth['user'] and password == auth['pass']
+
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+        'Could not verify your access level for that URL.\n'
+        'You have to login with proper credentials', 401,
+        {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 def routing():
     @app.route('/search/', methods=['GET', 'POST'])
+    @requires_auth
     def searching_intel():
 
         search_term = request.args.get('search_term')  # the main searching term
@@ -47,6 +79,7 @@ def routing():
 
     @app.route('/hash_matches/', methods=['GET', 'POST'])
     @app.route('/hash_matches/<p_id>', methods=['GET', 'POST'])
+    @requires_auth
     def hash_matches(p_id=None):
         search_term = request.args.get('search_term')  # the main searching term
         field_query = request.args.get('field_query')  # the field query from previous sessions
@@ -291,6 +324,7 @@ def routing():
 
     @app.route('/links_matches/', methods=['GET', 'POST'])
     @app.route('/links_matches/<p_id>', methods=['GET', 'POST'])
+    @requires_auth
     def link_page(p_id=None):
         # if gets an id, searches for a document with that id
         search_id = request.args.get('search_term')
@@ -443,6 +477,7 @@ def routing():
 
     @app.route('/nerd_vis/', methods=['GET', 'POST'])
     @app.route('/nerd_vis/<t_id>', methods=['GET', 'POST'])
+    @requires_auth
     def nerd_vis(t_id=1):
         if request.method == "POST":
 
