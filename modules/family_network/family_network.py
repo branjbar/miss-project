@@ -126,11 +126,16 @@ if __name__ == '__main__':
         'target_name_alternative',
         'source_name_alternative',
     ]
-    csv_file = open('family_networks.csv', 'a')
 
-    csv_file.write('net_no;' + ';'.join(COLUMN_ORDER))
+    net_number = 0
+    for facet_id, facet in enumerate(facets):
+        if not facet_id % 100:
+            print facet_id
+            net_number += 1
+            csv_file = open('family_networks_%d.csv'%net_number, 'a')
+            csv_file.write('network_no;' + ';'.join(COLUMN_ORDER))
 
-    for facet in facets:
+
         couple_name = 'Cornelia Gommeren - Jacobus Aerts'
         the_family_edge_list = get_family_network([couple_name], get_family_from_solr([couple_name])).get_edge_list()
         written_edges = []
