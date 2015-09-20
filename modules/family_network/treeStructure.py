@@ -386,12 +386,10 @@ class TreeStructure:
         for index_tmp, leaf in enumerate(self.leaves):
             if self.leaves[index_tmp].depth is None:
                 tmp_flag = self.decrease_depth(leaf.index, 0)
-                print tmp_flag
                 if not tmp_flag:
                     continue_flag = False
 
         if continue_flag:  # otherwise there is a loop and we can't continue
-            print 3
             max_depth = 10
             for leaf in self.leaves:
                 if leaf.depth < max_depth:

@@ -101,7 +101,7 @@ def get_family_network(search_term_list, solr_search_results):
 
 if __name__ == '__main__':
     # generating family netowrks using facet information
-    solr_results = my_hash.search('*', 'cat:death or cat:birth or cat:marriage', facet_limit=10000)
+    solr_results = my_hash.search('*', 'cat:death or cat:birth or cat:marriage', facet_limit=1000)
     facet_fields = solr_results.facet_counts['facet_fields']
     facets = sorted(facet_fields['features_ss'].iteritems(), key=lambda x: x[1], reverse=True)
     family_number = 1
@@ -128,18 +128,17 @@ if __name__ == '__main__':
     ]
 
     net_number = 0
-    for facet_id, facet in enumerate([facets[136]]):
+    for facet_id, facet in enumerate(facets):
         print facet_id
 
         # to split the networks in 10 different files, each with 100 networks
         if not facet_id % 100:
             net_number += 1
-            csv_file = open('family_networks_%d.csv' % net_number, 'a')
+            csv_file = open('family_networks_depth2_%d.csv' % net_number, 'a')
             csv_file.write('network_no;' + ';'.join(COLUMN_ORDER))
 
         couple_name = facet[0]
-        print couple_name
-        the_family_edge_list = get_family_network([couple_name], get_family_from_solr([couple_name])).get_edge_list()
+        the_family_edge_list = get_family_network([couple_name], get_family_from_solr([couple_name], 2)).get_edge_list()
         written_edges = []
         for edge in the_family_edge_list:
 
