@@ -105,7 +105,7 @@ if __name__ == '__main__':
     facet_fields = solr_results.facet_counts['facet_fields']
     facets = sorted(facet_fields['features_ss'].iteritems(), key=lambda x: x[1], reverse=True)
     family_number = 1
-
+    depth_number = 1
     COLUMN_ORDER = [
         'source',
         'target',
@@ -134,11 +134,11 @@ if __name__ == '__main__':
         # to split the networks in 10 different files, each with 100 networks
         if not facet_id % 100:
             net_number += 1
-            csv_file = open('family_networks_depth2_%d.csv' % net_number, 'a')
-            csv_file.write('network_no;' + ';'.join(COLUMN_ORDER))
+            csv_file = open('family_networks_depth%d_%d.csv' % (depth_number,net_number), 'a')
+            csv_file.write('network_no;' + ';'.join(COLUMN_ORDER) + '\n')
 
         couple_name = facet[0]
-        the_family_edge_list = get_family_network([couple_name], get_family_from_solr([couple_name], 2)).get_edge_list()
+        the_family_edge_list = get_family_network([couple_name], get_family_from_solr([couple_name], depth_number)).get_edge_list()
         written_edges = []
         for edge in the_family_edge_list:
 
