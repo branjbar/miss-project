@@ -91,14 +91,15 @@ class TreeStructure:
         # before removing one leaf, merge the information of leaves!
         for leaf in self.leaves:
             if leaf.index == main_leaf.index:
-
                 # append the ids of merged nodes
                 leaf.node1['id'] = str(leaf.node1['id']) + ',' + str(to_be_removed_leaf.node1['id'])
                 leaf.node2['id'] = str(leaf.node2['id']) + ',' + str(to_be_removed_leaf.node2['id'])
 
                 # append the names of merged nodes
-                leaf.node1['name_alternatives'] = str(leaf.node1['name_alternatives']) + ',' + str(to_be_removed_leaf.node1['name_alternatives'])
-                leaf.node2['name_alternatives'] = str(leaf.node2['name_alternatives']) + ',' + str(to_be_removed_leaf.node2['name_alternatives'])
+                leaf.node1['name_alternatives'] = str(leaf.node1['name_alternatives']) + ',' + str(
+                    to_be_removed_leaf.node1['name_alternatives'])
+                leaf.node2['name_alternatives'] = str(leaf.node2['name_alternatives']) + ',' + str(
+                    to_be_removed_leaf.node2['name_alternatives'])
 
                 # merge the document types
                 leaf.doc_type = leaf.doc_type + ',' + to_be_removed_leaf.doc_type
@@ -162,9 +163,11 @@ class TreeStructure:
                     'target_name': '-'.join(
                         [self.leaves[the_target_id].node1['name'], self.leaves[the_target_id].node2['name']]),
                     'source_name_alternative': '-'.join(
-                        [self.leaves[the_source_id].node1['name_alternatives'], self.leaves[the_source_id].node2['name_alternatives']]),
+                        [self.leaves[the_source_id].node1['name_alternatives'],
+                         self.leaves[the_source_id].node2['name_alternatives']]),
                     'target_name_alternative': '-'.join(
-                        [self.leaves[the_target_id].node1['name_alternatives'], self.leaves[the_target_id].node2['name_alternatives']]),
+                        [self.leaves[the_target_id].node1['name_alternatives'],
+                         self.leaves[the_target_id].node2['name_alternatives']]),
                     'source_date': '-'.join(
                         [str(self.leaves[the_source_id].min_date), str(self.leaves[the_source_id].max_date)]),
                     'target_date': '-'.join(
@@ -182,12 +185,17 @@ class TreeStructure:
             edges.append(edge)
         return edges
 
-
     def update(self):
+        """
+        once the tree is constructed, this update takes care of merging
+        the columns and removing horizontal and vertical gaps
+
+        """
         self.merge_columns()
         self.remove_horizontal_gaps()
         self.merge_columns_for_births()
         self.remove_vertical_gaps()
+        pass
 
     def merge_columns(self):
 
@@ -351,63 +359,80 @@ class TreeStructure:
                 self.update_leaf(leaf[1].index, leaf[1].level, index_tmp + 1, False)
 
     def decrease_depth(self, index, depth):
-        for index_tmp, leaf in enumerate(self.leaves):
-            if leaf.index == index and (leaf.depth is None or leaf.depth >= depth):
-                self.leaves[index_tmp].depth = depth
-                for branch in self.branches:
-                    if branch.target == index:
-                        self.decrease_depth(branch.source, depth - 1)
+        """
+
+        :param index: index of the node which its depth should be changed
+        :param depth: the new depth
+        :return: True or FALSE, if FALSE is returned means there is a loop in the graph and bfs should be avoided
+        """
+        if depth > -100:
+            for index_tmp, leaf in enumerate(self.leaves):
+                if leaf.index == index and (leaf.depth is None or leaf.depth >= depth):
+                    self.leaves[index_tmp].depth = depth
+                    for branch in self.branches:
+                        if branch.target == index:
+                            if not self.decrease_depth(branch.source, depth - 1):  ## this is to make sure that there is not loop in the network
+                                return False
+            return True
+        else:
+            return False
 
     def remove_horizontal_gaps(self):
         """
         here we sort all the nodes in each column based on their index.
         """
+        continue_flag = True
+
         for index_tmp, leaf in enumerate(self.leaves):
             if self.leaves[index_tmp].depth is None:
-                self.decrease_depth(leaf.index, 0)
+                tmp_flag = self.decrease_depth(leaf.index, 0)
+                print tmp_flag
+                if not tmp_flag:
+                    continue_flag = False
 
-        max_depth = 10
-        for leaf in self.leaves:
-            if leaf.depth < max_depth:
-                max_depth = leaf.depth
+        if continue_flag:  # otherwise there is a loop and we can't continue
+            print 3
+            max_depth = 10
+            for leaf in self.leaves:
+                if leaf.depth < max_depth:
+                    max_depth = leaf.depth
 
-        for leaf in self.leaves:
-            if not leaf.depth == max_depth:
-                leaf.depth = -4
-            else:
-                leaf.depth = -1
+            for leaf in self.leaves:
+                if not leaf.depth == max_depth:
+                    leaf.depth = -4
+                else:
+                    leaf.depth = -1
 
-        self.bfs_round()
-        self.bfs_round()
-        self.bfs_round()
-        self.bfs_round()
-        self.bfs_round()
+            self.bfs_round()
+            self.bfs_round()
+            self.bfs_round()
+            self.bfs_round()
+            self.bfs_round()
 
-        for leaf in self.leaves:
-            self.update_leaf(leaf.index, leaf.depth, None, False)
+            for leaf in self.leaves:
+                self.update_leaf(leaf.index, leaf.depth, None, False)
 
 
-        # ##  once more I apply BFS and DFS to avoid isolated left overs.
-        max_depth = 10
-        for leaf in self.leaves:
-            if leaf.depth < max_depth:
-                max_depth = leaf.depth
+            # ##  once more I apply BFS and DFS to avoid isolated left overs.
+            max_depth = 10
+            for leaf in self.leaves:
+                if leaf.depth < max_depth:
+                    max_depth = leaf.depth
 
-        for leaf in self.leaves:
-            if not leaf.depth == max_depth:
-                pass
-            else:
-                leaf.depth = -1
+            for leaf in self.leaves:
+                if not leaf.depth == max_depth:
+                    pass
+                else:
+                    leaf.depth = -1
 
-        self.bfs_round()
-        self.bfs_round()
-        self.bfs_round()
-        self.bfs_round()
-        self.bfs_round()
+            self.bfs_round()
+            self.bfs_round()
+            self.bfs_round()
+            self.bfs_round()
+            self.bfs_round()
 
-        for leaf in self.leaves:
-            self.update_leaf(leaf.index, leaf.depth, None, False)
-
+            for leaf in self.leaves:
+                self.update_leaf(leaf.index, leaf.depth, None, False)
 
     def bfs_round(self):
         change_flag = True
@@ -435,6 +460,7 @@ class TreeStructure:
                                     if leaf_target.depth <= leaf_source.depth:
                                         leaf_target.depth = leaf_source.depth + 1
                                         change_flag = True
+
 
 
 if __name__ == "__main__":

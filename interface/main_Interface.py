@@ -12,10 +12,8 @@ from modules.basic_modules.myOrm import Reference, Document
 from modules.family_network.family_network import get_family_network, get_family_from_solr
 from modules.solr_search.hashing import generate_features
 from modules.solr_search.solr_query import SolrQuery
+
 my_hash = SolrQuery()
-
-
-
 
 
 def routing():
@@ -29,7 +27,8 @@ def routing():
         search_term_list = []
         if '__' in search_term:
             for term in search_term.split('__')[:-1]:
-                search_term_list.append(term.split('_')[0].split()[0] + ' ' + term.split('_')[0].split()[-1] + ' ' +  term.split('_')[1].split()[0] + ' ' +  term.split('_')[1].split()[-1])
+                search_term_list.append(term.split('_')[0].split()[0] + ' ' + term.split('_')[0].split()[-1] + ' ' +
+                                        term.split('_')[1].split()[0] + ' ' + term.split('_')[1].split()[-1])
         else:
             search_term_list = [search_term]
 
@@ -37,9 +36,7 @@ def routing():
             search_term_list = ["Petrus_Heijden_Anna_Leen", "Hendrina_Heijden_Francis_Wit"]
             depth_level = 3
 
-
         search_results = get_family_from_solr(search_term_list, depth_level)
-
 
         # get_family_network() gets the data for each document in solr search results and generates family tree.
         # using the TreeStructure class it takes care of required merges, etc.
@@ -101,7 +98,7 @@ def routing():
             field_query += 'cat: ' + '"' + facet_query.split(':')[1].replace('+', ' ') + '"'
 
         search_term = ' '.join(search_term.split('_'))
-        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?','').title()
+        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?', '').title()
 
         ref1 = ' '.join(search_term.split()[:2])
         ref2 = ' '.join(search_term.split()[-2:])
@@ -149,8 +146,8 @@ def routing():
 
                 doc_list.append(html)
 
-        html_year.sort(key=lambda x: (x['year'],x['month']))
-        doc_list.sort(key=lambda x: (x['year'],x['month']))
+        html_year.sort(key=lambda x: (x['year'], x['month']))
+        doc_list.sort(key=lambda x: (x['year'], x['month']))
 
         return render_template('hash_vis.html',
                                doc_list=doc_list,
