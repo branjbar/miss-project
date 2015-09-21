@@ -220,7 +220,7 @@ def routing():
         return render_template('index.html', header="Welcome!"
                                , message="to MiSS Web Interface. Use the upper "
                                          "menu to proceed with data exploration. You "
-                                         "can start with loading data!")
+                                         "can start with the Intelligent Timeline in Entity Resolution Page!")
 
 
     @app.route('/person/', methods=['GET', 'POST'])
