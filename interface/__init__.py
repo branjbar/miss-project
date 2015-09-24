@@ -7,6 +7,8 @@ import base64
 auth = {'user': 'admin', 'pass': 'secret'}
 
 app = Flask(__name__)
+app.debug = False
+
 try:
     f = open('/Users/Bijan/linkspy.cnf', 'r')
 
