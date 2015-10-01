@@ -178,8 +178,8 @@ class TreeStructure:
                     'target_doc_type': self.leaves[the_target_id].doc_type,
                     'source_role': self.leaves[the_source_id].role,
                     'target_role': self.leaves[the_target_id].role,
-                    'source_doc_place': self.leaves[the_source_id].role,
-                    'target_doc_place': self.leaves[the_target_id].role,
+                    'source_doc_place': self.leaves[the_source_id].doc_place,
+                    'target_doc_place': self.leaves[the_target_id].doc_place,
 
             }
             edges.append(edge)
@@ -195,7 +195,21 @@ class TreeStructure:
         self.remove_horizontal_gaps()
         self.merge_columns_for_births()
         self.remove_vertical_gaps()
-        pass
+        self.find_anomalies()  # this it to find the anomalies in the network e.g., two parent nodes for a specific node.
+
+    def find_anomalies(self):
+        for leaf in self.leaves:
+            parent_count = 0  # to count number of parents
+            source_list = []  # to avoid counting the same edge more than once
+            for branch in self.branches:
+                if branch.target == leaf.index:
+                    if not branch.source in source_list:
+                        parent_count += 1
+                        source_list.append(branch.source)
+            if parent_count > 2:
+                print parent_count, source_list, leaf
+
+
 
     def merge_columns(self):
 
@@ -371,7 +385,8 @@ class TreeStructure:
                     self.leaves[index_tmp].depth = depth
                     for branch in self.branches:
                         if branch.target == index:
-                            if not self.decrease_depth(branch.source, depth - 1):  ## this is to make sure that there is not loop in the network
+                            if not self.decrease_depth(branch.source,
+                                                       depth - 1):  # # this is to make sure that there is not loop in the network
                                 return False
             return True
         else:
@@ -458,7 +473,6 @@ class TreeStructure:
                                     if leaf_target.depth <= leaf_source.depth:
                                         leaf_target.depth = leaf_source.depth + 1
                                         change_flag = True
-
 
 
 if __name__ == "__main__":

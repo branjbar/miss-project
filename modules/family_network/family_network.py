@@ -105,7 +105,7 @@ if __name__ == '__main__':
     facet_fields = solr_results.facet_counts['facet_fields']
     facets = sorted(facet_fields['features_ss'].iteritems(), key=lambda x: x[1], reverse=True)
     family_number = 1
-    depth_number = 1
+    depth_number = 2
     COLUMN_ORDER = [
         'source',
         'target',
