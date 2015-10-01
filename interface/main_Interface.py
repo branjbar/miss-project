@@ -182,6 +182,11 @@ def routing():
         html_year.sort(key=lambda x: (x['year'], x['month']))
         doc_list.sort(key=lambda x: (x['year'], x['month']))
 
+        if search_term == '*':
+            html_year = []
+            doc_list = []
+            search_results = []
+
         return render_template('hash_vis.html',
                                doc_list=doc_list,
                                search_term=search_term,
@@ -217,10 +222,7 @@ def routing():
 
     @app.route('/', methods=['GET', 'POST'])
     def home():
-        return render_template('index.html', header="Welcome!"
-                               , message="to MiSS Web Interface. Use the upper "
-                                         "menu to proceed with data exploration. You "
-                                         "can start with Intelligent Timeline in the Entity Resolution section!")
+        return render_template('home.html')
 
 
     @app.route('/person/', methods=['GET', 'POST'])

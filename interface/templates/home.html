@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>MiSS Web Interface</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    {% include "navbar.html"%}
+
+    <div class="container">
+        <div class="row">
+                <div class="jumbotron">
+                    <h1> Explore BHIC Archives </h1>
+                    <p> This tool is developed in MiSS project; MiSS is still a work in progress, thus this is a beta version of MiSS final product.</p>
+                    <a class="btn btn-lg btn-info" href="hash_matches/" role="button"> Search for a Family Network </a>
+                </div>
+
+        </div>
+      {% include "footer.html" %}
+
+
+    </div><!--/.container-->
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/static/jquery-1.11.1.min.js"></script>
+    <script src="{{ url_for('static',filename = 'bootstrap/js/bootstrap.min.js')}}"></script>
+    <script src="{{ url_for('static',filename = 'd3/d3.js')}}"></script>
+
+  </body>
+</html>
