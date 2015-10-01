@@ -37,17 +37,29 @@ body, html {
 		
                   <ul class="nav nav-sidebar;">
                         <form class="navbar-form" role="search" method="get">
-                            <div class="input-group">
-
-                                <input type="text" class="form-control" placeholder="search" value="{{couple_name}}" name="search_term">
-                                <div class="input-group-btn" >
-                                    <button type="submit" class="btn btn-default">
-                                        <i class="glyphicon glyphicon-search"></i>
-                                    </button>
+                            <b>Person 1</b> (family name; given name):
+                            <br>
+                                <div class="input-group">
+                                <input type="text" class="form-control" placeholder="family name" value="{{searched_names[1]}}" name="lname1_term">
+                                <input type="text" class="form-control" placeholder="given name" value="{{searched_names[0]}}" name="fname1_term">
                                 </div>
-                            </div><!-- /.nav-collapse -->
+                            <br>
+                            <b>Person 2</b> (family name; given name):
+                            <br>
+                                <div class="input-group">
+                                <input type="text" class="form-control" placeholder="family name" value="{{searched_names[3]}}" name="lname2_term">
+                                <input type="text" class="form-control" placeholder="given name" value="{{searched_names[2]}}" name="fname2_term">
+                                </div>
+
+                            <br>
+
+                                <button type="submit" class="btn btn-default">
+                                    <i class="glyphicon glyphicon-search"></i>
+                                </button>
                         </form> <br>
-                    <p class="text-center">{{found_results}} results found for: <br> <strong> {{couple_name}} </strong>  </p> <br>
+                        {% if found_results %}
+                           <p class="text-center">{{found_results}} results found for: <br> <strong> {{couple_name}} </strong>  </p> <br>
+                        {% endif %}
                       {% if couple_name %}
                         <a href="/search/?depth_level=1&search_term={{couple_name}}" target="blank"><p class="text-center">Open the Pedigree View (NEW!!)</p></a>
                       {% endif %}

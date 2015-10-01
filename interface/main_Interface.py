@@ -82,6 +82,8 @@ def routing():
     @requires_auth
     def hash_matches(p_id=None):
         search_term = request.args.get('search_term')  # the main searching term
+        searched_names = [request.args.get('fname1_term'), request.args.get('lname1_term'), request.args.get(
+            "fname2_term"), request.args.get('lname2_term')]
         field_query = request.args.get('field_query')  # the field query from previous sessions
         facet_query = request.args.get('fq')  # the new facet query coming from this session
         m_query = request.args.get('mq')  # the main query which likes to replace the search query
@@ -101,8 +103,21 @@ def routing():
             search_term = ''
             field_query = m_query
 
+
+
         if not search_term:
-            search_term = '*'
+            # here we check if user has entered seperate f/l names or not
+            flag_search = False
+            for index, name in enumerate(searched_names):
+                if name:
+                    flag_search = True
+                else:
+                    searched_names[index] = '*'  # can be used just in flag becomes true at some point!
+            if flag_search:
+                search_term = '_'.join(searched_names)
+            else:
+                search_term = '*'
+
 
         if not field_query:
             field_query = ''
@@ -130,12 +145,15 @@ def routing():
         if facet_query and facet_query.split(':')[0] == 'cat':
             field_query += 'cat: ' + '"' + facet_query.split(':')[1].replace('+', ' ') + '"'
 
-        search_term = ' '.join(search_term.split('_'))
-        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?', '').title()
+        search_term = ' '.join(search_term.split('_'))  # convert the lines to space
+        search_term = search_term.replace('&', '').replace('-', '').replace('  ', ' ').replace('?', '').title()  # remove any additional symbol and make first capital
 
         ref1 = ' '.join(search_term.split()[:2])
         ref2 = ' '.join(search_term.split()[-2:])
+        print search_term
         search_term = generate_features(ref1.split(), ref2.split())
+        print search_term
+
         solr_results = my_hash.search(search_term, field_query)
 
         if solr_results:
@@ -186,6 +204,8 @@ def routing():
             html_year = []
             doc_list = []
             search_results = []
+        else:
+            searched_names = search_term.split('_')
 
         return render_template('hash_vis.html',
                                doc_list=doc_list,
@@ -194,7 +214,8 @@ def routing():
                                couple_name=' - '.join(couple_names).replace('_', ' '),
                                found_results=len(search_results),
                                html_year=html_year,
-                               facets=facets)
+                               facets=facets,
+                               searched_names=searched_names)
 
 
     @app.route('/get_ref/<p_id>')
