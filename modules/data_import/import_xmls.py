@@ -7,7 +7,7 @@ import pprint
 # nsmap = {}
 # for event, elem in etree.iterparse(file_name, events=('start-ns','end-ns')):
 #
-#  if event == 'start-ns':
+# if event == 'start-ns':
 #      ns, url = elem
 #      nsmap[ns] = url
 #print nsmap
@@ -46,21 +46,23 @@ def xml_to_sql(doc_type, person_id, test=False):
         if event == 'end' and elemtag == 'record':
             depth -= 1
             if depth == 0:
-                dict = etree_to_dict(elem)  # converts the xml to a nested dict
-                simple_dict = parse_document(dict, doc_type)  # simplifies the nested dict and returns a simple dict
-                # pp.pprint(simple_dict)
 
-                add_to_sql(person_id, document_id, simple_dict, doc_type)
+                try:  # to make sure the import procedure continues in any case
+                    dict = etree_to_dict(elem)  # converts the xml to a nested dict
+                    simple_dict = parse_document(dict, doc_type)  # simplifies the nested dict and returns a simple dict
 
+                    add_to_sql(person_id, document_id, simple_dict, doc_type)
 
-                if doc_type == 'birth':
-                    person_id += 3
-                if doc_type == 'marriage':
-                    person_id += 6
-                if doc_type == 'death':
-                    person_id += 4
-                document_id += 1
+                    if doc_type == 'birth':
+                        person_id += 3
+                    if doc_type == 'marriage':
+                        person_id += 6
+                    if doc_type == 'death':
+                        person_id += 4
+                    document_id += 1
 
+                except:
+                    pass
 
                 elem.clear()
         if test:
@@ -70,7 +72,10 @@ def xml_to_sql(doc_type, person_id, test=False):
 
 
 if __name__ == '__main__':
-    offset = {'birth': 1, 'marriage': 30000001, 'death': 60000001}  # this offset separates documents based on their type
+    offset = {'birth': 1, 'marriage': 30000001,
+              'death': 60000001}  # this offset separates documents based on their type
 
     doc_type = 'birth'
-    xml_to_sql(doc_type, offset[doc_type], True)
+    xml_to_sql(doc_type, offset[doc_type])
+    doc_type = 'marriage'
+    xml_to_sql(doc_type, offset[doc_type])
