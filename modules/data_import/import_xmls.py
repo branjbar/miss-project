@@ -4,17 +4,6 @@ from modules.data_import.write_sql import add_to_sql
 import xml.etree.ElementTree as etree
 import pprint
 
-# nsmap = {}
-# for event, elem in etree.iterparse(file_name, events=('start-ns','end-ns')):
-#
-# if event == 'start-ns':
-#      ns, url = elem
-#      nsmap[ns] = url
-#print nsmap
-
-nsmap = {'': 'https://maior.memorix.nl/XSI/3.0/', u'xsi': 'http://www.w3.org/2001/XMLSchema-instance', u'dc': 'http://purl.org/dc\
-/elements/1.1/'}
-
 
 def etree_to_dict(t):
     d = {t.tag: map(etree_to_dict, t.getchildren())}
@@ -31,6 +20,7 @@ def xml_to_sql(doc_type, person_id, test=False):
     imports the most recent xml dumps of BHIC center
     """
     file_name = '/Users/bijan/sandbox/bhic_data/BS-%s.xml' % doc_type
+    file_name = '/Users/bijan/Database/BHIC_2015/BS-%s.xml' % doc_type
 
     document_id = person_id  # initialization
     count = 1  # a counter to stop the running in case of testing
