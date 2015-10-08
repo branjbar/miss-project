@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MMM xmlns="https://maior.memorix.nl/XSI/3.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://maior.memorix.nl/XSI/3.0/ https://maior.memorix.nl/XSI/3.0/MMM.xsd" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <tenant name="Brabants Historisch Informatie Centrum">bhic</tenant>
+    <responseDate>2014-09-02T12:06:49Z</responseDate>
+    <export entity="a37c55e6-180f-492a-9984-1fbd0fe95996" name="geboorteakte">
+        <record uuid="00000cdc-2cf9-951b-f27a-bb48886ce00f">
+            <field name="uuid" label="uuid" formtype="Uuid">
+                <value>00000cdc-2cf9-951b-f27a-bb48886ce00f</value>
+            </field>
+            <field name="guid" label="GUID" formtype="text"/>
+            <field name="register_guid" label="GUID register" formtype="text"/>
+            <field name="nummer" label="Aktenummer" formtype="text">
+                <value>36</value>
+            </field>
+            <field name="datum" label="Aktedatum" formtype="Customdate">
+                <value>1829-00-00</value>
+            </field>
+            <field name="Kind" label="Kind" formtype="ChildEntity">
+                <entity uuid="245274ec-863a-4dd8-8f72-b34bdc226030" name="kind">
+                    <record uuid="0474d308-4658-11e3-a747-d206bceb4d38">
+                        <field name="modified_by" label="modified_by" formtype="System">
+                            <user/>
+                        </field>
+                        <field name="modified_time" label="modified_time" formtype="System">
+                            <value>2013-11-05 10:46:52</value>
+                        </field>
+                        <field name="ordering" label="ordering" formtype="System"/>
+                        <field name="geslacht" label="Geslacht" formtype="radio"/>
+                        <field name="plaats_geboorte" label="Plaats geboorte" formtype="text"/>
+                        <field name="datum_geboorte" label="Datum geboorte" formtype="Customdate">
+                            <value>1829-02-26</value>
+                        </field>
+                        <field name="voornaam" label="Voornaam" formtype="text">
+                            <value>Martinus</value>
+                        </field>
+                        <field name="tussenvoegsel" label="Tussenvoegsel" formtype="text"/>
+                        <field name="geslachtsnaam" label="Achternaam" formtype="text">
+                            <value>Maas</value>
+                        </field>
+                        <field name="diversen" label="Diversen" formtype="textarea"/>
+                    </record>
+                </entity>
+            </field>
+            <field name="Vader" label="Vader" formtype="ChildEntity">
+                <entity uuid="ea8943bc-0d20-4f9d-8384-65422a6e007e" name="vader">
+                    <record uuid="04750c10-4658-11e3-a747-d206bceb4d38">
+                        <field name="modified_by" label="modified_by" formtype="System">
+                            <user/>
+                        </field>
+                        <field name="modified_time" label="modified_time" formtype="System">
+                            <value>2013-11-05 10:46:52</value>
+                        </field>
+                        <field name="ordering" label="ordering" formtype="System"/>
+                        <field name="voornaam" label="Voornaam" formtype="text">
+                            <value>Adrianus</value>
+                        </field>
+                        <field name="patroniem" label="Patroniem" formtype="text"/>
+                        <field name="tussenvoegsel" label="Tussenvoegsel" formtype="text"/>
+                        <field name="geslachtsnaam" label="Achternaam" formtype="text">
+                            <value>Maas</value>
+                        </field>
+                        <field name="diversen" label="Diversen" formtype="textarea"/>
+                    </record>
+                </entity>
+            </field>
+            <field name="Moeder" label="Moeder" formtype="ChildEntity">
+                <entity uuid="112032b5-09c9-43ba-b858-08057b8d0907" name="moeder">
+                    <record uuid="04754ae0-4658-11e3-a747-d206bceb4d38">
+                        <field name="modified_by" label="modified_by" formtype="System">
+                            <user/>
+                        </field>
+                        <field name="modified_time" label="modified_time" formtype="System">
+                            <value>2013-11-05 10:46:52</value>
+                        </field>
+                        <field name="ordering" label="ordering" formtype="System"/>
+                        <field name="voornaam" label="Voornaam" formtype="text">
+                            <value>Cornelia</value>
+                        </field>
+                        <field name="patroniem" label="Patroniem" formtype="text"/>
+                        <field name="tussenvoegsel" label="Tussenvoegsel" formtype="text">
+                            <value>de</value>
+                        </field>
+                        <field name="geslachtsnaam" label="Achternaam" formtype="text">
+                            <value>Krom</value>
+                        </field>
+                        <field name="diversen" label="Diversen" formtype="textarea"/>
+                    </record>
+                </entity>
+            </field>
+        </record>
+        </export>
+    </MMM>

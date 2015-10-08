@@ -9,7 +9,7 @@ from modules.basic_modules.myOrm import Reference
 from modules.basic_modules.basic import get_block_key
 
 NOTARY_OFFSET_old = 4000000
-NOTARY_OFFSET = 30000000
+NOTARY_OFFSET = 100000000
 
 
 def generate_features(r1, r2):

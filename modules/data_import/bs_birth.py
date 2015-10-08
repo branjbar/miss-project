@@ -5,6 +5,7 @@ __author__ = 'bijan'
 
 import untangle
 xmldoc = '/Users/Bijan/sandbox/Database/MISS-exports/BS-birth_a69dbe15-9c9b-b331-6497-f4e8c5288bf1.xml'
+xmldoc = '/Users/Bijan/sandbox/Database/MISS-exports/BS-birth_a69dbe15-9c9b-b331-6497-f4e8c5288bf1.xml'
 xml_file = open(xmldoc, 'r')
 flag = 0
 threshold = 4
