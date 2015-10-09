@@ -36,8 +36,14 @@ class Leaf:
         self.role = role
         self.doc_type = doc_type
         self.doc_place = doc_place
-        self.min_date = int(date[-4:])
-        self.max_date = int(date[-4:])
+        try:
+            self.min_date = int(date[-4:])
+        except:
+            self.min_date = int(date[:3])
+        try:
+            self.max_date = int(date[-4:])
+        except:
+            self.max_date = int(date[:3])
         self.index = -1
         self.unique_key = uuid.uuid4()
 
