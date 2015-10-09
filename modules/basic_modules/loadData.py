@@ -33,7 +33,7 @@ def update_persons_table(db_useless, limit):
     addendum = limit[2]
     logging.debug('Loading table all_persons.')
 
-    the_query = "select id, first_name, prefix, last_name, block_key, block_id, date_1 as date, place_1 as place," \
+    the_query = "select id, first_name, prefix, last_name, date_1 as date, place_1 as place," \
                 " gender, role, register_id, register_type from %s" % PERSON_TABLE
     if type:
         q_type = None
