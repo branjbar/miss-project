@@ -81,53 +81,55 @@ class Hashing():
             feature_list = []  # features based on exact names
             block_keys = []  # blocking keys based on hossein's key
 
-            if doc_type == 'birth':
-                feature_list.append(generate_features(ref_list[1], ref_list[2]))
-                block_keys.append(generate_blocks(ref_list[1], ref_list[2]))
-                text = 'child: %s, father: %s, mother: %s' % (
-                    ' '.join(ref_list[0]), ' '.join(ref_list[1]), ' '.join(ref_list[2]))
+            try:  # errors happen if the database is not completely loaded.
+                if doc_type == 'birth':
+                    feature_list.append(generate_features(ref_list[1], ref_list[2]))
+                    block_keys.append(generate_blocks(ref_list[1], ref_list[2]))
+                    text = 'child: %s, father: %s, mother: %s' % (
+                        ' '.join(ref_list[0]), ' '.join(ref_list[1]), ' '.join(ref_list[2]))
 
-            if doc_type == 'marriage':
-                feature_list.append(generate_features(ref_list[0], ref_list[1]))
-                block_keys.append(generate_blocks(ref_list[0], ref_list[1]))
+                if doc_type == 'marriage':
+                    feature_list.append(generate_features(ref_list[0], ref_list[1]))
+                    block_keys.append(generate_blocks(ref_list[0], ref_list[1]))
 
-                feature_list.append(generate_features(ref_list[2], ref_list[3]))
-                block_keys.append(generate_blocks(ref_list[2], ref_list[3]))
+                    feature_list.append(generate_features(ref_list[2], ref_list[3]))
+                    block_keys.append(generate_blocks(ref_list[2], ref_list[3]))
 
-                feature_list.append(generate_features(ref_list[4], ref_list[5]))
-                block_keys.append(generate_blocks(ref_list[4], ref_list[5]))
+                    feature_list.append(generate_features(ref_list[4], ref_list[5]))
+                    block_keys.append(generate_blocks(ref_list[4], ref_list[5]))
 
-                text = 'groom: %s, bride: %s, groom father: %s, groom mother: %s, bride father: %s, ' \
-                       'bride mother: %s' % (
-                           ' '.join(ref_list[0]), ' '.join(ref_list[1]), ' '.join(ref_list[2]), ' '.join(ref_list[3]),
-                           ' '.join(ref_list[4]), ' '.join(ref_list[5]))
+                    text = 'groom: %s, bride: %s, groom father: %s, groom mother: %s, bride father: %s, ' \
+                           'bride mother: %s' % (
+                               ' '.join(ref_list[0]), ' '.join(ref_list[1]), ' '.join(ref_list[2]), ' '.join(ref_list[3]),
+                               ' '.join(ref_list[4]), ' '.join(ref_list[5]))
 
-            if doc_type == 'death':
-                feature_list.append(generate_features(ref_list[1], ref_list[2]))
-                block_keys.append(generate_blocks(ref_list[1], ref_list[2]))
-                feature_list.append(generate_features(ref_list[0], ref_list[3]))
-                block_keys.append(generate_blocks(ref_list[0], ref_list[3]))
+                if doc_type == 'death':
+                    feature_list.append(generate_features(ref_list[1], ref_list[2]))
+                    block_keys.append(generate_blocks(ref_list[1], ref_list[2]))
+                    feature_list.append(generate_features(ref_list[0], ref_list[3]))
+                    block_keys.append(generate_blocks(ref_list[0], ref_list[3]))
 
-                text = 'deceased: %s, father: %s, mother: %s, relative: %s' % (
-                    ' '.join(ref_list[0]), ' '.join(ref_list[1]), ' '.join(ref_list[2]), ' '.join(ref_list[3]))
-                # notary acts!
-                # else:
-                # print "unknown document type to index"
-                # for i1, key1 in enumerate(ref_list):
-                # for i2, key2 in enumerate(ref_list):
-                # if i1 < i2:
-                # feature_list = generate_features(key1, key2)
-                # block_keys = generate_blocks(ref_list[0], ref_list[3])
+                    text = 'deceased: %s, father: %s, mother: %s, relative: %s' % (
+                        ' '.join(ref_list[0]), ' '.join(ref_list[1]), ' '.join(ref_list[2]), ' '.join(ref_list[3]))
+                    # notary acts!
+                    # else:
+                    # print "unknown document type to index"
+                    # for i1, key1 in enumerate(ref_list):
+                    # for i2, key2 in enumerate(ref_list):
+                    # if i1 < i2:
+                    # feature_list = generate_features(key1, key2)
+                    # block_keys = generate_blocks(ref_list[0], ref_list[3])
 
-            if feature_list:
-                date = self.adapt_date(date)
-                feature_list = [x for x in feature_list if x != 'ERROR']
-                block_keys = [x for x in block_keys if x != 'ERROR']
-                self.s.add(features=feature_list, features_ss=feature_list, blockKeys=block_keys, id=document_id,
-                           location_s=place, cat=doc_type,
-                           date_dt=date, description=text)  # ,
-                # )
-
+                if feature_list:
+                    date = self.adapt_date(date)
+                    feature_list = [x for x in feature_list if x != 'ERROR']
+                    block_keys = [x for x in block_keys if x != 'ERROR']
+                    self.s.add(features=feature_list, features_ss=feature_list, blockKeys=block_keys, id=document_id,
+                               location_s=place, cat=doc_type,
+                               date_dt=date, description=text)  # ,
+                    # )
+            except:
+                pass
             self.commit_counter += 1
             if self.commit_counter > 5000:
                 self.s.commit()
