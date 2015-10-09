@@ -129,7 +129,7 @@ class Hashing():
 
                     # Because of privacy issues
                     year = date[:4]
-                    if int(year) < 1920:
+                    if int(year) < 2000:
                         self.s.add(features=feature_list, features_ss=feature_list, blockKeys=block_keys, id=document_id,
                                    location_s=place, cat=doc_type,
                                    date_dt=date, description=text)
