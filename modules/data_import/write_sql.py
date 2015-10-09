@@ -1,5 +1,10 @@
 __author__ = 'bijan'
 """
+generating the SQL files takes about 10h45 -->
+inserting the SQL files takes about .....
+"""
+
+"""
 CREATE TABLE `all_persons_2015` (
   `id` int(11) DEFAULT '0',
   `uuid` varchar(90) DEFAULT '0',

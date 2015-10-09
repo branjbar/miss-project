@@ -14,3 +14,6 @@ config_server = {'user': 'bijan',
                  'host': '127.0.0.1',
                  'db': 'links_based',
 }
+
+PERSON_TABLE = "all_persons_new"
+DOCUMENT_TABLE = "all_documents"

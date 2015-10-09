@@ -1,6 +1,7 @@
 """
 Here we do the hashing and update, search the """
 from modules.NERD import dict_based_nerd
+from modules.basic_modules import PERSON_TABLE
 
 from modules.basic_modules.basic import run_query
 import solr
@@ -174,7 +175,7 @@ class Hashing():
     def update_all_persons(self):
         print "wait for 350"
         query = "select first_name, last_name, register_id, register_type, place_1, date_1 " \
-                "from all_persons_new"
+                "from %s" % PERSON_TABLE
         # where register_type='death'"
 
         cur = run_query(query)

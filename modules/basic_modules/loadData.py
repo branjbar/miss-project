@@ -1,4 +1,4 @@
-from modules.basic_modules import basic
+from modules.basic_modules import basic, PERSON_TABLE, DOCUMENT_TABLE
 
 
 __author__ = 'Bijan'
@@ -34,7 +34,7 @@ def update_persons_table(db_useless, limit):
     logging.debug('Loading table all_persons.')
 
     the_query = "select id, first_name, prefix, last_name, block_key, block_id, date_1 as date, place_1 as place," \
-                " gender, role, register_id, register_type from all_persons_new"
+                " gender, role, register_id, register_type from %s" % PERSON_TABLE
     if type:
         q_type = None
         for t in type:
@@ -141,7 +141,7 @@ def update_documents_table(limit):
     logging.debug(" Loading table all_documents.")
 
     the_query = "select id, type_text, date, `index`, municipality, concat(latitude,',', longitude) geocode," \
-                " reference_ids from all_documents"
+                " reference_ids from %s" % DOCUMENT_TABLE
     if type:
         q_type = None
         for t in type:
@@ -250,13 +250,13 @@ def load_table(table_name, limit=None):
     if table_name == 'all_persons':
         # query = "select * from %s " % table_name
         the_query = "select id, first_name, prefix, last_name, block_key, block_id, date_1 as date, place_1 as place," \
-                    " gender, role, register_id, register_type from all_persons_new"
+                    " gender, role, register_id, register_type from %s" % PERSON_TABLE
         if limit:
             the_query += " limit %d" % limit
     if table_name == 'all_documents':
         # query = "select * from %s" % table_name
         the_query = "select id, type_text, date, `index`, municipality, concat(latitude,',', longitude) geocode," \
-                    " reference_ids from all_documents"
+                    " reference_ids from %s" % DOCUMENT_TABLE
         if limit:
             the_query += " limit %d" % int(limit / 3)
 
