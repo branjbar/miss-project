@@ -1,4 +1,3 @@
-from flask import request
 from flask import render_template
 
 from modules.NERD.nerd_visualization import get_nerd_data

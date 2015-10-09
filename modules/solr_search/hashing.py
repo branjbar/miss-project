@@ -1,6 +1,7 @@
 """
 Here we do the hashing and update, search the """
 from modules.NERD import dict_based_nerd
+from modules.NERD.nerd_visualization import NOTARY_OFFSET
 from modules.basic_modules import PERSON_TABLE
 
 from modules.basic_modules.basic import run_query
@@ -9,8 +10,6 @@ import copy
 from modules.basic_modules.myOrm import Reference
 from modules.basic_modules.basic import get_block_key
 
-NOTARY_OFFSET_old = 4000000
-NOTARY_OFFSET = 100000000
 
 
 def generate_features(r1, r2):

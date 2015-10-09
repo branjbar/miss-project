@@ -4,8 +4,7 @@ Here we do the hashing and update, search the """
 import solr
 from modules.basic_modules.basic import log
 
-NOTARY_OFFSET_old = 4000000
-NOTARY_OFFSET = 30000000
+
 
 
 def generate_features(r1, r2):

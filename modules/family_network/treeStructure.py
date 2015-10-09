@@ -39,11 +39,11 @@ class Leaf:
         try:
             self.min_date = int(date[-4:])
         except:
-            self.min_date = int(date[:3])
+            self.min_date = int(date[:4])
         try:
             self.max_date = int(date[-4:])
         except:
-            self.max_date = int(date[:3])
+            self.max_date = int(date[:4])
         self.index = -1
         self.unique_key = uuid.uuid4()
 

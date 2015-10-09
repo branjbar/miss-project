@@ -5,6 +5,7 @@ from modules.data_import.write_sql import add_to_sql
 
 import xml.etree.ElementTree as etree
 import pprint
+from modules.solr_search.hashing import NOTARY_OFFSET
 
 
 def etree_to_dict(t):
@@ -71,8 +72,8 @@ def xml_to_sql(doc_type, person_id, test=False):
 
 
 if __name__ == '__main__':
-    offset = {'birth': 1, 'marriage': 30000001,
-              'death': 60000001}  # this offset separates documents based on their type
+    OFFSET = {'birth': 1, 'marriage': 30000001,
+              'death': 60000001, 'notary':NOTARY_OFFSET}  # this offset separates documents based on their type
 
     doc_type = sys.argv[1]  # the arguement is 'birth' or 'marriage' or 'death'
-    xml_to_sql(doc_type, offset[doc_type])
+    xml_to_sql(doc_type, OFFSET[doc_type])

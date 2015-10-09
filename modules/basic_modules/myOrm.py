@@ -1,4 +1,5 @@
 from modules.NERD.dict_based_nerd import Nerd
+from modules.NERD.nerd_visualization import NOTARY_OFFSET
 from modules.family_network.treeStructure import LeafNode, Leaf, Branch
 
 __author__ = 'Bijan'
@@ -10,7 +11,6 @@ STANDARD_QUERY = "SELECT id, first_name, last_name, date_1, place_1, gender, rol
 
 import random
 
-NOTARY_OFFSET = 30000000
 
 
 class Reference():
@@ -226,8 +226,9 @@ class Document():
                                           </div>
                                           """
 
-        year = self.date[-4:]
-        month = self.date[-7:-5]
+        year = self.date[:4]
+        month = self.date[5:7]
+        print month, year
         # to get rid of non-standard dates
         if month.isdigit():
             month = int(month)

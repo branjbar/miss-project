@@ -1,4 +1,5 @@
 import random
+NOTARY_OFFSET = 100000000
 
 from modules.NERD import dict_based_nerd
 from modules.basic_modules import loadData
@@ -9,7 +10,6 @@ from modules.solr_search.solr_query import SolrQuery
 
 
 __author__ = 'bijan'
-NOTARY_OFFSET = 30000000
 
 
 def get_nerd_data(request, t_id):

@@ -15,5 +15,5 @@ config_server = {'user': 'bijan',
                  'db': 'links_based',
 }
 
-PERSON_TABLE = "all_persons_new"
-DOCUMENT_TABLE = "all_documents"
+PERSON_TABLE = "all_persons_2015"
+DOCUMENT_TABLE = "all_documents_2015"
