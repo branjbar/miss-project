@@ -1,8 +1,4 @@
 __author__ = 'bijan'
-"""
-generating the SQL files takes about 10h45 -->
-inserting the SQL files takes about .....
-"""
 
 """
 CREATE TABLE `all_persons_2015` (

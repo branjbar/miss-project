@@ -1,3 +1,8 @@
+"""
+generating the SQL files takes about 1h30min
+inserting the SQL files takes about .....
+"""
+
 import copy
 from modules.data_import import simple_dict_template
 
