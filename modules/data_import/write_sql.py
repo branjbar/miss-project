@@ -66,7 +66,7 @@ def add_to_sql(person_id, doc_id, dict, doc_type):
                        dict['mother']['prefix'].replace('"', "'"), dict['mother']['last_name'].replace('"', "'"),
                        dict['date'], dict['municipality'], 5, doc_id, 'birth')
 
-        query += """
+        query_document = """
                 INSERT INTO `all_documents_2015` (id, uuid, `type_text`, date, `municipality`, reference_ids)
                 VALUES (%d,"%s","%s","%s","%s","%s");
                 """ % (doc_id, dict['uuid'], 'birth', dict['date'], dict['municipality'],
