@@ -14,7 +14,16 @@ NOTARY_OFFSET = 100000000
 
 
 def generate_features(r1, r2):
-    return '_'.join([r1[0],r1[-1],r2[0],r2[-1]])
+
+    # first we check if the name is N.N. or empty
+    if (r1[0] == "N.N." or r1[-1] == "N.N." or r2[0] == "N.N." or r2[-1] == "N.N." ) or 
+        (r1[0] == "" or r1[-1] == "" or r2[0] == "" or r2[-1] == "" ):
+
+        return 'ERROR'
+
+    else:
+
+        return '_'.join([r1[0],r1[-1],r2[0],r2[-1]])
 
     # if r1[0] and r1[-1] and r2[0] and r2[-1]:
     #     if not r1[0] == '*' and not r2[0] == '*':
