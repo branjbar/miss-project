@@ -53,7 +53,7 @@ class SolrQuery():
                                      facet_field=['features_ss', 'location_s', 'cat'],
                                      facet_range='date_dt',
                                      facet_range_start='1700-00-00T00:00:00Z',
-                                     facet_range_end='1900-00-00T00:00:00Z',
+                                     facet_range_end='1990-00-00T00:00:00Z',
                                      facet_range_gap='+10YEAR',
                                      fields="features, id",
                                      facet_limit=facet_limit)  # score is removed from the third attribute
