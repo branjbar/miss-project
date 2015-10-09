@@ -24,7 +24,7 @@ simple_dict_template = {
                        'prefix': '',
                        'uuid': '',
                        },
-                    'spouse': {
+                    'relative': {
                        'first_name': '',
                        'last_name': '',
                        'prefix': '',

@@ -1,3 +1,4 @@
+import os
 from modules.data_import.parse_document import parse_document
 from modules.data_import.write_sql import add_to_sql
 
@@ -6,6 +7,10 @@ import pprint
 
 
 def etree_to_dict(t):
+    """
+    converts a single xml element tree to a nested dictionary
+    """
+
     d = {t.tag: map(etree_to_dict, t.getchildren())}
     d.update(('@' + k, v) for k, v in t.attrib.iteritems())
     d['text'] = t.text
@@ -19,8 +24,12 @@ def xml_to_sql(doc_type, person_id, test=False):
     """
     imports the most recent xml dumps of BHIC center
     """
-    file_name = '/Users/bijan/sandbox/bhic_data/BS-%s.xml' % doc_type
-    file_name = '/Users/bijan/Database/BHIC_2015/BS-%s.xml' % doc_type
+
+    # set the path depending on whether we're running from server or from the local computer
+    if os.path.exists('/Users/bijan/Database/BHIC_2015'):
+        file_name = '/Users/bijan/Database/BHIC_2015/BS-%s.xml' % doc_type  # server
+    else:
+        file_name = '/Users/bijan/sandbox/bhic_data/BS-%s.xml' % doc_type  # local computer
 
     document_id = person_id  # initialization
     count = 1  # a counter to stop the running in case of testing
@@ -40,7 +49,6 @@ def xml_to_sql(doc_type, person_id, test=False):
                 try:  # to make sure the import procedure continues in any case
                     dict = etree_to_dict(elem)  # converts the xml to a nested dict
                     simple_dict = parse_document(dict, doc_type)  # simplifies the nested dict and returns a simple dict
-
                     add_to_sql(person_id, document_id, simple_dict, doc_type)
 
                     if doc_type == 'birth':
@@ -68,4 +76,6 @@ if __name__ == '__main__':
     doc_type = 'birth'
     xml_to_sql(doc_type, offset[doc_type])
     doc_type = 'marriage'
+    xml_to_sql(doc_type, offset[doc_type])
+    doc_type = 'death'
     xml_to_sql(doc_type, offset[doc_type])

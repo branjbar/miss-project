@@ -40,7 +40,8 @@ def add_to_sql(person_id, doc_id, dict, doc_type):
     :param doc_type:
     :return:
     """
-    xml_2_sql = open('sql_bs_%s.sql' % doc_type, 'a')
+    xml_1_sql = open('sql_bs_%s_persons.sql' % doc_type, 'a')
+    xml_2_sql = open('sql_bs_%s_documents.sql' % doc_type, 'a')
 
     if doc_type == 'birth':
         query = """
@@ -70,6 +71,42 @@ def add_to_sql(person_id, doc_id, dict, doc_type):
                 VALUES (%d,"%s","%s","%s","%s","%s");
                 """ % (doc_id, dict['uuid'], 'birth', dict['date'], dict['municipality'],
                        ','.join([str(person_id - 2), str(person_id - 1), str(person_id)]))
+
+    if doc_type == 'death':
+        query = """
+            INSERT INTO `all_persons_2015`
+                (`id`, `uuid`, gender, `first_name`, `prefix`, `last_name`, `date_1`,  `place_1`, `role`, `register_id`, `register_type`)
+            VALUES
+                (%d,"%s","%s", "%s","%s","%s","%s", "%s", %d, %d, "%s"),
+            """ % (
+            person_id, dict['child']['uuid'], dict['child']['gender'], dict['child']['first_name'].replace('"', "'"),
+            dict['child']['prefix'].replace('"', "'"), dict['child']['last_name'].replace('"', "'"), dict['date'], dict['municipality'], 1,
+            doc_id, 'death')
+        person_id += 1
+        query += """
+                 (%d,"%s","%s", "%s","%s","%s","%s", "%s", %d, %d, "%s"),
+                """ % (person_id, dict['father']['uuid'], "male", dict['father']['first_name'].replace('"', "'"),
+                       dict['father']['prefix'].replace('"', "'"), dict['father']['last_name'].replace('"', "'"),
+                       dict['date'], dict['municipality'], 4, doc_id, 'death')
+        person_id += 1
+        query += """
+                 (%d,"%s","%s", "%s","%s","%s","%s", "%s", %d, %d, "%s"),
+                """ % (person_id, dict['mother']['uuid'], "male", dict['mother']['first_name'].replace('"', "'"),
+                       dict['mother']['prefix'].replace('"', "'"), dict['mother']['last_name'].replace('"', "'"),
+                       dict['date'], dict['municipality'], 4, doc_id, 'death')
+        person_id += 1
+        query += """
+                 (%d,"%s","%s", "%s","%s","%s","%s", "%s", %d, %d, "%s");
+                """ % (person_id, dict['relative']['uuid'], "male", dict['relative']['first_name'].replace('"', "'"),
+                       dict['relative']['prefix'].replace('"', "'"), dict['relative']['last_name'].replace('"', "'"),
+                       dict['date'], dict['municipality'], 6, doc_id, 'death')
+
+        query_document = """
+                INSERT INTO `all_documents_2015` (id, uuid, `type_text`, date, `municipality`, reference_ids)
+                VALUES (%d,"%s","%s","%s","%s","%s");
+                """ % (doc_id, dict['uuid'], 'death', dict['date'], dict['municipality'],
+                       ','.join([str(person_id - 3), str(person_id - 2), str(person_id - 1), str(person_id)]))
+
 
     if doc_type == 'marriage':
         query = """
@@ -127,11 +164,12 @@ def add_to_sql(person_id, doc_id, dict, doc_type):
             dict['bride']['mother']['prefix'].replace('"', "'"), dict['bride']['mother']['last_name'].replace('"', "'"),
             dict['date'], dict['municipality'], 3, doc_id, 'marriage')
 
-        query += """
+        query_document = """
                 INSERT INTO `all_documents_2015` (id, uuid,  `type_text`, date, `municipality`, reference_ids)
                 VALUES (%d,"%s","%s","%s","%s","%s");
                 """ % (doc_id, dict['uuid'], 'marriage', dict['date'], dict['municipality'], ','.join(
                 [str(person_id - 5), str(person_id - 4), str(person_id - 3), str(person_id - 2), str(person_id - 1),
                  str(person_id)]))
 
-    xml_2_sql.write(query.encode('utf-8').replace('\\', ''))
+    xml_1_sql.write(query.encode('utf-8').replace('\\', ''))
+    xml_2_sql.write(query_document.encode('utf-8').replace('\\', ''))
