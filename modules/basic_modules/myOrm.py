@@ -65,10 +65,11 @@ class Document():
     a class for using any document
     """
 
-    def __init__(self, doc_id=None, ref_list=[], place=None, date=None, doc_type=None, rel_list=None):
+    def __init__(self, doc_id=None, ref_list=[], place=None, date=None, doc_type=None, rel_list=None, uuid=None):
         self.doc_id = doc_id
         self.ref_list = ref_list
         self.place = place
+        self.uuid = uuid
         self.date = date
         self.doc_type = doc_type
         self.text = None
@@ -193,7 +194,7 @@ class Document():
                 '<b>place</b>',
                 self.place)
             html += "<tr > \n <td style='padding: 1px'><small> %s </small></td> \n <td style='padding: 1px'><small> %s</small> </td>  \n </tr>\n" % (
-                '<b>date</b?',
+                '<b>date</b>',
                 self.date)
             for ref in self.ref_list:
                 try:
@@ -216,6 +217,9 @@ class Document():
                         "<small> %s</small> </td>  \n </tr>\n" % (ref_type, ref_name)
 
             html += "</table>"
+            html += """<div align="right"><a target="blank" href="http://www.bhic.nl/memorix/genealogy/detail?serviceUrl=/genealogie/weergave/akte/layout/default/id/%s">
+                        <img alt="BHIC" src="/static/bhic_logo.jpg" WIDTH=70  />
+                        </a></div>"""% self.uuid
 
         if self.doc_type == "notarial act":
             html += "</div>"
@@ -228,7 +232,6 @@ class Document():
 
         year = self.date[:4]
         month = self.date[5:7]
-        print month, year
         # to get rid of non-standard dates
         if month.isdigit():
             month = int(month)
@@ -236,7 +239,8 @@ class Document():
             month = 1
 
         place = self.place
-        return {'id': self.doc_id, 'month': month, 'year': year, 'city': place, 'html': html,
+        uuid = self.uuid
+        return {'id': self.doc_id, 'month': month, 'year': year, 'city': place, 'uuid': uuid, 'html': html,
                 'title': self.doc_type.title(),
                 'concept': "test"}
 
@@ -252,6 +256,7 @@ class Document():
             document = get_document(int(doc_id))
             self.doc_id = int(doc_id)
             self.place = document['municipality']
+            self.uuid = document['uuid']
             self.date = document['date']
             self.doc_type = document['type_text']
             self.ref_list = []

@@ -149,9 +149,8 @@ def routing():
 
         ref1 = ' '.join(search_term.split()[:2])
         ref2 = ' '.join(search_term.split()[-2:])
-        print search_term
+
         search_term = generate_features(ref1.split(), ref2.split())
-        print search_term
 
         solr_results = my_hash.search(search_term, field_query)
 

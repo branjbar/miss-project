@@ -140,7 +140,7 @@ def update_documents_table(limit):
 
     logging.debug(" Loading table all_documents.")
 
-    the_query = "select id, type_text, date, municipality," \
+    the_query = "select id, type_text, date, municipality, uuid, " \
                 " reference_ids from %s" % DOCUMENT_TABLE
     if type:
         q_type = None
@@ -255,7 +255,7 @@ def load_table(table_name, limit=None):
             the_query += " limit %d" % limit
     if table_name == 'all_documents':
         # query = "select * from %s" % table_name
-        the_query = "select id, type_text, date, municipality," \
+        the_query = "select id, type_text, date, municipality, uuid" \
                     " reference_ids from %s" % DOCUMENT_TABLE
         if limit:
             the_query += " limit %d" % int(limit / 3)
