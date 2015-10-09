@@ -1,5 +1,5 @@
 import random
-NOTARY_OFFSET = 100000000
+NOTARY_OFFSET = 100000000  # watch out this is also defined in solr_search/hashing
 
 from modules.NERD import dict_based_nerd
 from modules.basic_modules import loadData
