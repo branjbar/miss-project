@@ -1,4 +1,5 @@
 import os
+import sys
 from modules.data_import.parse_document import parse_document
 from modules.data_import.write_sql import add_to_sql
 
@@ -73,9 +74,5 @@ if __name__ == '__main__':
     offset = {'birth': 1, 'marriage': 30000001,
               'death': 60000001}  # this offset separates documents based on their type
 
-    doc_type = 'birth'
-    xml_to_sql(doc_type, offset[doc_type])
-    doc_type = 'marriage'
-    xml_to_sql(doc_type, offset[doc_type])
-    doc_type = 'death'
+    doc_type = sys.argv[1]  # the arguement is 'birth' or 'marriage' or 'death'
     xml_to_sql(doc_type, offset[doc_type])
