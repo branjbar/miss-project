@@ -219,7 +219,7 @@ class Document():
             html += "</table>"
             html += """<div align="right"><a target="blank" href="http://www.bhic.nl/memorix/genealogy/detail?serviceUrl=/genealogie/weergave/akte/layout/default/id/%s">
                         <img alt="BHIC" src="/static/bhic_logo.jpg" WIDTH=70  />
-                        </a></div>"""% self.uuid
+                        </a></div>""" % self.uuid
 
         if self.doc_type == "notarial act":
             html += "</div>"

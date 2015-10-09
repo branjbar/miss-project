@@ -15,14 +15,17 @@ from modules.basic_modules.basic import get_block_key
 def generate_features(r1, r2):
 
     # first we check if the name is N.N. or empty
-    if (r1[0] == "N.N." or r1[-1] == "N.N." or r2[0] == "N.N." or r2[-1] == "N.N." ) or\
+    try:
+        if (r1[0] == "N.N." or r1[-1] == "N.N." or r2[0] == "N.N." or r2[-1] == "N.N." ) or\
             (r1[0] == "" or r1[-1] == "" or r2[0] == "" or r2[-1] == "" ):
 
+            return 'ERROR'
+
+        else:
+
+            return '_'.join([r1[0],r1[-1],r2[0],r2[-1]])
+    except:
         return 'ERROR'
-
-    else:
-
-        return '_'.join([r1[0],r1[-1],r2[0],r2[-1]])
 
     # if r1[0] and r1[-1] and r2[0] and r2[-1]:
     #     if not r1[0] == '*' and not r2[0] == '*':
@@ -123,10 +126,15 @@ class Hashing():
                     date = self.adapt_date(date)
                     feature_list = [x for x in feature_list if x != 'ERROR']
                     block_keys = [x for x in block_keys if x != 'ERROR']
-                    self.s.add(features=feature_list, features_ss=feature_list, blockKeys=block_keys, id=document_id,
-                               location_s=place, cat=doc_type,
-                               date_dt=date, description=text)  # ,
-                    # )
+
+                    # Because of privacy issues
+                    year = date[:4]
+                    if int(year) < 1920:
+                        self.s.add(features=feature_list, features_ss=feature_list, blockKeys=block_keys, id=document_id,
+                                   location_s=place, cat=doc_type,
+                                   date_dt=date, description=text)
+                    else:
+                        print 'this document skipped: ', year
             except:
                 pass
             self.commit_counter += 1

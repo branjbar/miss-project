@@ -199,7 +199,8 @@ def routing():
         doc_list.sort(key=lambda x: (x['year'], x['month']))
 
         # in case no search term exists don't show any results but still show the fascting for *
-        # if search_term in ['*', '*_*_*_*']:
+        if search_term == '*_*_*_*':
+            search_term = ''
         #     html_year = []
         #     doc_list = []
         #     search_results = []
