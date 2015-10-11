@@ -154,7 +154,7 @@ def add_to_sql(person_id, doc_id, dict, doc_type):
                 """ % (
             person_id, dict['bride']['father']['uuid'], 'male', dict['bride']['father']['first_name'].replace('"', "'"),
             dict['bride']['father']['prefix'].replace('"', "'"), dict['bride']['father']['last_name'].replace('"', "'"),
-            dict['date'], dict['municipality'].replace('"', "'"), 2, doc_id, 'marriage')
+            dict['date'], dict['municipality'].replace('"', "'"), 3, doc_id, 'marriage')
 
         person_id += 1
         query += """
