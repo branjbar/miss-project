@@ -40,6 +40,7 @@ So, in average, each network has a size of 19.74 nodes. The smallest network has
 Let's draw a histogram.
 
 ```{r}
+library(ggplot2)
 qplot(data$network_no,binwidth=1)
 ```
 
