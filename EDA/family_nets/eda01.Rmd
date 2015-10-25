@@ -1,0 +1,46 @@
+---
+title: "family Network EDA"
+author: "Bijan Ranjbar-Sahraei"
+date: "October 25, 2015"
+output: html_document
+---
+
+A simple R markdown to do exploratory data analysis on Family Networks.
+
+# Import Data
+We start by importing the first csv file.
+
+*Please not that I had to add a "no" column to this csv file.*
+```{r}
+file_name <- "/Users/bian/Dropbox/CATCH_Local/network_data/family_networks_1.csv"
+raw_data <- read.csv(file_name,sep=';')
+```
+
+Here are columns of *raw_data*
+```{r}
+colnames(raw_data)
+```
+
+Now let's leave out the part of data we don't need and keep the rest in *data*
+```{r}
+data <- raw_data[,c("network_no","source","target")]
+head(data)
+```
+
+# Statistics
+
+Let's get size of each network
+
+```{r}
+network_size <- matrix(table(data$network_no))
+head(network_size)
+summary(network_size)
+```
+So, in average, each network has a size of 19.74 nodes. The smallest network has 9 nodes and the largest one has 26 nodes.
+Let's draw a histogram.
+
+```{r}
+qplot(data$network_no,binwidth=1)
+```
+
+Now it's time to build graphs and compute the degree of each graph, etc.
