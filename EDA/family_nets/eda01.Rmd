@@ -29,19 +29,48 @@ head(data)
 
 # Statistics
 
-Let's get size of each network
+Let's get the number of edges in each network
 
 ```{r}
-network_size <- matrix(table(data$network_no))
-head(network_size)
-summary(network_size)
+network.size.edges <- matrix(table(data$network_no))
+head(network.size.edges)
+summary(network.size.edges)
 ```
-So, in average, each network has a size of 19.74 nodes. The smallest network has 9 nodes and the largest one has 26 nodes.
+So, in average, each network has 19.74 edges. The smallest network has 9 edges and the largest one has 26 edges.
+
+*Assumption -* For now we assume that our networks don't have any cycle. Therefore, it's easy to show that the number of nodes in a cycle-free network is *number of edges - 1*. So, the size of networks is in average 18.74.
+
 Let's draw a histogram.
 
 ```{r}
 library(ggplot2)
-qplot(data$network_no,binwidth=1)
+ggplot(data, aes(x=network_no)) + geom_histogram(aes(fill = ..count..),binwidth = 1) + scale_fill_gradient("Count", low = "green", high = "red") + labs(x = "Number of Edges")
 ```
 
 Now it's time to build graphs and compute the degree of each graph, etc.
+
+# Analysis of Networks one-by-one 
+
+Let's first focus on *i=1* for the first network and find the list of nodes and list of edges.
+
+```{r, message=FALSE} 
+  library(igraph)  # let's install igraph
+```
+```{r}
+  i <- 1 
+  network <- subset(data,network_no == i)
+  attach(network)
+  
+  source  # the list of source nodes
+  target # the list of target nodes
+  set.nodes <- unique(append(source, target))  # merge sources and targets and get the unique list of ndoes
+  size.nodes <- length(set.nodes)  # number of nodes
+  
+  edges <- data.frame(from=source, to=target)  # the list of edges
+  g <- graph.data.frame(edges, directed=TRUE)  # define a new graph
+  plot(g,edge.arrow.size=0.5)  # visualize the graph
+  detach(network)
+```
+
+Now, it's time to extract the statistics, such as number of nodes, number of edges, distribution of degrees, diameter of the graph, 
+
