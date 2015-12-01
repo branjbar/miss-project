@@ -230,8 +230,13 @@ class Document():
                                           </div>
                                           """
 
-        year = self.date[:4]
-        month = self.date[5:7]
+        if self.doc_type == "notarial act":
+            year = self.date[-4:]
+            month = self.date[-7:-5]
+        else:
+            year = self.date[:4]
+            month = self.date[5:7]
+
         # to get rid of non-standard dates
         if month.isdigit():
             month = int(month)
