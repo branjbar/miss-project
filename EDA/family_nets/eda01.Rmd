@@ -1,5 +1,5 @@
 ---
-title: "family Network EDA"
+title: "EDA over HiDER results"
 author: "Bijan Ranjbar-Sahraei"
 date: "October 25, 2015"
 output: html_document
@@ -54,10 +54,6 @@ nrow(data[data$depth==1,])
 #install.packages("ggplot2")
 library(ggplot2)
 
-# count number of networks per depth
-aggdata <- aggregate(row.names~depth, data=data, FUN=length)
-ggplot(aggdata, aes(x=depth, y=row.names)) + geom_bar(stat="identity") + labs(x="Depth", y="# Networks")
-
 # count number of edges in each network
 aggdata <- aggregate(row.names~network_no+depth, data=data, FUN=length)
 aggdata$row.names <- aggdata$row.names-1  # to convert number of edges to number of nodes (note that our network doesn't have any loop)
@@ -76,7 +72,7 @@ ggplot(aggdata, aes(x=depth,y=row.names))  +
 
 # Analysis of a Single Network
 ```{r}
-network <- data.frame(no=integer(), child.max=integer(), parent.max=integer(), anamolies=integer(), depth=factor())
+network <- data.frame(no=integer(), child.max=integer(), parent.max=integer(), anomalies=integer(), depth=factor())
 
 for (d in 1:2) {
   for (i in 1:max(data[data$depth==d,]$network_no) ){
@@ -90,7 +86,7 @@ for (d in 1:2) {
       instance <- data.frame(no=net$network_no[1], 
                              child.max=max(children$row.names), 
                              parent.max=max(parents$row.names), 
-                             anamolies=sum(parents$row.names>2),
+                             anomalies=sum(parents$row.names>2),
                              depth=d)
     
       network<-rbind(network,instance)
@@ -103,8 +99,19 @@ head(network)
 
 Here the network structure has some very useful characteristics of the network. Let's visualize some of it's characteristics
 ```{r}
-ggplot(data=network, aes(x=child.max,fill=depth)) + geom_histogram() + labs(x="Number of Child", y="Freq.")
-ggplot(data=subset(network), aes(x=parent.max,fill=depth)) + geom_histogram() + labs(x="Number of Parents", y="Freq.")
-ggplot(data=subset(network), aes(x=anamolies,fill=depth)) + geom_histogram() + labs(x="Number of Anamolies", y="Freq.")
+###
+ggplot(data=network, aes(x=child.max,color=depth)) + geom_density() + labs(x="Number of Children", y="Freq.")
+ggplot(data=network, aes(x=depth,y=child.max)) + geom_boxplot() + labs(x="Depth", y="Number of Children")
+
+###
+ggplot(data=network, aes(x=parent.max,fill=depth)) + geom_histogram(position="dodge") + labs(x="Number of Parents", y="Freq.")
+ggplot(data=network, aes(x=depth,y=parent.max)) + geom_boxplot() + labs(x="Depth",y="Number of Parents")
+
+###
+ggplot(data=network, aes(x=anomalies, fill=depth)) + geom_histogram(position="dodge") + labs(x="Number of Anomalies.",y="Freq.")
+ggplot(data=network, aes(x=depth,y=anomalies)) + geom_boxplot() + labs(x="Depth", y="Number of Anomalies.")
+
+###
+ggplot(data=network, aes(x=anomalies==0,fill=depth)) + geom_histogram(position="dodge") + labs(x="Number of Anomalies", y="Freq.")
 ``` 
 
