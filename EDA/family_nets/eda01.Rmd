@@ -7,70 +7,104 @@ output: html_document
 
 A simple R markdown to do exploratory data analysis on Family Networks.
 
+# Initialization
+```{r}
+rm(list=ls())
+```
+
 # Import Data
 We start by importing the first csv file.
 
-*Please not that I had to add a "no" column to this csv file.*
+*Looping through all files in a directory*
 ```{r}
-file_name <- "/Users/bian/Dropbox/CATCH_Local/network_data/family_networks_1.csv"
-raw_data <- read.csv(file_name,sep=';')
+mypath = "/Users/bian/Dropbox/CATCH_Local/network_data/"
+filenames=list.files(path=mypath, full.names=TRUE)
+datalist = lapply(filenames, function(x){
+  t <- read.csv(x,sep=';',row.names=NULL)
+  # during the input procedure we get one extra 
+  t$X <- NULL  
+  
+  # adding the depth information to each row
+  if (grepl("depth",x)) {
+    t$depth <- 2  # main couple and up to 2nd neighbors
+  }
+  else
+    t$depth <- 1  # main couple and its first neighbros
+  
+  return(t)
+  })
+
+data <- datalist[[1]]  # initialized the dataframe by first data vector
+for (i in 2:length(filenames)) {
+  data <- rbind(data,datalist[[i]])
+}
+
 ```
 
-Here are columns of *raw_data*
+Let's look at columns and number of instances with depth 1 and depth 2
 ```{r}
-colnames(raw_data)
+colnames(data)
+nrow(data[data$depth==0,])
+nrow(data[data$depth==1,])
 ```
 
-Now let's leave out the part of data we don't need and keep the rest in *data*
+
+# General Statistics
 ```{r}
-data <- raw_data[,c("network_no","source","target")]
-head(data)
-```
-
-# Statistics
-
-Let's get the number of edges in each network
-
-```{r}
-network.size.edges <- matrix(table(data$network_no))
-head(network.size.edges)
-summary(network.size.edges)
-```
-So, in average, each network has 19.74 edges. The smallest network has 9 edges and the largest one has 26 edges.
-
-*Assumption -* For now we assume that our networks don't have any cycle. Therefore, it's easy to show that the number of nodes in a cycle-free network is *number of edges - 1*. So, the size of networks is in average 18.74.
-
-Let's draw a histogram.
-
-```{r}
+#install.packages("ggplot2")
 library(ggplot2)
-ggplot(data, aes(x=network_no)) + geom_histogram(aes(fill = ..count..),binwidth = 1) + scale_fill_gradient("Count", low = "green", high = "red") + labs(x = "Number of Edges")
+
+# count number of networks per depth
+aggdata <- aggregate(row.names~depth, data=data, FUN=length)
+ggplot(aggdata, aes(x=depth, y=row.names)) + geom_bar(stat="identity") + labs(x="Depth", y="# Networks")
+
+# count number of edges in each network
+aggdata <- aggregate(row.names~network_no+depth, data=data, FUN=length)
+aggdata$row.names <- aggdata$row.names-1  # to convert number of edges to number of nodes (note that our network doesn't have any loop)
+aggdata$depth <- factor(aggdata$depth)
+
+ggplot(aggdata, aes(x=row.names))  + 
+  geom_density(aes(fill=depth, alpha=depth), binwidth=1) + 
+  labs(x="Network Size", y="Freq.")
+
+
+ggplot(aggdata, aes(x=depth,y=row.names))  + 
+  geom_boxplot() + 
+  labs(x="Depth", y="Size")
+
 ```
 
-Now it's time to build graphs and compute the degree of each graph, etc.
-
-# Analysis of Networks one-by-one 
-
-Let's first focus on *i=1* for the first network and find the list of nodes and list of edges.
-
-```{r, message=FALSE} 
-  library(igraph)  # let's install igraph
-```
+# Analysis of a Single Network
 ```{r}
-  i <- 1 
-  network <- subset(data,network_no == i)
-  attach(network)
-  
-  source  # the list of source nodes
-  target # the list of target nodes
-  set.nodes <- unique(append(source, target))  # merge sources and targets and get the unique list of ndoes
-  size.nodes <- length(set.nodes)  # number of nodes
-  
-  edges <- data.frame(from=source, to=target)  # the list of edges
-  g <- graph.data.frame(edges, directed=TRUE)  # define a new graph
-  plot(g,edge.arrow.size=0.5)  # visualize the graph
-  detach(network)
+network <- data.frame(no=integer(), child.max=integer(), parent.max=integer(), anamolies=integer(), depth=factor())
+
+for (d in 1:2) {
+  for (i in 1:max(data[data$depth==d,]$network_no) ){
+    net <- subset(data,network_no==i & depth==d)
+    # continue if subset is nonempty
+    if (nrow(net) > 1) {  
+      children <- aggregate(row.names~source, data=net, FUN=length)
+
+      parents <- aggregate(row.names~target, data=net, FUN=length)
+
+      instance <- data.frame(no=net$network_no[1], 
+                             child.max=max(children$row.names), 
+                             parent.max=max(parents$row.names), 
+                             anamolies=sum(parents$row.names>2),
+                             depth=d)
+    
+      network<-rbind(network,instance)
+    }
+  }
+}
+network$depth <- factor(network$depth)
+head(network)
 ```
 
-Now, it's time to extract the statistics, such as number of nodes, number of edges, distribution of degrees, diameter of the graph, 
+Here the network structure has some very useful characteristics of the network. Let's visualize some of it's characteristics
+```{r}
+ggplot(data=network, aes(x=child.max,fill=depth)) + geom_histogram() + labs(x="Number of Child", y="Freq.")
+ggplot(data=subset(network), aes(x=parent.max,fill=depth)) + geom_histogram() + labs(x="Number of Parents", y="Freq.")
+ggplot(data=subset(network), aes(x=anamolies,fill=depth)) + geom_histogram() + labs(x="Number of Anamolies", y="Freq.")
+``` 
 
