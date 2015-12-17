@@ -146,10 +146,9 @@ if __name__ == '__main__':
             # sometimes edges are repeated which we don't want to store
             if [edge['source'], edge['target']] not in written_edges:
                 written_edges.append([edge['source'], edge['target']])  # store the source-target key for an edge
-OA
-                csv_file.write(str(family_number) + ';')  # in the csv file we track the number of family network
+                csv_file.write(';' + str(family_number) + ';')  # in the csv file we track the number of family network
                 for key in COLUMN_ORDER:
-                    csv_file.write(';'+str(edge[key]).replace(';', ','))
+                    csv_file.write(str(edge[key]).replace(';', ','))
                 csv_file.write('\n')
         family_number += 1
 
