@@ -103,9 +103,10 @@ if __name__ == '__main__':
     # generating family netowrks using facet information
     solr_results = my_hash.search('*', 'cat:death or cat:birth or cat:marriage', facet_limit=1000)
     facet_fields = solr_results.facet_counts['facet_fields']
-    facets = sorted(facet_fields['features_ss'].iteritems(), key=lambda x: x[1], reverse=True)
+    #facets = sorted(facet_fields['features_ss'].iteritems(), key=lambda x: x[1], reverse=True)
+    facets = facet_fields['features_ss']
     family_number = 1
-    depth_number = 2
+    depth_number = 1
     COLUMN_ORDER = [
         'source',
         'target',
@@ -145,10 +146,10 @@ if __name__ == '__main__':
             # sometimes edges are repeated which we don't want to store
             if [edge['source'], edge['target']] not in written_edges:
                 written_edges.append([edge['source'], edge['target']])  # store the source-target key for an edge
-
+OA
                 csv_file.write(str(family_number) + ';')  # in the csv file we track the number of family network
                 for key in COLUMN_ORDER:
-                    csv_file.write(str(edge[key]).replace(';', ',') + ';')
+                    csv_file.write(';'+str(edge[key]).replace(';', ','))
                 csv_file.write('\n')
         family_number += 1
 
