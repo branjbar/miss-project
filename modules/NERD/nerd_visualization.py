@@ -1,11 +1,12 @@
 import random
+
 NOTARY_OFFSET = 100000000  # watch out this is also defined in solr_search/hashing
 
 from modules.NERD import dict_based_nerd
 from modules.basic_modules import loadData
 from modules.basic_modules.basic import run_query
 from modules.basic_modules.myOrm import get_notarial_act, Document
-from modules.solr_search.hashing import generate_features
+# from modules.solr_search.hashing import generate_features  # I'm getting erros here! Probably the notary offset should be somewhere else.
 from modules.solr_search.solr_query import SolrQuery
 
 
