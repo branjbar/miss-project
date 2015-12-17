@@ -104,9 +104,9 @@ if __name__ == '__main__':
     solr_results = my_hash.search('*', 'cat:death or cat:birth or cat:marriage', facet_limit=1000)
     facet_fields = solr_results.facet_counts['facet_fields']
     #facets = sorted(facet_fields['features_ss'].iteritems(), key=lambda x: x[1], reverse=True)
-    facets = facet_fields['features_ss']
+    facets = facet_fields['features_ss'].iteritems()
     family_number = 1
-    depth_number = 1
+    depth_number = 2
     COLUMN_ORDER = [
         'source',
         'target',
@@ -131,6 +131,7 @@ if __name__ == '__main__':
     net_number = 0
     for facet_id, facet in enumerate(facets):
         print facet_id
+        
 
         # to split the networks in 10 different files, each with 100 networks
         if not facet_id % 100:
@@ -142,13 +143,13 @@ if __name__ == '__main__':
         the_family_edge_list = get_family_network([couple_name], get_family_from_solr([couple_name], depth_number)).get_edge_list()
         written_edges = []
         for edge in the_family_edge_list:
-
+            
             # sometimes edges are repeated which we don't want to store
             if [edge['source'], edge['target']] not in written_edges:
                 written_edges.append([edge['source'], edge['target']])  # store the source-target key for an edge
-                csv_file.write(';' + str(family_number) + ';')  # in the csv file we track the number of family network
+                csv_file.write(';' + str(family_number))  # in the csv file we track the number of family network
                 for key in COLUMN_ORDER:
-                    csv_file.write(str(edge[key]).replace(';', ','))
+                    csv_file.write(';' + str(edge[key]).replace(';', ','))
                 csv_file.write('\n')
         family_number += 1
 
