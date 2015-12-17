@@ -1,5 +1,5 @@
 ---
-title: "EDA over HiDER results"
+title: "EDA Over HiDER Results"
 author: "Bijan Ranjbar-Sahraei"
 date: "October 25, 2015"
 output: html_document
@@ -17,7 +17,7 @@ rm(list=ls())
 # Import Data
 We start by importing the first csv files. Let's loop through all files in the directory and for each file add the data into *data* data frame.
 ```{r}
-mypath = "/Users/bian/Dropbox/CATCH_Local/network_data/"
+mypath = "/Users/bian/Dropbox/CATCH_Local/network_data/new_data/"
 filenames=list.files(path=mypath, full.names=TRUE)
 datalist = lapply(filenames, function(x){
   t <- read.csv(x,sep=';',row.names=NULL)
@@ -25,7 +25,7 @@ datalist = lapply(filenames, function(x){
   t$X <- NULL  
   
   # adding the depth information to each row
-  if (grepl("depth",x)) {
+  if (grepl("depth2",x)) {
     t$depth <- 2  # main couple and up to 2nd neighbors
   }
   else
@@ -35,7 +35,7 @@ datalist = lapply(filenames, function(x){
   })
 
 data <- datalist[[1]]  # initialized the dataframe by first data vector
-for (i in 2:length(filenames)) {
+for (i in 1:length(filenames)) {  # CHANGE--> 2to1
   data <- rbind(data,datalist[[i]])
 }
 
@@ -98,7 +98,7 @@ For each network we'll extract some statitsitcs. For example number of children 
 
 ```{r}
 
-# A useful function 
+# A useful function to approximate length of generations in each netowrk
 get_generation_length <- function(net) {
   # this function gets a network and computes the number of years between oldest date and newest date
   
@@ -129,11 +129,34 @@ get_generation_length <- function(net) {
   return(date.max - date.min)
 }
 
+
+# a usuful function to see how many certificates are merged to generate each node
+library(stringr)
+
+get_number_of_merged_certificates <- function(x) {
+  count_list = vector()
+  
+  # check the source nodes
+  source_ids <- x$source_id
+  for (d in 1:length(source_ids)) {
+    count_list = c(count_list, str_count(as.character(source_ids[d]),',')/2+1)
+  }
+  target_ids <- x$source_id
+  for (d in 1:length(target_ids)) {
+    if (d %in% source_ids) {
+      count_list = c(count_list, str_count(as.character(target_ids[d]),',')/2+1)
+    }
+  }
+  return(data.frame(avg=mean(count_list),max=max(count_list)))
+  
+}
+
+
 # making an empty data frame for network
 network <- data.frame(no=integer(), child.max=integer(), parent.max=integer(), anomalies=integer(), depth=factor(), generation_length=double())
 
 # Looping through the networks
-for (d in 1:2) {  # for each depth
+for (d in 1:1) {  # for each depth
 
   for (i in 1:max(data[data$depth==d,]$network_no) ){  # for each network number
     net <- subset(data,network_no==i & depth==d)  # net is the subset with network number *i* and depth *d*
@@ -145,7 +168,7 @@ for (d in 1:2) {  # for each depth
       parents <- aggregate(row.names~target, data=net, FUN=length)  # for each target we find the existing sources
       
       gl <- get_generation_length(net)
-
+      mc <- get_number_of_merged_certificates(net)
       
       
       # let's make an instance and store some useful data in
@@ -154,7 +177,10 @@ for (d in 1:2) {  # for each depth
                              parent.max=max(parents$row.names),  # maximum number of parents
                              anomalies=sum(parents$row.names>2),  # number of nodes with more than two parent
                              depth=d,  # depth of node
-                             generation_length=gl)
+                             generation_length=gl,  # generation lenth
+                             merged_avg=mc$avg,  # average merged documents per node
+                             merged_max=mc$max  # maximum merged documents per node
+      )
     
       # adding instance to network data frame
       network<-rbind(network,instance)
@@ -195,19 +221,33 @@ ggplot(data=network, aes(x=anomalies, fill=depth)) + geom_histogram(aes(y=..coun
 Finally Let's see how many networks are anomaly free which gives us an indication of average precision-recall.
 
 ```{r}
-ggplot(data=network, aes(x=anomalies==0,fill=depth)) + geom_histogram(aes(y=..count../sum(..count..)), position="dodge") + labs(x="Number of Anomalies", y="Freq.")
+ggplot(data=network, aes(x=anomalies==0,fill=depth)) + geom_histogram(aes(y=2 *..count../sum(..count..)), position="dodge") + labs(x="Anomaly", y="Freq.")
 ``` 
 
+The number of depth 1 networks with anomaly clearly explain the accuracy of our matches. This in 80% of cases we have a precise identity resolution. 
+
+## Length of Generations
 
 Another way to see the anomalies is to look at the range of years between very first document and last one. Let's look at the distribution of this range in following.
 
 ```{r}
-ggplot(data=subset(network,generation_length<600), aes(x=generation_length,color=depth)) + geom_density() + labs(x="Number of Children", y="Freq.")
+ggplot(data=subset(network,generation_length<600)  # to get rid of outliers
+       , aes(x=generation_length,color=depth)) + geom_density() + labs(x="Generation Length", y="Freq.")
 ```
 
 Here we show this distribution in form of a boxplot
 ```{r}
-ggplot(data=subset(network,generation_length<600), aes(x=depth,y=generation_length)) + geom_boxplot() + labs(x="Depth", y="generation Length")
+ggplot(data=subset(network,generation_length<600)  # to get rid of outliers
+       , aes(x=depth,y=generation_length)) + geom_boxplot() + labs(x="Depth", y="Generation Length")
 ```
 
+## Number of Merged Documents (Matches found for a couple)
+
+It's also important to see how many documents are merged two form a node.
+```{r}
+ggplot(data=network, aes(x=depth,y=merged_avg)) + geom_boxplot() + labs(x="Depth", y="Average Number of Merged Documents")
+ggplot(data=network, aes(x=merged_max,color=depth)) + geom_density() + labs(x="Depth", y="Maximum Number of Merged Documents")
+```
+
+The maximum number of merged documents for depth 1 in the above figure exactly shows the number of matches we've find for each couple.
 
