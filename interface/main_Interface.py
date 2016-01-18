@@ -1,8 +1,9 @@
 import datetime
+import json
+from urllib import urlopen
 from flask import render_template
 from flask import jsonify
 from modules.NERD import dict_based_nerd
-import requests
 
 
 
@@ -75,7 +76,7 @@ def routing():
         notary_text = notary_text.replace('+',' ')
         nerd = dict_based_nerd.Nerd(notary_text)
         named_individuals_list = [{'position': name[0], 'name': name[1]} for name in nerd.get_references()]
-        relationships_list = [{'ref1': rel['ref1'][0],'ref2': rel['ref2'][0],'type': rel['relation']} for rel in nerd.get_relations()]
+        relationships_list = [{'ref1': {'position': rel['ref1'][0],'name': rel['ref1'][1]},'ref2': {'position': rel['ref2'][0],'name': rel['ref2'][1]},'type': rel['relation']} for rel in nerd.get_relations()]
 
 
         return jsonify({'text': notary_text,
@@ -87,7 +88,23 @@ def routing():
         })
 
 
+    @app.route('/miss/ner/api/v1.0/miss_frontend_text', methods=['GET'])
+    def miss_frontend_text():
+        '''
+        due to request of the Nationaal Archief, I've designed this frontend.
+        :GET param: text which we are interested in its named individuals and relationship
+        :return: a json file with text itself, its named individuals and its relationships
+        '''
 
+        notary_text = request.args.get('q','test')  # the main searching term
+
+        url = 'http://swarmlab-srv01.unimaas.nl:20002/miss/ner/api/v1.0/miss_api_text?q=' + notary_text
+        jsonurl = urlopen(url)
+        jason_data = json.loads(jsonurl.read())
+        print url, jason_data
+
+
+        return render_template('miss_frontend_text.html', data=jason_data)
 
 
     @app.route('/search/', methods=['GET', 'POST'])
