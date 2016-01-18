@@ -1,4 +1,10 @@
+import datetime
 from flask import render_template
+from flask import jsonify
+from modules.NERD import dict_based_nerd
+import requests
+
+
 
 from modules.NERD.nerd_visualization import get_nerd_data
 from modules.basic_modules import basic, loadData, myOrm, generatePedigree
@@ -47,6 +53,43 @@ def requires_auth(f):
 
 
 def routing():
+
+
+
+
+
+    @app.route('/miss/ner/api/v1.0/miss_api_text', methods=['GET'])
+    def miss_api_text(notary_text=''):
+        '''
+        due to request of the Nationaal Archief, I've designed this api.
+        :GET param: text which we are interested in its named individuals and relationship
+        :return: a json file with text itself, its named individuals and its relationships
+        '''
+
+        if not notary_text:
+            notary_text = request.args.get('q')  # the main searching term
+
+        if not notary_text or len(notary_text) == 0:
+            return jsonify({'ERROR': 'text not give'})
+
+        notary_text = notary_text.replace('+',' ')
+        nerd = dict_based_nerd.Nerd(notary_text)
+        named_individuals_list = [{'position': name[0], 'name': name[1]} for name in nerd.get_references()]
+        relationships_list = [{'ref1': rel['ref1'][0],'ref2': rel['ref2'][0],'type': rel['relation']} for rel in nerd.get_relations()]
+
+
+        return jsonify({'text': notary_text,
+                        'request_time': datetime.datetime.now(),
+                        'user': 'unknown',
+                        'api_provider': 'MiSS Project',
+                        'named_individuals': named_individuals_list,
+                        'relationships': relationships_list,
+        })
+
+
+
+
+
     @app.route('/search/', methods=['GET', 'POST'])
     @requires_auth
     def searching_intel():

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>MiSS Intelligent Timeline</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <script src="/static/d3/d3.js"></script>
+
+
+
+
+
+  </head>
+
+  <body>
+
+    {% include "navbar.html"%}
+        <div class="row-fluid" style="height:100%">
+            <!--<div class="col-xs-12 text-center">-->
+             <h4 align="center"> NEW STORIES, NEVER HEARD BEFORE!  </h4>
+            <hr>
+
+
+            <div class="col-xs-3" style="padding-right:20px; border-right: 1px solid #ccc;">
+		
+                  <ul class="nav nav-sidebar;">
+                        <form class="navbar-form" role="search" method="get">
+                            <b>Person 1</b> (family name; given name):
+                            <br>
+                                <div class="input-group">
+                                <input type="text" class="form-control" placeholder="family name" value="{{searched_names[1]}}" name="lname1_term">
+                                <input type="text" class="form-control" placeholder="given name" value="{{searched_names[0]}}" name="fname1_term">
+                                </div>
+                            <br>
+                            <b>Person 2</b> (family name; given name):
+                            <br>
+                                <div class="input-group">
+                                <input type="text" class="form-control" placeholder="family name" value="{{searched_names[3]}}" name="lname2_term">
+                                <input type="text" class="form-control" placeholder="given name" value="{{searched_names[2]}}" name="fname2_term">
+                                </div>
+
+                            <br>
+                                <center>
+                                <button type="submit" class="btn btn-default btn-lg btn-success">
+                                    SEARCH
+                                </button>
+                                <a class="btn btn-lg btn-danger" href="/hash_matches" role="button"> RESET </a>
+                                </center>
+                        </form> <br>
+                        {% if found_results %}
+                           <p class="text-center">{{found_results}} results found for: <br> <strong> {{couple_name}} </strong>  </p> <br>
+                        {% endif %}
+                      {% if couple_name %}
+                        <a href="/search/?depth_level=1&search_term={{couple_name}}" target="blank"><p class="text-center">Open the Pedigree View (NEW!!)</p></a>
+                      {% endif %}
+                      <small>
+                      {% for key in field_query.split(' ') %}
+                              <!-- to replace the weird facet names with nicer ones! -->
+                              {% if key == '-features_ss:' or key == 'features_ss:' %}
+                               <br><b>Couple Name</b>:
+                              {% elif key == '-location_s:' or key == 'location_s:'%}
+                               <br><b>Location</b>:
+                              {% elif key == '-date_dt:' or key == 'date_dt:' %}
+                               <br><b>Date Range</b>:
+                              {% elif key == '-cat:' or key == 'cat:' %}
+                               <br><b>Record Type</b>:
+                              {% else %}
+                                {{key.replace('_',' ')}}
+                              {% endif %}
+                      {% endfor %}
+                    </small>
+                      <div>
+                        {% for key, value in facets.iteritems() %}
+                            <hr>
+                        <li> <b>
+                              <!-- to replace the weird facet names with nicer ones! -->
+                              {% if key == 'features_ss' %}
+                               Couple Name
+                              {% elif key == 'location_s' %}
+                               Location
+                              {% elif key == 'date_dt' %}
+                               Date Range
+                              {% elif key == 'cat' %}
+                               Record Type
+                              {% else %}
+                                {{key}}
+                              {% endif %}
+
+                        </b></li>
+                            {% for v in value %}
+                                {% if v.1 > 0%}
+                                    <small>
+
+                                        {% if key == 'features_ss' %} <!-- if this the couple field -->
+                                            <a href="?search_term={{couple_name}}&field_query={{field_query}}&fq={{key}}:{{v.0}}">
+                                                <i class="glyphicon glyphicon-new-window"></i>
+                                            </a>
+                                            <a href="?search_term={{v.0}}">
+                                                {{v.0}}
+                                            </a>
+                                        {% else %}
+                                            <a href="?mq={{key}}: {{v.0}}">
+                                                <i class="glyphicon glyphicon-new-window"></i>
+                                            </a>
+                                            <a href="?search_term={{couple_name}}&field_query={{field_query}}&fq={{key}}:{{v.0}}">
+                                                {{v.0}}
+                                            </a>
+                                        {% endif %}
+
+                                    </small> ({{v.1}})
+                                 <br>
+                                {% endif %}
+                            {% endfor %}
+                      {% endfor %}
+                        </div>
+                            <ul>
+                            </ul>
+                        <!--<li> <p class="small" align="center"> <b>Matching Score</b><p></li>-->
+
+
+                  </ul>
+
+              </div>
+
+
+            {% if found_results %}
+
+
+
+            <div class="col-xs-9" id="d3_panel">
+            {% for doc in doc_list %}
+                <div style="width:400px;height:350px; overflow:auto" id="a{{loop.index-1}}">{{doc['html']|safe}}</div>
+            {% endfor %}
+                    <script>
+                        svg_r = d3.select("body")
+                                       .select("#d3_panel")
+                                       .append("svg")
+
+                        doc_list = {{html_year|tojson|safe}}
+
+                        padding = 60;
+
+                        c_r = 6
+                        div_size=150  // div height
+                        //w = svg_r.style("width").replace("px", "");
+                        w = 1000;  // this width is used a bit before to set the width of cards to 400, for a Macbook Air usually 1000 works perfectly, and for larger screens go for 1200
+                        h = div_size * doc_list.length * 1.2;
+                        svg_r.attr("height", h)
+                        .attr("width",w)
+
+                        min_year = d3.min(doc_list, function(d){return d.year})
+                        max_year = d3.max(doc_list, function(d){return d.year})
+
+                        var year_scale = d3.scale.linear()
+                        .domain([0, doc_list.length-1])
+                        .range([padding, h-padding]);
+
+
+                        svg_r.append("line")
+                        .attr("x1",w/2)
+                        .attr("y1",padding)
+                        .attr("x2",w/2)
+                        .attr("y2",padding)
+                        .attr("stroke-width", 2)
+                        .attr("stroke", "black")
+                        .transition()
+                        .duration(1000)
+                        .attr("x2",w/2)
+                        .attr("y2",h - padding)
+
+
+                        svg_r.selectAll("circle")
+                        .data(doc_list)
+                        .enter()
+                        .append("circle")
+                        .attr("cx",w/2)
+                        .attr("cy",function(d, i){return year_scale(i)})
+                        .attr("r",c_r)
+                        .attr("fill","gray")
+                        .attr("stroke","black")
+                        .append("title")
+                        .text(function(d){return d.title})
+
+
+                        svg_r.selectAll("text .title")
+                        .data(doc_list)
+                        .enter()
+                        .append("text")
+                        .attr("class", "year")
+                        .attr("x",function(d,i){return w/2 })
+                        .attr("y",function(d,i){return year_scale(i)+c_r/2})
+                        .text(function(d,i){return d.title[0]})
+                        .attr("font-family", "sans-serif")
+                        .attr("font-size", "8px")
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "white")
+                        .attr('pointer-events', "none")
+
+
+                        svg_r.selectAll("text .year")
+                        .data(doc_list)
+                        .enter()
+                        .append("text")
+                        .attr("class", "year")
+                        .attr("x",function(d,i){return w/2 + 50 - (i%2 * 100)})
+                        .attr("y",function(d,i){return -5 + year_scale(i)})
+                        .text(function(d,i){return d.year + ' (' + (d.city.length < 6 ? d.city: d.city.substring(0,5) + '...') + ')'})
+                        .attr("font-family", "sans-serif")
+                        .attr("font-size", "10px")
+                        .attr("text-anchor", "middle")
+                        rect_width = 120
+
+
+                        // horizontal line
+                        svg_r.selectAll("line .c2r")
+                        .data(doc_list)
+                        .enter()
+                        .append("line")
+                        .attr("class", "c2r")
+                        .attr("id", function(d,i) {return ("a" + i)})
+                        .attr("class","hidden")
+                        .attr("x1", function(d,i){return w/2 + 2 * c_r -  i%2 * 4 * c_r })
+                        .attr("y1", function(d,i){return year_scale(i)})
+                        .attr("x2", function(d,i){return (i%2) ? 5 * padding : w - 5 * padding})
+                        .attr("y2", function(d,i){return year_scale(i)})
+                        .attr("stroke", "black")
+                        .attr("fill", "white")
+
+                        // vertical line
+                        svg_r.selectAll("line .r2r")
+                        .data(doc_list)
+                        .enter()
+                        .append("line")
+                        .attr("class", "r2r")
+                        .attr("id", function(d,i) {return ("a" + i)})
+                        .attr("class","hidden")
+                        .attr("x1", function(d,i){return (i%2) ? 5 * padding : w - 5 * padding})
+                        .attr("y1", function(d,i){return year_scale(i)})
+                        .attr("x2", function(d,i){return (i%2) ? 5 * padding : w - 5 * padding})
+                        .attr("y2", function(d,i){return year_scale(0)})
+                        .attr("stroke", "black")
+                        .attr("fill", "white")
+
+
+
+
+                        for (i=0; i<=doc_list.length;i++){
+
+                                // Position of the tooltips
+                                var xPosition = i%2? 0 : w/2 + 2 * padding ;
+                                var yPosition = year_scale(i) - div_size/2;
+
+                                //Update the tooltip position and value
+                                d3.selectAll("#a" + i)
+                                  .style("left", xPosition + "px")
+                                  .style("top", yPosition + "px")
+                                  .style("position", "absolute")
+
+
+                            svg_r.selectAll("circle")
+                            .data(doc_list)
+                                .transition()
+                                .duration(500)
+                                .attr("fill", "orange")
+                                .attr("r", 2 * c_r);
+
+                            // horizontal line
+                            svg_r.selectAll("line .c2r")
+                            .data(doc_list)
+                            .enter()
+                            .append("line")
+                            .attr("class", "c2r")
+                            .attr("id", function(d,i) {return ("a" + i)})
+                            .attr("x1", function(d,i){return w/2 + 2 * c_r -  i%2 * 4 * c_r })
+                            .attr("y1", function(d,i){return year_scale(i)})
+                            .attr("x2", function(d,i){return (i%2) ? 5 * padding : w - 5 * padding})
+                            .attr("y2", function(d,i){return year_scale(i)})
+                            .attr("stroke", "black")
+                            .attr("fill", "white")
+
+
+                            }
+
+
+                     </script>
+
+                        <!--Here we have the hidden cards that will show up once we move on the key -->
+             </div>
+            {% else %}
+
+                <!--<p class="text-warning" align="center">No results found!  </p> <p class="text-info">Either search for a couple (e.g., Anna Hout & Johannes Timmers) using the top right search bar,-->
+                    <!--or click on the <i class="glyphicon glyphicon-question-sign"></i> icon at the top-right corner to-->
+                <!--look at a random couple. You can also start with one of the following interesting stories. </p>-->
+            {% endif %}
+        </div>
+     <!--Interesting Stories:-->
+        <!--<small>-->
+        <!--<a href="/hash_matches/?search_term=Johanna+Pas+%26+Lucas+Dobbelsteen"> Johanna Pas & Lucas Dobbelsteen</a>,-->
+        <!--<a href="/hash_matches/?search_term=Johannes+Genugten+%26+Petronella+Rovers"> Johannes Genugten & Petronella Rovers</a>,-->
+        <!--<a href="/hash_matches/?search_term=Elisabeth+Dungen+%26+Francis+Dijk"> Elisabeth Dungen & Francis Dijk</a>,-->
+        <!--<a href="/hash_matches/?search_term=Hendrika+Velden+%26+Theodorus+Berg"> Hendrika Velden & Theodorus Berg</a>,-->
+        <!--<a href="/hash_matches/?search_term=Maria+Teulings+%26+Theodorus+Houtum"> Maria Teulings & Theodorus Houtum</a>,-->
+        <!--<a href="/hash_matches/?search_term=Johanna+Tielemans+%26+Petrus+Kerkhof"> Johanna Tielemans & Petrus Kerkhof</a>,-->
+        <!--<a href="/hash_matches/?search_term=Anthonetta+Erp+%26+Willebrordus+Donkers"> Anthonetta Erp & Willebrordus Donkers</a>,-->
+        <!--<a href="/hash_matches/?search_term=Hendrikus+Linden+%26+Mechelina+Verbruggen"> Hendrikus Linden & Mechelina Verbruggen</a>,-->
+        <!--<a href="/hash_matches/?search_term=Gerardus+Kemenade+%26+Petronella+Wijdeven"> Gerardus Kemenade & Petronella Wijdeven</a>,-->
+
+
+
+
+
+        </small>
+    </div>
+
+    <script src="/static/jquery-1.11.1.min.js"></script>
+    <script src="{{ url_for('static',filename = 'bootstrap/js/bootstrap.min.js')}}"></script>
+    <script src="{{ url_for('static',filename = 'd3/d3.js')}}"></script>
+
+
+    <style>
+        .highlight {
+            background-color: #FFFF00;
+        }
+        .highlight_fuzzy {
+            background-color: #00FF00;
+        }
+
+    </style>
+  </body>
+</html>
