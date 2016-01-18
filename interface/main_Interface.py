@@ -99,6 +99,7 @@ def routing():
         notary_text = request.args.get('q','test')  # the main searching term
 
         url = 'http://swarmlab-srv01.unimaas.nl:20002/miss/ner/api/v1.0/miss_api_text?q=' + notary_text
+        url = url.encode('utf-8').replace('\\','')
         jsonurl = urlopen(url)
         jason_data = json.loads(jsonurl.read())
 

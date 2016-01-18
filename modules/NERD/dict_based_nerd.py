@@ -112,15 +112,21 @@ class Nerd():
             E.g., adds space before and after ","
              replaces multiple spaces by single ones.
              detects the names connected to previous word
+             also replacing the starting digits
         """
         self.text = self.text.replace('"', '')
         for c in PUNCTUATION_LIST:
             self.text = self.text.replace(c, ' ' + c + ' ')
         text = self.text.replace('  ', ' ')
 
-        new_text = ''
+        # if the word starts with digits, we remove the digit. We check it two times.
+        if text.split(' ')[0].isdigit():
+            text = ' '.join(text.split()[1:])
+        if text.split(' ')[0].isdigit():
+            text = ' '.join(text.split()[1:])
 
-        # spliting the connected words using the upper case in between, e.g., "(=Beatrix)"
+        # splitting the connected words using the upper case in between, e.g., "(=Beatrix)"
+        new_text = ''
         for word in text.split():
             new_word = word
             if len(word) > 3:
@@ -208,7 +214,6 @@ class Nerd():
                 word_spec[index] = -1
 
         self.word_list_labeled = word_spec
-        print word_spec
 
     def extract_references(self):
         """ (list) --> (list)
