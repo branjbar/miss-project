@@ -146,7 +146,7 @@ class Nerd():
             for each word the specifications are reported:
             1 : started with capital letter
             2 : last name prefix
-            3 : First word of the whole paragraph which continues with a capital letter word
+            3 : First word of the whole paragraph which continues a capital letter word
             4: Very frequent words
             -1: has capital letter but is not a name
         """
@@ -183,7 +183,7 @@ class Nerd():
                 word_spec[index + 1] = 2
 
         # Consider first word as a name if second word is already chosen to be a name
-        if self.word_list[0].isupper() and not self.word_list[0] == 'Testament' and word_spec.get(1) == 1:
+        if self.word_list[0][0].isupper() and not self.word_list[0] == 'Testament' and word_spec.get(1) == 1:
             word_spec[0] = 3
 
         # Consider first word as a name if second word is already chosen to be a prefix and third name is a name
