@@ -55,10 +55,6 @@ def requires_auth(f):
 
 def routing():
 
-
-
-
-
     @app.route('/miss/ner/api/v1.0/miss_api_text', methods=['GET'])
     def miss_api_text(notary_text=''):
         '''
@@ -78,14 +74,18 @@ def routing():
         named_individuals_list = [{'position': name[0], 'name': name[1]} for name in nerd.get_references()]
         relationships_list = [{'ref1': {'position': rel['ref1'][0],'name': rel['ref1'][1]},'ref2': {'position': rel['ref2'][0],'name': rel['ref2'][1]},'type': rel['relation']} for rel in nerd.get_relations()]
 
-
-        return jsonify({'text': notary_text,
+        results = {'text': notary_text,
                         'request_time': datetime.datetime.now(),
                         'user': 'unknown',
                         'api_provider': 'MiSS Project',
                         'named_individuals': named_individuals_list,
                         'relationships': relationships_list,
-        })
+                    }
+
+        with open("api_log.txt", "a") as myfile:
+            myfile.write(str(results) + '\n\n')
+
+        return jsonify(results)
 
 
     @app.route('/miss/ner/api/v1.0/miss_frontend_text', methods=['GET'])
