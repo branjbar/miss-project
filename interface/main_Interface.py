@@ -101,8 +101,6 @@ def routing():
         url = 'http://swarmlab-srv01.unimaas.nl:20002/miss/ner/api/v1.0/miss_api_text?q=' + notary_text
         jsonurl = urlopen(url)
         jason_data = json.loads(jsonurl.read())
-        print url, jason_data
-
 
         return render_template('miss_frontend_text.html', data=jason_data)
 

@@ -177,7 +177,7 @@ class Nerd():
                 word_spec[index + 1] = 2
 
         # Consider first word as a name if second word is already chosen to be a name
-        if not self.word_list[0] == 'Testament' and word_spec.get(1) == 1:
+        if self.word_list[0].isupper() and not self.word_list[0] == 'Testament' and word_spec.get(1) == 1:
             word_spec[0] = 3
 
         # Consider first word as a name if second word is already chosen to be a prefix and third name is a name
@@ -208,6 +208,7 @@ class Nerd():
                 word_spec[index] = -1
 
         self.word_list_labeled = word_spec
+        print word_spec
 
     def extract_references(self):
         """ (list) --> (list)

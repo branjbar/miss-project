@@ -27,25 +27,37 @@
                 <!-- here is our data !-->
                 <hr>
                 <h3> Text</h3>
-                <p>{{data.text}}</p>
-                <hr>
-                <h3> Extracted Meta Data </h3>
+                    <div class="col-xs-12">
+                        <form class="col-xs-9" role="search" method="get" >
+                            <textarea class="form-control" rows="6" placeholder="enter text" required name="q">{{data.text}}</textarea>
+                            <center>
+                                <button type="submit" class="btn btn-default btn-lg btn-success">
+                                    Extract
+                                </button>
+                            </center>
+                        </form>
+                    </div>
+                <br>
+                <div class="col-xs-12">
+                    <hr>
+                    <h3> Extracted Meta Data </h3>
 
-                <h4> Individuals </h4>
-                    {% for indiv in data.named_individuals %}
-                        <p>Person{{loop.index}}: {{indiv.name}}</p>
-                    {% endfor %}
-
-                <h4> Relationship </h4>
-                    {% for rel in data.relationships %}
-                        <p>relationship{{loop.index}}: {{rel.ref1.name}} -- {{rel.type}} -- {{rel.ref2.name}}</p>
-                    {% endfor %}
-                <hr>
-
+                    <h4> Individuals </h4>
+                        {% for indiv in data.named_individuals %}
+                            <p>Person{{loop.index}}: <code>{{indiv.name}}</code></p>
+                        {% endfor %}
+                    <hr>
+                    <h4> Relationships </h4>
+                        {% for rel in data.relationships %}
+                            <p>Relationship{{loop.index}}: <code>{{rel.ref1.name}}</code> - {{rel.type}} - <code>{{rel.ref2.name}}</code></p>
+                        {% endfor %}
+                    <hr>
+                </div>
             </div>
         </div>
 
 
+    <script src="/static/jquery-1.11.1.min.js"></script>
     <script src="{{ url_for('static',filename = 'bootstrap/js/bootstrap.min.js')}}"></script>
 
   </body>
