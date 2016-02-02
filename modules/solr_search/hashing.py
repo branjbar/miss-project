@@ -1,7 +1,7 @@
 """
 Here we do the hashing and update, search the """
 from modules.NERD import dict_based_nerd
-from modules.NERD.nerd_visualization import NOTARY_OFFSET
+from modules.basic_modules.myOrm import NOTARY_OFFSET
 from modules.basic_modules import PERSON_TABLE
 
 from modules.basic_modules.basic import run_query

@@ -1,5 +1,6 @@
+NOTARY_OFFSET = 100000000  # watch out this is also defined in solr_search/hashing
+
 from modules.NERD.dict_based_nerd import Nerd
-from modules.NERD.nerd_visualization import NOTARY_OFFSET
 from modules.family_network.treeStructure import LeafNode, Leaf, Branch
 
 __author__ = 'Bijan'
