@@ -23,7 +23,8 @@ PREFIXES = ['van', 'de', 'van der', 'van den', 'van de', 'den']
 # 'land', 'heer']
 
 
-MISLEADING_STARTING_WORDS = ["Testament","Codicil","Getuigenverklaring","Inventaris","Ontlastbrief","Opdracht","Verzoekschrift"]
+MISLEADING_STARTING_WORDS = ["Testament","Codicil","Getuigenverklaring","Inventaris",
+                             "Ontlastbrief","Opdracht","Verzoekschrift","Tesatment"] # the last one is a typo existing in text
 # TODO: other patterns for relationship: kinderen van [blah] en [blue]
 # TODO: other patterns for relationship: zoon van [blah] en [blue]
 # TODO: other patterns for relationship: dochter van [blah] en [blue]
