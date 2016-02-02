@@ -16,10 +16,10 @@ def parse_notarial_acts(N=200922):
                          "Relationship Type", "Evidence", "Location", "Date", "notary_id", "Nummer", "FOLIO",
                          "FOLIOTOT", "TOEGANG", "\n"])
 
-    relation_id = 0
     with open("relationship_evidence.csv", "a") as my_file:
         my_file.write(csv_text)
 
+    relation_id = 0
     for row_id in xrange(1, N):
         text_record = get_notarial_act(row_id)
         details = [text_record['place'], text_record['date'], str(text_record['id']), text_record['Nummer'],
@@ -31,7 +31,7 @@ def parse_notarial_acts(N=200922):
         jsonurl = urlopen(url)
         json_data = json.loads(jsonurl.read())
 
-        for rel in json_data["relationships"]:
+        for rel in json_data.get("relationships",[]):
             ref1 = split_full_name(rel['ref1']['name'])
             ref2 = split_full_name(rel['ref2']['name'])
 

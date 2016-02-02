@@ -67,7 +67,7 @@ def routing():
             notary_text = request.args.get('q')  # the main searching term
 
         if not notary_text or len(notary_text) == 0:
-            return jsonify({'ERROR': 'text not give'})
+            return jsonify({'ERROR': 'text not given'})
 
         notary_text = notary_text.replace('+',' ')
         nerd = dict_based_nerd.Nerd(notary_text)
