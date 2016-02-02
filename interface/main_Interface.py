@@ -74,7 +74,7 @@ def routing():
         named_individuals_list = [{'position': name[0], 'name': name[1]} for name in nerd.get_references()]
         relationships_list = [{'ref1': {'position': rel['ref1'][0],'name': rel['ref1'][1]},'ref2': {'position': rel['ref2'][0],'name': rel['ref2'][1]},'type': rel['relation']} for rel in nerd.get_relations()]
 
-        results = {'text': notary_text,
+        results = {'text': nerd.pp_text,
                         'request_time': datetime.datetime.now(),
                         'user': 'unknown',
                         'api_provider': 'MiSS Project',
