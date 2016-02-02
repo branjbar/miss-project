@@ -22,6 +22,8 @@ PREFIXES = ['van', 'de', 'van der', 'van den', 'van de', 'den']
 # 'haar',  'hij', 'andere', 'groot', 'genaamd', 'dochter', 'verkopen', 'sijn',
 # 'land', 'heer']
 
+
+MISLEADING_STARTING_WORDS = ["Testament","Codicil","Getuigenverklaring","Inventaris","Ontlastbrief","Opdracht","Verzoekschrift"]
 # TODO: other patterns for relationship: kinderen van [blah] en [blue]
 # TODO: other patterns for relationship: zoon van [blah] en [blue]
 # TODO: other patterns for relationship: dochter van [blah] en [blue]
@@ -183,12 +185,12 @@ class Nerd():
                 word_spec[index + 1] = 2
 
         # Consider first word as a name if second word is already chosen to be a name
-        if self.word_list[0][0].isupper() and not self.word_list[0] == 'Testament' and word_spec.get(1) == 1:
+        if self.word_list[0][0].isupper() and not self.word_list[0] in MISLEADING_STARTING_WORDS and word_spec.get(1) == 1:
             word_spec[0] = 3
 
         # Consider first word as a name if second word is already chosen to be a prefix and third name is a name
         try:
-            if not self.word_list[0] == 'Testament' and self.word_list[1] in PREFIXES and word_spec.get(2) == 1:
+            if not self.word_list[0] in MISLEADING_STARTING_WORDS and self.word_list[1] in PREFIXES and word_spec.get(2) == 1:
                 word_spec[0] = 3
                 word_spec[1] = 2
         except:
@@ -196,7 +198,7 @@ class Nerd():
 
         # Consider first word as a name if 2nd and 3rd words are already chosen to be a prefix and forth name is a name
         try:
-            if not self.word_list[0] == 'Testament' and self.word_list[1] + " " + self.word_list[
+            if not self.word_list[0] in MISLEADING_STARTING_WORDS and self.word_list[1] + " " + self.word_list[
                 2] in PREFIXES and word_spec.get(3) == 1:
                 word_spec[0] = 3
                 word_spec[1] = 2
