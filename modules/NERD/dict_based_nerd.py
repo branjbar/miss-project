@@ -16,7 +16,10 @@ my_solr = solr_query.SolrQuery()
 meertens_names = {}
 
 PUNCTUATION_LIST = [',', ';', '.', ':', '[', ']', '(', ')', '"', "'", '-']
-PREFIXES = ['van', 'de', 'van der', 'van den', 'van de', 'den']
+
+# 64% of people don't have prefix in their name!, 35% have one of the prefixes in following list, Less than 1% have other prefixes 
+PREFIXES = ['van', 'de', 'van der', 'van den', 'van de', 'den']  
+
 # FREQ_NAMES = ['te', 'een', 'eende', 'voor', 'als', 'zijn', 'die', 'gulden', 'heeft',
 # 'gelegen', 'door', 'huis', 'kinderen', 'schepenen', 'wijlen', 'goederen',
 # 'haar',  'hij', 'andere', 'groot', 'genaamd', 'dochter', 'verkopen', 'sijn',
