@@ -63,6 +63,9 @@ def parse_notarial_acts(N=200922):
 def split_full_name(full_name):
     """
     uses a simple hueristic to split a full name into given name, prefix, family name
+    
+    
+    please note that except from 0.17% of family names, for the rest each family name is a single word!  
     :param full_name:
     :return:
     """
