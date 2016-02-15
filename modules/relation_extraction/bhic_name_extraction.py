@@ -5,7 +5,58 @@ from modules.basic_modules.myOrm import get_notarial_act
 __author__ = 'bijan'
 
 
-def parse_notarial_acts(N=200922):
+
+def parse_notarial_acts_for_names(N=200922):
+    """
+    parses through a list of notarial acts and for each notarial act, uses the api to retrieve the names
+    N: last record
+    :return:
+    """
+    csv_text = ';'.join(["id", "Given Name", "Prefix", "Family Name", "Evidence", "Location", "Date", "Notary_id", "Nummer", "FOLIO",
+                         "FOLIOTOT", "TOEGANG", "text", "\n"])
+
+    with open("name_extraction.csv", "a") as my_file:
+        my_file.write(csv_text)
+
+    name_id = 0
+    for row_id in xrange(1, N):
+        text_record = get_notarial_act(row_id)
+        txt = text_record['text1'] + ' ' + text_record['text2'] + ' ' + text_record['text3']
+        details = [text_record['place'], text_record['date'], str(text_record['id']), text_record['Nummer'],
+                   text_record['FOLIO'], text_record['FOLIOTOT'], text_record['TOEGANG'], txt]
+
+        url = 'http://swarmlab-srv01.unimaas.nl:20002/miss/ner/api/v1.0/miss_api_text?q=' + txt
+        url = url.encode('utf-8').replace('\\', '')
+        jsonurl = urlopen(url)
+        json_data = json.loads(jsonurl.read())
+        for extracted_ref in json_data.get("named_individuals",[]):
+            ref = split_full_name(extracted_ref['name'])
+
+
+            # all prefix words should start with small letter, otherwise something is going wrong!
+            if ref[0].split() and not all([w[0].isupper() for w in ref[0].split()]):
+                print "ERROR: Bad Extraction in first name ", '; '.join(ref)
+                break
+            if ref[1].split() and not all([w[0].islower() for w in ref[1].split()]):
+                print "ERROR: Bad Extraction in prefix ", '; '.join(ref)
+                break
+
+            name_id += 1
+            csv_text = str(name_id) + ';'
+            csv_text += ';'.join(ref) + ';'
+            start = max(extracted_ref['position'] - 2,0)
+            end = extracted_ref['position'] + len(extracted_ref['name'].split())+2
+            evidence_text = ' '.join(json_data['text'].split()[start : end ])
+            csv_text += evidence_text + ';'
+            csv_text += ';'.join(details)
+            csv_text += '\n'
+
+            with open("name_extraction.csv", "a") as my_file:
+                my_file.write(csv_text)
+
+
+
+def parse_notarial_acts_for_relationships(N=200922):
     """
     parses through a list of notarial acts and for each notarial act, uses the api to retrieve the relationships
     N: last record
@@ -60,6 +111,7 @@ def parse_notarial_acts(N=200922):
                 my_file.write(csv_text)
 
 
+
 def split_full_name(full_name):
     """
     uses a simple hueristic to split a full name into given name, prefix, family name
@@ -87,4 +139,4 @@ def split_full_name(full_name):
 
 
 if __name__ == "__main__":
-    parse_notarial_acts(10000)
+    parse_notarial_acts_for_names(10000)
