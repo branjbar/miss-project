@@ -28,7 +28,7 @@ This project addresses the problem of how to derive identities of persons and so
 
 ## Details
 * the `Modules` folder contains the basic modules needed to run HiDER.
-** `basic_modules/basic.py` connects to the MySQL database, runs queries, compares references, wraps data in form of nice format objects and compares vectors.
-** `basic_modules/myOrm` is an object-relational mapping to convert MySQL relational data to appropriate objects.
+* `basic_modules/basic.py` connects to the MySQL database, runs queries, compares references, wraps data in form of nice format objects and compares vectors.
+* `basic_modules/myOrm` is an object-relational mapping to convert MySQL relational data to appropriate objects.
 * The `NERD` folder deals with natural language processing. 
 * `NERD/dict_based_nerd.py` contains most of the dictionary-based name and relationship extraction files.
